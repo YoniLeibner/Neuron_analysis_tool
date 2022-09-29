@@ -1,0 +1,3 @@
+neuron>=7.8.1
+matplotlib>=2.2.3
+numpy>=1.19.0
