@@ -96,11 +96,14 @@ print('run')
 # plt.show()
 
 
-analyser.plot_attanuation(protocol=long_pulse_protocol, ax=None, seg_to_indicate=[bif_seg],
-                          initial_seg =None, record_to_value_func=None, norm=True)
-plt.show()
+# analyser.plot_attanuation(protocol=long_pulse_protocol, ax=None, seg_to_indicate=[bif_seg],
+#                           initial_seg =None, record_to_value_func=None, norm=True)
+# plt.show()
+#
+# analyser.plot_attanuation(protocol=long_pulse_protocol, ax=None, seg_to_indicate=[bif_seg],
+#                           initial_seg =cell.apic[60](0.5), record_to_value_func=None, norm=True)
+# plt.show()
 
-analyser.plot_attanuation(protocol=long_pulse_protocol, ax=None, seg_to_indicate=[bif_seg],
-                          initial_seg =cell.apic[60](0.5), record_to_value_func=None, norm=True)
-plt.show()
+# analyser.create_morph_movie(cut_start_ms=1998.0, fps=1, clip_name='clip_3')
+analyser.create_morph_movie2(cut_start_ms=1998.0, fps=1, clip_name='clip2_2')
 

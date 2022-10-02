@@ -80,14 +80,16 @@ def cell_to_points(cell, color_func, rotation_matrix=np.eye(3), rotation_matrix_
     return all_points
 
 
-def plot(ax, all_points, norm, cmap, add_nums=False, seg_to_indicate={}, counter=None, diam_factor=None):
+def plot(ax, all_points, norm, cmap, add_nums=False, seg_to_indicate={}, counter=None, diam_factor=None, animated=False):
+    lines=[]
+    segs = []
     for sec in all_points:
         for i in all_points[sec]:
 
             x=i['x']
             y=i['y']
             c = i['color']
-            d = i['diam']
+            # d = i['diam']
             seg = i['seg']
             diam = seg.diam
             if diam_factor is None:
@@ -95,9 +97,10 @@ def plot(ax, all_points, norm, cmap, add_nums=False, seg_to_indicate={}, counter
             else:
                 diam*=diam_factor
             if norm is None:
-                ax.plot(x, y, color=c, linewidth=diam, zorder=1)
+                lines.append(ax.plot(x, y, color=c, linewidth=diam, zorder=1)[0])
             else:
-                ax.plot(x, y, color=cmap(norm(c)), linewidth=diam, zorder=1)
+                lines.append(ax.plot(x, y, color=cmap(norm(c)), linewidth=diam, zorder=1)[0])
+            segs.append(seg)
             # prev_point = cur_point
 
             if seg in seg_to_indicate.keys():
@@ -108,7 +111,7 @@ def plot(ax, all_points, norm, cmap, add_nums=False, seg_to_indicate={}, counter
             txt = ax.text(x=x[1] + 1, y=y[1] + 1, z=z[1] + 1, s=str(num), color=color, fontsize=5)
             txt.set_path_effects([path_effects.withStroke(linewidth=1, foreground='k')])
 
-    return ax
+    return ax, lines, segs
 
 def get_norm(all_vals):
     norm = mpl.colors.Normalize(vmin=np.min(all_vals), vmax=np.max(all_vals))
@@ -133,8 +136,6 @@ def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate=
     rotation_matrix = rotation_matrix_from_vectors(V0, V1)
     rotation_matrix_2d = get_rotation_matrix_2d(theta)
 
-    print(theta)
-    print(rotation_matrix_2d)
     all_points = cell_to_points(cell, color_func=color_func, rotation_matrix=rotation_matrix, rotation_matrix_2d=rotation_matrix_2d, ignore_sections=ignore_sections)
     if sec_to_change is not None:
         for sec in all_points.keys():
@@ -156,33 +157,32 @@ def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate=
         fig = plt.figure(figsize=(20, 20))
         ax = plt.axes()
 
-    if norm_colors:
+    if norm_colors and bounds is not None:
         all_color_vals = []
         for sec in all_points:
             for i, d in enumerate(all_points[sec]):
-                if norm_colors and bounds is not None:
-                    if all_points[sec][i]['color'] > bounds[1]:
-                        print('changed val to ',sec, all_points[sec][i]['color'] , 'to', bounds[1])
-                        all_points[sec][i]['color'] = bounds[1]
+                if all_points[sec][i]['color'] > bounds[1]:
+                    print('changed val to ',sec, all_points[sec][i]['color'] , 'to', bounds[1])
+                    all_points[sec][i]['color'] = bounds[1]
 
-                    if all_points[sec][i]['color'] < bounds[0]:
-                        print('changed val to ',sec, all_points[sec][i]['color'] , 'to', bounds[0])
-                        all_points[sec][i]['color'] = bounds[0]
+                if all_points[sec][i]['color'] < bounds[0]:
+                    print('changed val to ',sec, all_points[sec][i]['color'] , 'to', bounds[0])
+                    all_points[sec][i]['color'] = bounds[0]
                 all_color_vals.append(all_points[sec][i]['color'])
 
-        if bounds is None:
-            norm = get_norm(all_color_vals)
-        else:
-            norm = get_norm(bounds)
+
+        norm = get_norm(all_color_vals)
+    elif norm_colors:
+        norm = get_norm(bounds)
     else:
         norm=None
 
     # todo change x, y values to electrical units
-    ax=plot(ax, all_points, norm=norm, cmap=cmap, add_nums=add_nums, seg_to_indicate=seg_to_indicate, counter=counter, diam_factor=diam_factor)
+    ax, lines, segs=plot(ax, all_points, norm=norm, cmap=cmap, add_nums=add_nums, seg_to_indicate=seg_to_indicate, counter=counter, diam_factor=diam_factor)
     if norm_colors and plot_color_bar:
         cax = fig.add_axes([0.95, 0.2, 0.02, 0.6])
         cb = mpl.colorbar.ColorbarBase(cax, cmap=cmap, norm=norm, spacing='uniform')
         # cb.set_label('param')
     else:
         cb=None
-    return fig, ax, cb, all_points
+    return fig, ax, cb, all_points, lines, segs
