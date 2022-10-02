@@ -105,5 +105,5 @@ print('run')
 # plt.show()
 
 # analyser.create_morph_movie(cut_start_ms=1998.0, fps=1, clip_name='clip_3')
-analyser.create_morph_movie2(cut_start_ms=1998.0, fps=1, clip_name='clip2_2')
+analyser.create_morph_movie2(cut_start_ms=1998.0, fps=25, clip_name='clip2_2')
 

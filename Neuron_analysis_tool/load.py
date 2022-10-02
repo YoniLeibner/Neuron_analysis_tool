@@ -250,13 +250,13 @@ class Analyzer():
                 # fig.canvas.blit(fig.bbox)
                 # fig.canvas.flush_events()
             return lines
-        print(int(total_len_idx*h.dt/fps), int(1.0/fps))
+        print(int(total_len_idx*h.dt*fps), int(1.0/fps))
         anim = animation.FuncAnimation(fig, make_frame,
-                                       frames=int(total_len_idx*h.dt/fps),
+                                       frames=int(total_len_idx*h.dt*fps),
                                        interval=int(1.0/fps),
                                        blit=True)
         # saving to m4 using ffmpeg writer
-        anim.save(os.path.join(save_to, clip_name+'.mp4'), writer='ffmpeg', fps=fps)
+        anim.save(os.path.join(save_to, clip_name+'.gif'), writer='PillowWriter', fps=fps)
 
         # writervideo = animation.FFMpegWriter(fps=fps)
         # ani.save(os.path.join(save_to, clip_name+'.mp4'), writer=writervideo)
