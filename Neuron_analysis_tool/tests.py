@@ -1,5 +1,6 @@
 from Neuron_analysis_tool.load import Analyzer, long_pulse_protocol
 from neuron import gui, h
+import numpy as np
 import os
 import matplotlib.pyplot as plt
 
@@ -66,7 +67,6 @@ for sec in cell.all:
             parts_dict['else'].append(seg)
 
 analyser = Analyzer(cell, parts_dict, colors_dict)
-print(len(cell.axon))
 # analyser.plot_morph()
 
 def test1_func(seg):
@@ -105,5 +105,16 @@ print('run')
 # plt.show()
 
 # analyser.create_morph_movie(cut_start_ms=1998.0, fps=1, clip_name='clip_3')
-analyser.create_morph_movie2(cut_start_ms=1998.0, fps=25, clip_name='clip2_2')
+
+record_dict, time = analyser.record_protocol(cut_start_ms=1000.0)
+
+import timeit
+print('create_movie_from_rec, in seconds:',timeit.timeit(lambda:analyser.create_movie_from_rec(record_dict=record_dict, time=time, fps=1000, clip_name='spikes_land_mark_cp', threads=4, slow_down_factor=50, func_for_missing_frames=np.max, theta=-75), number=1))
+
+# print('create_morph_movie, in seconds:',timeit.timeit(lambda:analyser.create_morph_movie(cut_start_ms=1000.0, fps=10, clip_name='spikes_new_9', threads=4, slow_down_factor=100, func_for_missing_frames=np.max, theta=-75), number=1))
+# print('create_morph_movie2, in seconds:', timeit.timeit(lambda:analyser.create_morph_movie2(cut_start_ms=1000.0, fps=10, clip_name='spikes_new_5', threads=4, slow_down_factor=100, func_for_missing_frames=np.max, theta=-75), number=1))
+
+
+# analyser.create_morph_movie(cut_start_ms=1000.0, fps=100, clip_name='spikes_new_4', threads=4, slow_down_factor=100, func_for_missing_frames=np.mean)
+# analyser.create_morph_movie2(cut_start_ms=1000.0, fps=100, clip_name='spikes_new_4', threads=4, slow_down_factor=100, func_for_missing_frames=np.mean)
 

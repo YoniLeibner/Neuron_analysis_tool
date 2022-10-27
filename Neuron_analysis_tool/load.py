@@ -13,7 +13,10 @@ from moviepy.editor import VideoClip
 from moviepy.video.io.bindings import mplfig_to_npimage
 import os
 import matplotlib as mpl
+from tqdm import tqdm
+from io import BytesIO
 from matplotlib import animation
+from matplotlib.animation import FuncAnimation
 
 
 def seg_Rin_func(seg):
@@ -50,15 +53,73 @@ def short_pulse_protocol(cell, initial_seg):
     h.run()
     return h.tstop, delay, dur, amp
 
+def spike_protocol(cell, initial_seg):
+    spike_data = np.loadtxt(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data/spike.txt'))
+    dt=spike_data.T[0][1]-spike_data.T[0][0]
+    V = np.concatenate([np.zeros(int(1000.0/dt))]+[spike_data.T[1]]*20)
+    T = np.arange(0, len(V), 1) * dt
+    spike_vec = h.Vector(V)
+
+    clamp = h.SEClamp(initial_seg.x, sec=initial_seg.sec)
+    clamp.rs = 1e-3
+    clamp.dur1 = 1e9
+    spike_vec.play(clamp._ref_amp1, spike_data.T[0][1]-spike_data.T[0][0])
+
+    # delay=2000.0
+    # dur=2.0
+    # amp=4
+    h.tstop = T[-1]+20
+    h.v_init = cell.soma[0].e_pas
+    h.celsius = 37
+    h.run()
+    return h.tstop, 0, T[-1], 0
+
 
 class Analyzer():
 
-    def __init__(self, cell, parts_dict, colors_dict):
+    def __init__(self, cell=None, parts_dict=None, colors_dict=None, type='input_cell'):
+        if cell is None:
+            if type == 'Rall_tree':
+                cell, parts_dict, colors_dict = self.open_rall_tree()
+        assert parts_dict is not None
+        assert colors_dict is not None
         self.cell=cell
         self.parts_dict = parts_dict
         self.more_conductances = more_conductances_fake(cell)
         self.colors_dict = colors_dict
         self.colors = color_func(parts_dict=parts_dict, color_dict=colors_dict)
+
+    def open_rall_tree(self):
+        morph_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data/Rall_tree.swc')
+        hoc_file_name = 'allen_model.hoc'
+
+        h.celsius = 37
+        # Create the model
+        # h.load_file(model_path + hoc_file_name)
+        h.load_file("import3d.hoc")
+        h.load_file("nrngui.hoc")
+        h("objref cell, tobj")  # neuron object
+        h.load_file('allen_model.hoc')
+
+        h.execute("cell = new " + hoc_file_name[:-4] + "()")  # replace?
+        nl = h.Import3d_SWC_read()
+        nl.input(morph_path)
+        i3d = h.Import3d_GUI(nl, 0)
+        i3d.instantiate(h.cell)
+        cell=h.cell
+        parts_dict = dict(Rall_tree=list())
+        colors_dict = {'Rall_tree': 'k'}
+        for sec in cell.all:
+            sec.insert('pas')
+            sec.nseg = int(sec.L/10)+1
+            sec.e_pas=-70
+            sec.cm=1
+            sec.Ra=100
+            sec.g_pas=1.0/10000.0 # Rm=10000.0
+            for seg in sec:
+                parts_dict['Rall_tree'].append(seg)
+
+        return cell, parts_dict, colors_dict
 
     def plot_morph(self, ax=None, seg_to_indicate_dict = {}, diam_factor=None, sec_to_change=None, ignore_sections=[], theta=0, scale=0):
         if ax is None:
@@ -147,13 +208,7 @@ class Analyzer():
                 value_dict[seg] = func(seg)
         return self.plot_morph_with_values(value_dict)[:2]
 
-    def create_morph_movie(self, protocol=short_pulse_protocol, cut_start_ms=0, record_name='v',
-                            seg_to_indicate_dict=dict(), diam_factor=None,
-                            sec_to_change=None, ignore_sections=[], theta=0, scale=0, cmap=plt.cm.turbo,
-                            plot_color_bar=True, save_to='', clip_name='clip', fps=None):
-        mpl.use('TkAgg')
-        import matplotlib.style as mplstyle
-        mplstyle.use('fast')
+    def record_protocol(self, protocol=spike_protocol, cut_start_ms=0, record_name='v'):
         record_dict = dict()
         for sec in self.cell.all:
             record_dict[sec] = dict()
@@ -163,7 +218,8 @@ class Analyzer():
                     record_dict[sec][seg.x].record(getattr(sec(seg.x), '_ref_' + record_name))
                 except:
                     record_dict[sec][seg.x] = None
-
+        time = h.Vector()
+        time.record(h._ref_t)
         tstop, delay, dur, amp = protocol(self.cell, self.cell.soma[0](0.5))
         total_len_idx = int((tstop - cut_start_ms) / h.dt)
         for sec in self.cell.all:
@@ -172,10 +228,25 @@ class Analyzer():
                     record_dict[sec][seg.x] = np.zeros(total_len_idx)
                 else:
                     record_dict[sec][seg.x] = np.array(record_dict[sec][seg.x])[int(cut_start_ms / h.dt):]
+        time = np.array(time)[int(cut_start_ms / h.dt):]
+        time -= time[0]
+        return record_dict, time
 
+
+    def create_movie_from_rec(self, record_dict, time, seg_to_indicate_dict=dict(), diam_factor=None,
+                            sec_to_change=None, ignore_sections=[], theta=0, scale=500, cmap=plt.cm.turbo,
+                            plot_color_bar=True, save_to='', clip_name='clip', fps=None, threads=4, preset = 'ultrafast', slow_down_factor=1, func_for_missing_frames=np.mean):
+
+        mpl.use('TkAgg')
+        import matplotlib.style as mplstyle
+        mplstyle.use('fast')
+        time /= 1000.0
+        time *= slow_down_factor
         min_value = np.min([np.min(record_dict[sec][pos]) for sec in record_dict for pos in record_dict[sec]])
         max_value = np.max([np.max(record_dict[sec][pos]) for sec in record_dict for pos in record_dict[sec]])
-        fig, ax = plt.subplots()
+        max_value = min_value+10#################remove this part#################
+        ax = plt.gca()
+        fig = ax.get_figure()
         value_dict = dict()
         for sec in self.cell.all:
             for seg in sec:
@@ -189,82 +260,112 @@ class Analyzer():
                                                                               theta=theta, scale=scale, cmap=cmap,
                                                                               plot_color_bar=plot_color_bar,
                                                                               bounds=[min_value, max_value])
+        segs = np.array(segs)
+        lines = np.array(lines)
+        lim_x = ax.get_xlim()
+        lim_y = ax.get_ylim()
+        time_text = ax.text(lim_x[0], lim_y[0], 'time: 0.0 (ms)')
+        self.last_t = 0
 
-        def make_frame(t):
-            time_loc = int(t / h.dt)
-            norm = get_norm([min_value, max_value])
-            for line, seg in zip(lines, segs):
-                line.set_color(cmap(norm(record_dict[seg.sec][seg.x][time_loc])))
+        # def make_frame(t):  # get the correct index
+        #     time_loc = np.where(time >= t)[0][0]
+        #     prev_time_loc = np.where(time >= self.last_t)[0][0]
+        #     self.last_t = t
+        #     norm = get_norm([min_value, max_value])
+        #     for line, seg in zip(lines, segs):
+        #         if prev_time_loc == time_loc:
+        #             line.set_color(cmap(norm(record_dict[seg.sec][seg.x][time_loc])))
+        #         else:
+        #             line.set_color(
+        #                 cmap(norm(func_for_missing_frames(record_dict[seg.sec][seg.x][prev_time_loc:time_loc]))))
+        #     time_text.set_text('time: ' + str(round(t / slow_down_factor * 1000, 1)) + ' (ms)')
+        #     a=mplfig_to_npimage(fig)
+        #     return mplfig_to_npimage(fig)
 
-            return mplfig_to_npimage(fig)
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
 
-        animation = VideoClip(make_frame, duration=tstop - cut_start_ms)
-        # animation.write_videofile(os.path.join(save_to, clip_name+'.mp4'), fps=int(1.0/h.dt) if fps is None else fps)
-        animation.write_gif(os.path.join(save_to, clip_name + '.gif'), fps=int(1.0 / h.dt) if fps is None else fps)
-        mpl.use('Qt5Agg')
 
-    def create_morph_movie2(self, protocol=short_pulse_protocol, cut_start_ms=0, record_name='v',
-                                   seg_to_indicate_dict=dict(), diam_factor=None,
-                                   sec_to_change=None, ignore_sections=[], theta=0, scale=0, cmap=plt.cm.turbo,
-                                   plot_color_bar=True, save_to='', clip_name='clip', fps=None):
-        mpl.use('TkAgg')
-        import matplotlib.style as mplstyle
-        mplstyle.use('fast')
-        record_dict = dict()
-        for sec in self.cell.all:
-            record_dict[sec] = dict()
-            for seg in sec:
-                try:
-                    record_dict[sec][seg.x] = h.Vector()
-                    record_dict[sec][seg.x].record(getattr(sec(seg.x), '_ref_'+record_name))
-                except:
-                    record_dict[sec][seg.x]=None
+        norm = get_norm([min_value, max_value])
+        fig1, ax1 = plt.subplots()
+        cax = fig1.add_axes([0.90, 0.2, 0.02, 0.6])
+        cb = mpl.colorbar.ColorbarBase(cax, cmap=cmap, norm=norm, spacing='uniform')
 
-        tstop, delay, dur, amp = protocol(self.cell, self.cell.soma[0](0.5))
-        total_len_idx = int((tstop-cut_start_ms)/h.dt)
-        for sec in self.cell.all:
-            for seg in sec:
-                if record_dict[sec][seg.x] is None:
-                    record_dict[sec][seg.x] = np.zeros(total_len_idx)
-                else:
-                    record_dict[sec][seg.x] = np.array(record_dict[sec][seg.x])[int(cut_start_ms/h.dt):]
+        if not scale == 0:
+            ax1.plot([xlim[0], xlim[0]], [ylim[0], ylim[0] + scale], color='k')
 
-        min_value = np.min([np.min(record_dict[sec][pos]) for sec in record_dict for pos in record_dict[sec]])
-        max_value = np.max([np.max(record_dict[sec][pos]) for sec in record_dict for pos in record_dict[sec]])
-        fig, ax = plt.subplots()
-        value_dict = dict()
-        for sec in self.cell.all:
-            for seg in sec:
-                value_dict[seg] = record_dict[sec][seg.x][0]
+        ax1.set_xlim(xlim)
+        ax1.set_ylim(ylim)
+        ax1.grid(False)
+        ax1.set_xticks([])
+        ax1.set_yticks([])
+        ax1.set_axis_off()
+        cb_fig = mplfig_to_npimage(fig1)
+        cb_mask = ~(cb_fig.sum(axis=2)==765)
+        a=1
 
-        ax, color_bar, points_dict, lines, segs = self.plot_morph_with_values(value_dict, ax=ax, seg_to_indicate_dict=seg_to_indicate_dict, diam_factor=diam_factor,
-                   sec_to_change=sec_to_change, ignore_sections=ignore_sections, theta=theta, scale=scale, cmap=cmap,
-                   plot_color_bar=plot_color_bar, bounds=[min_value, max_value])
+        lines_data = []
+        seg_list = np.unique(segs)
+        for seg in tqdm(seg_list, desc='optimizing lines'):
+            fig1, ax1 = plt.subplots()
+            cax = fig1.add_axes([0.90, 0.2, 0.02, 0.6])
+            for line in lines[segs==seg]:
+                ax1.plot(line.get_xdata(), line.get_ydata(), lw=line.get_linewidth())
+            ax1.set_xlim(xlim)
+            ax1.set_ylim(ylim)
+            for a in [ax1, cax]:
+                a.grid(False)
+                a.set_xticks([])
+                a.set_yticks([])
+                a.set_axis_off()
+            np_fig = mplfig_to_npimage(fig1)
+            mask = ~(np_fig.sum(axis=2)==765)
+            lines_data.append(dict(mask=mask, seg=seg))
 
-        def make_frame(t):
-            time_loc = int(t/h.dt)
-            norm=get_norm([min_value, max_value])
-            for line, seg in zip(lines, segs):
-                line.set_color(cmap(norm(record_dict[seg.sec][seg.x][time_loc])))
-                # ax.draw_artist(line)
-                # fig.canvas.blit(fig.bbox)
-                # fig.canvas.flush_events()
-            return lines
-        print(int(total_len_idx*h.dt*fps), int(1.0/fps))
-        anim = animation.FuncAnimation(fig, make_frame,
-                                       frames=int(total_len_idx*h.dt*fps),
-                                       interval=int(1.0/fps),
-                                       blit=True)
-        # saving to m4 using ffmpeg writer
-        anim.save(os.path.join(save_to, clip_name+'.gif'), writer='PillowWriter', fps=fps)
+        np_shape = np_fig.shape
 
-        # writervideo = animation.FFMpegWriter(fps=fps)
-        # ani.save(os.path.join(save_to, clip_name+'.mp4'), writer=writervideo)
         plt.close()
-        mpl.use('Qt5Agg')
 
-    def plot_morph_with_value_func_after_protocol(self, func=seg_Rin_func, run_time=0):
-        pass
+        def make_frame(t):  # get the correct index
+            time_loc = np.where(time >= t)[0][0]
+            prev_time_loc = np.where(time >= self.last_t)[0][0]
+            self.last_t = t
+
+            base = np.zeros(np_shape)+255
+            for line_data in lines_data:
+                seg = line_data['seg']
+                mask = line_data['mask']
+                if prev_time_loc == time_loc:
+                    color = cmap(norm(record_dict[seg.sec][seg.x][time_loc]))[:3]
+                else:
+                    color = cmap(norm(func_for_missing_frames(record_dict[seg.sec][seg.x][prev_time_loc:time_loc])))[:3]
+                base[mask] = (np.array(color) * 255).astype(int)
+
+            base[cb_mask] = cb_fig[cb_mask]
+            return base
+
+        animation = VideoClip(make_frame, duration=time[-1])
+        animation.write_videofile(os.path.join(save_to, clip_name + '.mp4'),
+                                  fps=int(1000.0 / h.dt) if fps is None else fps / slow_down_factor, threads=threads,
+                                  audio=False, preset=preset)
+        mpl.use('Qt5Agg')
+        # self.last_t = 0
+        # animation.write_gif(os.path.join(save_to, clip_name + '.gif'), fps=int(1.0 / h.dt) if fps is None else fps/slow_down_factor)
+
+    def create_morph_movie(self, protocol=spike_protocol, cut_start_ms=0, record_name='v',
+                            seg_to_indicate_dict=dict(), diam_factor=None,
+                            sec_to_change=None, ignore_sections=[], theta=0, scale=0, cmap=plt.cm.turbo,
+                            plot_color_bar=True, save_to='', clip_name='clip', fps=None, threads=4, preset = 'ultrafast', slow_down_factor=1, func_for_missing_frames=np.mean):
+
+        record_dict, time = self.record_protocol(protocol=protocol, cut_start_ms=cut_start_ms, record_name=record_name)
+
+        self.create_movie_from_rec(record_dict=record_dict, time=time, fps=fps, clip_name=clip_name,
+                                       threads=threads, slow_down_factor=slow_down_factor, func_for_missing_frames=func_for_missing_frames, theta=theta)
+
+
+
+    # def plot_morph_with_value_func_after_protocol(self, func=seg_Rin_func, run_time=0):
+    #     pass
 
     def plot_dendogram(self, initial_seg = None ,ax=None, dots_loc_seg = [], plot_legend=True, ignore_sections=[], electrical=False):
         if ax is None:

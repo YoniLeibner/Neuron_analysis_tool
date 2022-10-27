@@ -245,8 +245,10 @@ def add_syn(seg, g_AMPA, g_NMDA, delay=2000.0):
     return [AMPA, AMPA_con], [NMDA, NMDA_con], netstim
 
 def get_voltages():
-    NMDA = np.loadtxt('/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Hippocampus_new/graphs_for_fig2/voltages/NMDA.txt').T
-    AMPA = np.loadtxt('/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Hippocampus_new/graphs_for_fig2/voltages/AMPA.txt').T
+    import os
+    current_path = os.path.dirname(os.path.realpath(__file__))
+    NMDA = np.loadtxt(os.path.join(current_path, 'data/NMDA.txt')).T
+    AMPA = np.loadtxt(os.path.join(current_path, 'data/AMPA.txt')).T
     return NMDA[1], AMPA[1]
 
 def run_attenuation_ploter_syn(cell, seg_start, color_func, seg_length_function, more_conductances_, param_to_record='v', record_to_value_func=None, norm=False, delay=2000.0, do_NMDA=True, seg_to_indicate=dict()):
