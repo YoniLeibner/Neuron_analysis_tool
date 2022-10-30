@@ -90,7 +90,7 @@ class Analyzer():
         self.colors = color_func(parts_dict=parts_dict, color_dict=colors_dict)
 
     def open_rall_tree(self):
-        morph_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data/Rall_tree.swc')
+        morph_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data/Rall_tree5.swc')
         hoc_file_name = 'allen_model.hoc'
 
         h.celsius = 37
@@ -120,6 +120,13 @@ class Analyzer():
                 parts_dict['Rall_tree'].append(seg)
 
         return cell, parts_dict, colors_dict
+
+    def change_color_dict(self, colors_dict):
+        for part in self.parts_dict:
+            assert part in colors_dict
+
+        self.colors_dict = colors_dict
+        self.colors = color_func(parts_dict=self.parts_dict, color_dict=colors_dict)
 
     def plot_morph(self, ax=None, seg_to_indicate_dict = {}, diam_factor=None, sec_to_change=None, ignore_sections=[], theta=0, scale=0):
         if ax is None:
@@ -449,7 +456,7 @@ class Analyzer():
             ax.legend([], [], loc='best')
         return ax
 
-    def plot_attanuation(self, protocol=long_pulse_protocol, ax=None, seg_to_indicate=[], indication_color='orange', initial_seg =None, record_to_value_func=None, norm=True):
+    def plot_attanuation(self, protocol=long_pulse_protocol, ax=None, seg_to_indicate=[], indication_color='orange', initial_seg =None, record_to_value_func=None, norm=True, norm_by=1.0, **kwargs):
         if ax is None:
             ax = plt.gca()
         if initial_seg is None:
@@ -459,10 +466,10 @@ class Analyzer():
                           more_conductances=self.more_conductances, param_to_record='v',
                           record_to_value_func=record_to_value_func)
         tstop, delay, dur, amp = protocol(self.cell, initial_seg)
-        ax = att.plot(start_seg=initial_seg, norm=norm, cut_start=int((delay - 1) / h.dt),
-                      seg_to_indicate={seg:dict(size=30, color=indication_color, alpha=1) for seg in seg_to_indicate}, ax=ax)
+        ax, norm_by = att.plot(start_seg=initial_seg, norm=norm, norm_by=norm_by, cut_start=int((delay - 1) / h.dt),
+                      seg_to_indicate={seg:dict(size=30, color=indication_color, alpha=1) for seg in seg_to_indicate}, ax=ax, **kwargs)
         ax.set_yscale('log')
-        return ax
+        return ax, norm_by
 
     def create_card(self):
         pass

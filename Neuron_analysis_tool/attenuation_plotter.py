@@ -99,7 +99,7 @@ class attenuation:
         if not sec.parentseg() is None:
             done = self.compute_distances_helper(sec.parentseg().sec, parent_seg=seg, done=done, reverse=True)
 
-    def plot_helper(self, sec, parent_seg, done, ax, reverse=False, cut_start=20000, norm=1.0, seg_to_indicate=dict()):
+    def plot_helper(self, sec, parent_seg, done, ax, reverse=False, cut_start=20000, norm=1.0, seg_to_indicate=dict(), **kwargs):
         if sec in done:
             return done
         segs = list(sec)
@@ -108,7 +108,7 @@ class attenuation:
         if reverse and (sec is not self.cell.soma[0]):
             segs = segs[::-1]
             for son in sec.children():
-                done = self.plot_helper(son, parent_seg=parent_seg, done=done, ax=ax, cut_start=cut_start, norm=norm, seg_to_indicate=seg_to_indicate)
+                done = self.plot_helper(son, parent_seg=parent_seg, done=done, ax=ax, cut_start=cut_start, norm=norm, seg_to_indicate=seg_to_indicate, **kwargs)
 
         x, y = [self.distance_dict[parent_seg.sec][parent_seg]['l']], [self.record_to_value_func(np.array(self.record_dict[parent_seg.sec][parent_seg])[cut_start:])/norm]
         for seg in segs:
@@ -117,17 +117,17 @@ class attenuation:
             y.append(self.record_to_value_func(np.array(self.record_dict[sec][seg])[cut_start:])/norm)
             if seg in seg_to_indicate.keys():
                 ax.scatter(x[-1], y[-1], color=seg_to_indicate[seg]['color'], s=seg_to_indicate[seg]['size'], zorder=10)
-            ax.plot(x[-2:], y[-2:], color=c)
+            ax.plot(x[-2:], y[-2:], color=c, **kwargs)
         if reverse:
             if not sec.parentseg() is None:
-                done = self.plot_helper(sec.parentseg().sec, parent_seg=seg, done=done, reverse=True, ax=ax, cut_start=cut_start, norm=norm, seg_to_indicate=seg_to_indicate)
+                done = self.plot_helper(sec.parentseg().sec, parent_seg=seg, done=done, reverse=True, ax=ax, cut_start=cut_start, norm=norm, seg_to_indicate=seg_to_indicate, **kwargs)
         else:
             for son in sec.children():
-                done = self.plot_helper(son, parent_seg=seg, done=done, ax=ax, cut_start=cut_start, norm=norm, seg_to_indicate=seg_to_indicate)
+                done = self.plot_helper(son, parent_seg=seg, done=done, ax=ax, cut_start=cut_start, norm=norm, seg_to_indicate=seg_to_indicate, **kwargs)
         return done
 
 
-    def plot(self, start_seg=None, ax=None, cut_start=20000, norm=False, seg_to_indicate=dict()):
+    def plot(self, start_seg=None, ax=None, cut_start=20000, norm=False, seg_to_indicate=dict(), norm_by=1.0, **kwargs):
         if start_seg is None:
             segs = list(self.cell.soma[0])
             start_seg = segs [len(segs)//2]
@@ -139,10 +139,8 @@ class attenuation:
         segs = list(sec)
         done=set()
         done.add(sec)
-        norm_by=1.0
         if norm:
             norm_by = self.record_to_value_func(np.array(self.record_dict[sec][start_seg])[cut_start:])
-            print('norm by :', norm_by)
         x, y = [self.distance_dict[sec][start_seg]['l']], [self.record_to_value_func(np.array(self.record_dict[sec][start_seg])[cut_start:])/norm_by]
         for seg in segs:
             if seg.x > start_seg.x:
@@ -151,10 +149,10 @@ class attenuation:
                 y.append(self.record_to_value_func(np.array(self.record_dict[sec][seg])[cut_start:])/norm_by)
                 if seg in seg_to_indicate.keys():
                     ax.scatter(x[-1], y[-1], color=seg_to_indicate[seg]['color'], s=seg_to_indicate[seg]['size'], zorder=10)
-                ax.plot(x[-2:], y[-2:], color=c)
+                ax.plot(x[-2:], y[-2:], color=c, **kwargs)
         #now we go to the sones and
         for son in sec.children():
-            done = self.plot_helper(son, parent_seg=seg, done=done, ax=ax, cut_start=cut_start, norm=norm_by, seg_to_indicate=seg_to_indicate)
+            done = self.plot_helper(son, parent_seg=seg, done=done, ax=ax, cut_start=cut_start, norm=norm_by, seg_to_indicate=seg_to_indicate, **kwargs)
 
         x, y = [self.distance_dict[sec][start_seg]['l']], [self.record_to_value_func(np.array(self.record_dict[sec][start_seg])[cut_start:])/norm_by]
         for seg in segs[::-1]:
@@ -164,10 +162,10 @@ class attenuation:
                 y.append(self.record_to_value_func(np.array(self.record_dict[sec][seg])[cut_start:])/norm_by)
                 if seg in seg_to_indicate.keys():
                     ax.scatter(x[-1], y[-1], color=seg_to_indicate[seg]['color'], s=seg_to_indicate[seg]['size'], zorder=10)
-                ax.plot(x[-2:], y[-2:], color=c)
+                ax.plot(x[-2:], y[-2:], color=c, **kwargs)
         if not sec.parentseg() is None:
-            done = self.plot_helper(sec.parentseg().sec, parent_seg=seg, done=done, reverse=True, ax=ax, cut_start=cut_start, norm=norm_by, seg_to_indicate=seg_to_indicate)
-        return ax
+            done = self.plot_helper(sec.parentseg().sec, parent_seg=seg, done=done, reverse=True, ax=ax, cut_start=cut_start, norm=norm_by, seg_to_indicate=seg_to_indicate, **kwargs)
+        return ax, norm_by
 
 
 

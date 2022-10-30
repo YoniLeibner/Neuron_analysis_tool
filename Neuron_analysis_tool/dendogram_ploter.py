@@ -35,13 +35,24 @@ class Dendogram():
         for son in sons:
             if son not in self.roots_dict:
                 self.roots_dict[sec]['sons'].append(son)
-                self.roots_dict[son] = dict(start=start+section_length, is_root=False, parent=sec, sons=[], is_back=False)
+                if reverse:
+                    self.roots_dict[son] = dict(start=start, is_root=False, parent=sec, sons=[], is_back=False)
+                else:
+                    self.roots_dict[son] = dict(start=start+section_length, is_root=False, parent=sec, sons=[], is_back=False)
                 self.cumpute_distances_helper(son, reverse=False)
 
         if reverse and have_parent(sec):
             if sec.parentseg().sec not in self.roots_dict:
                 self.roots_dict[sec]['sons'].append(sec.parentseg().sec)
                 self.roots_dict[sec.parentseg().sec] = dict(start=start+section_length, is_root=False, parent=sec, sons=[], is_back=True)
+
+                for parent_son in sec.parentseg().sec.children():
+                    if parent_son not in self.roots_dict:
+                        self.roots_dict[sec]['sons'].append(parent_son)
+                        self.roots_dict[parent_son] = dict(start=start + section_length, is_root=False, parent=sec,
+                                                                    sons=[], is_back=True)
+                        self.cumpute_distances_helper(parent_son, reverse=False)
+
                 self.cumpute_distances_helper(sec.parentseg().sec, reverse=True)
 
     def cumpute_distances(self, base_seg):
@@ -63,10 +74,17 @@ class Dendogram():
             self.roots_dict[sec] = dict(start=length_r, is_root=False, parent=self.base_sec, sons=[], is_back=False)
             # self.roots_dict[sec] = dict(start=0, is_root=False, parent=self.base_sec, sons=[], is_back=False)
             self.cumpute_distances_helper(sec)
+
         if have_parent(self.base_sec):
             sec=self.base_sec.parentseg().sec
             self.roots_dict[self.base_sec]['sons'].append(sec)
             self.roots_dict[sec] = dict(start=length_l, is_root=False, parent=self.base_sec, sons=[], is_back=True)
+
+            for parent_son in self.base_sec.parentseg().sec.children():
+                if parent_son not in self.roots_dict:
+                    self.roots_dict[self.base_sec]['sons'].append(parent_son)
+                    self.roots_dict[parent_son] = dict(start=length_l, is_root=False, parent=sec, sons=[], is_back=True)
+                    self.cumpute_distances_helper(parent_son, reverse=False)
             # self.roots_dict[sec] = dict(start=0, is_root=False, parent=self.base_sec, sons=[], is_back=True)
             self.cumpute_distances_helper(sec, reverse=True)
 
@@ -162,7 +180,7 @@ class Dendogram():
             ax = plt.gca()
         x_pos = 0.0
         self.done_section = set()
-        mid_points = []
+        mid_points = {-1:[], 1:[]}
         mul=1
         colors, lengths = self.color_func(self.base_sec)
         for sec in self.roots_dict[self.base_sec]['sons']:
@@ -171,17 +189,28 @@ class Dendogram():
                 continue
             if self.base_sec == self.cell.soma[0]:
                 mul = (sec in self.cell.apic)*2-1
+                start_pos = self.roots_dict[self.base_sec]['length'][1] if sec in self.cell.apic else self.roots_dict[self.base_sec]['length'][0]
             else:
                 mul = -1 if self.roots_dict[sec]['is_back'] else 1
-
+                start_pos = self.roots_dict[self.base_sec]['length'][0] if sec in self.cell.apic else self.roots_dict[self.base_sec]['length'][1]
+            start_pos*=mul
             x_pos, mid_point = self.plot_section(sec, x_pos, ax=ax, mul=mul, ignore_sections=ignore_sections, num=0 if mul ==-1 else 1)
-            ax.plot([mid_point, mid_point ], [0, self.roots_dict[sec]['start']*mul], color=colors[0][0], linewidth=self.fix_diam if self.diam_factor is None else self.base_sec.diam *self.diam_factor)
-            mul*=-1
-            mid_points.append(mid_point)
 
-        y = [0.0, 0.0]
-        ax.plot([mid_points[0], mid_points[-1]], y, color=colors[0][0], linewidth=self.fix_diam if self.diam_factor is None else self.base_sec.diam *self.diam_factor)
-        plt.scatter(np.mean(mid_points), 0, color='k', s=10)
+            ax.plot([mid_point, mid_point], [start_pos, self.roots_dict[sec]['start']*mul], color=colors[0][0], linewidth=self.fix_diam if self.diam_factor is None else self.base_sec.diam *self.diam_factor)
+            # mul*=-1
+            mid_points[mul].append(mid_point)
+
+        init_poses = self.roots_dict[self.base_sec]['length']
+
+        if len(mid_points[-1])>0:
+            ax.plot([np.mean(mid_points[-1])]*2, [0, init_poses[0]*-1], color=colors[0][0], linewidth=self.fix_diam if self.diam_factor is None else self.base_sec.diam * self.diam_factor)
+            ax.plot([mid_points[-1][0], mid_points[-1][-1]], [init_poses[0]*-1]*2, color=colors[0][0], linewidth=self.fix_diam if self.diam_factor is None else self.base_sec.diam *self.diam_factor)
+        if len(mid_points[1]) > 0:
+            ax.plot([np.mean(mid_points[1])]*2, [0, init_poses[1]], color=colors[0][0], linewidth=self.fix_diam if self.diam_factor is None else self.base_sec.diam * self.diam_factor)
+            ax.plot([mid_points[1][0], mid_points[1][-1]], [init_poses[1]]*2, color=colors[0][0], linewidth=self.fix_diam if self.diam_factor is None else self.base_sec.diam *self.diam_factor)
+
+        # y = [0.0, 0.0]
+        plt.scatter(np.mean(mid_points[-1]+mid_points[1]), 0, color='k', s=10)
         ax.set_xticks([])
 
         if plot_legend:
