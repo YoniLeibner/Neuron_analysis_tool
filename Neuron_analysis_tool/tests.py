@@ -7,7 +7,7 @@ from Neuron_analysis_tool.color_func import color_func
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 morph_path=os.path.join(dir_path,'data/morph.ASC')
-morph_path=os.path.join(dir_path,'data/Rall_tree5.swc')
+# morph_path=os.path.join(dir_path,'data/Rall_tree5.swc')
 # morph_path=os.path.join(dir_path,'data\\morph.ASC')
 hoc_file_name = 'allen_model.hoc'
 
@@ -42,7 +42,7 @@ apic = list(cell.apical)
 basal = list(cell.basal)
 all = cell.all
 bif_seg = cell.soma[0](0)
-# bif_seg = cell.apic[27](0.99)
+bif_seg = cell.apic[101](0.99)
 #segment Rc cercate every 5 um of morphology
 for sec in cell.all:
     sec.nseg = int(sec.L/10) + 1
@@ -73,15 +73,17 @@ for sec in cell.all:
             parts_dict['else'].append(seg)
 
 analyser = Analyzer(cell, parts_dict, colors_dict)
-# analyser.plot_morph()
-
+# analyser.plot_morph(theta=-75)
+# plt.show()
 def test1_func(seg):
     imp = h.Impedance(seg.x, sec=seg.sec)
     imp.loc(seg.x, sec=seg.sec)
     imp.compute(0, 1)
-    return imp.transfer(bif_seg.x, sec=bif_seg.sec)
+    return imp.input(seg.x, sec=seg.sec)
+    # return imp.transfer(bif_seg.x, sec=bif_seg.sec)
 
-# analyser.plot_morph_with_value_func(func = test1_func, run_time=1000)
+# analyser.plot_morph_with_value_func(func = test1_func, run_time=1000, theta=-75)
+# analyser.plot_morph_with_value_func(run_time=1000, theta=-75)
 # plt.show()
 
 # analyser.plot_dendogram(electrical=True)
@@ -111,22 +113,26 @@ def test1_func(seg):
 # plt.show()
 
 
-fig, ax = plt.subplots(1, 1, figsize=(10, 10))
-colors_dict2 = {'soma':'k', 'basal':'b', 'apical':'b', 'axon':'b', 'else':'b'}
-
-analyser.change_color_dict(colors_dict2)
-
-ax, norm_by = analyser.plot_attanuation(protocol=long_pulse_protocol, ax=ax, seg_to_indicate=[bif_seg],
-                          initial_seg =list(apic[29])[-1], record_to_value_func=None, norm=True)
-
-colors_dict3 = {'soma':'pink', 'basal':'r', 'apical':'r', 'axon':'r', 'else':'r'}
-analyser.change_color_dict(colors_dict3)
-analyser.plot_attanuation(protocol=long_pulse_protocol, ax=ax, seg_to_indicate=[bif_seg],
-                          initial_seg =list(soma)[0], record_to_value_func=None, norm=False, norm_by=norm_by, ls='--', dashes=(1, 200))
-plt.show()
-analyser.change_color_dict(colors_dict)
-exit(0)
+# fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+# colors_dict2 = {'soma':'k', 'basal':'b', 'apical':'b', 'axon':'b', 'else':'b'}
+#
+# analyser.change_color_dict(colors_dict2)
+#
+# ax, norm_by = analyser.plot_attanuation(protocol=long_pulse_protocol, ax=ax, seg_to_indicate=[bif_seg],
+#                           initial_seg =list(apic[29])[-1], record_to_value_func=None, norm=True)
+#
+# colors_dict3 = {'soma':'pink', 'basal':'r', 'apical':'r', 'axon':'r', 'else':'r'}
+# analyser.change_color_dict(colors_dict3)
+# analyser.plot_attanuation(protocol=long_pulse_protocol, ax=ax, seg_to_indicate=[bif_seg],
+#                           initial_seg =list(soma)[0], record_to_value_func=None, norm=False, norm_by=norm_by, ls='--', dashes=(1, 200))
+# plt.show()
+# analyser.change_color_dict(colors_dict)
+# exit(0)
 
 # analyser.create_morph_movie(cut_start_ms=1998.0, fps=1, clip_name='clip_3')
 
+
 record_dict, time = analyser.record_protocol(cut_start_ms=1000.0)
+
+import timeit
+print('create_movie_from_rec, in seconds:',timeit.timeit(lambda:analyser.create_movie_from_rec2(record_dict=record_dict, time=time, fps=1000, clip_name='spikes_land_mark_optim2', threads=4, slow_down_factor=50, func_for_missing_frames=np.max, theta=-75), number=1))

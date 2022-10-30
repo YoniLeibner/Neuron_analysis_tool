@@ -1,5 +1,6 @@
 README.txt
 setup.py
+Neuron_analysis_tool/Rall_tree.py
 Neuron_analysis_tool/attenuation_plotter.py
 Neuron_analysis_tool/cables_bi_direction.py
 Neuron_analysis_tool/color_func.py
@@ -7,7 +8,10 @@ Neuron_analysis_tool/dendogram_ploter.py
 Neuron_analysis_tool/load.py
 Neuron_analysis_tool/more_conductances.py
 Neuron_analysis_tool/morph_ploter.py
+Neuron_analysis_tool/peeler.py
 Neuron_analysis_tool/tests.py
+Neuron_analysis_tool/tests2.py
+Neuron_analysis_tool/tests_Rall_tree.py
 Neuron_analysis_tool/utils.py
 Neuron_analysis_tool.egg-info/PKG-INFO
 Neuron_analysis_tool.egg-info/SOURCES.txt

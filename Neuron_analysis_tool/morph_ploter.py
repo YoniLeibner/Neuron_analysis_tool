@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.patheffects as path_effects
 import matplotlib as mpl
+from tqdm import tqdm
+
 
 def rotation_matrix_from_vectors(vec1, vec2):
     """ Find the rotation matrix that aligns vec1 to vec2
@@ -85,7 +87,6 @@ def plot(ax, all_points, norm, cmap, add_nums=False, seg_to_indicate={}, counter
     segs = []
     for sec in all_points:
         for i in all_points[sec]:
-
             x=i['x']
             y=i['y']
             c = i['color']
@@ -157,30 +158,50 @@ def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate=
         fig = plt.figure(figsize=(20, 20))
         ax = plt.axes()
 
-    if norm_colors and bounds is not None:
+    if norm_colors and bounds is None:
         all_color_vals = []
         for sec in all_points:
             for i, d in enumerate(all_points[sec]):
-                if all_points[sec][i]['color'] > bounds[1]:
-                    print('changed val to ',sec, all_points[sec][i]['color'] , 'to', bounds[1])
-                    all_points[sec][i]['color'] = bounds[1]
-
-                if all_points[sec][i]['color'] < bounds[0]:
-                    print('changed val to ',sec, all_points[sec][i]['color'] , 'to', bounds[0])
-                    all_points[sec][i]['color'] = bounds[0]
+                # if all_points[sec][i]['color'] > bounds[1]:
+                #     print('changed val to ',sec, all_points[sec][i]['color'] , 'to', bounds[1])
+                #     all_points[sec][i]['color'] = bounds[1]
+                #
+                # if all_points[sec][i]['color'] < bounds[0]:
+                #     print('changed val to ',sec, all_points[sec][i]['color'] , 'to', bounds[0])
+                #     all_points[sec][i]['color'] = bounds[0]
                 all_color_vals.append(all_points[sec][i]['color'])
-
-
         norm = get_norm(all_color_vals)
     elif norm_colors:
         norm = get_norm(bounds)
     else:
         norm=None
 
+    # aggrigate_lines
+    all_points2 = dict()
+    for sec in tqdm(all_points, desc='optimizing lines'):
+        all_points2[sec] = list()
+        x=all_points[sec][0]['x']
+        y=all_points[sec][0]['y']
+        color = all_points[sec][0]['color']
+        current_seg = all_points[sec][0]['seg']
+        for point in all_points[sec]:
+            if point['seg'] == current_seg:
+                assert point['color'] == color
+                x.append(point['x'][1])
+                y.append(point['y'][1])
+            else:
+                all_points2[sec].append(dict(x=x, y=y, seg=current_seg, color=color))
+                x = point['x']
+                y = point['y']
+                color = point['color']
+                current_seg = point['seg']
+        all_points2[sec].append(dict(x=x, y=y, seg=current_seg, color=color))
+    all_points=all_points2
+
     # todo change x, y values to electrical units
     ax, lines, segs=plot(ax, all_points, norm=norm, cmap=cmap, add_nums=add_nums, seg_to_indicate=seg_to_indicate, counter=counter, diam_factor=diam_factor)
     if norm_colors and plot_color_bar:
-        cax = fig.add_axes([0.95, 0.2, 0.02, 0.6])
+        cax = fig.add_axes([0.9, 0.2, 0.02, 0.6])
         cb = mpl.colorbar.ColorbarBase(cax, cmap=cmap, norm=norm, spacing='uniform')
         # cb.set_label('param')
     else:
