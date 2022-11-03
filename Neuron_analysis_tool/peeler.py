@@ -17,6 +17,7 @@ class Peeler(object):
         self.buttoms_ax = plt.axes([0, 0.005, 0.1, 0.075])
         self.set_buttons()
         self.ready_to_fit = False
+        plt.show()
 
     def set_buttons(self):
         b1 = plt.axes([0.0, 0.005, 0.2, 0.075])
@@ -299,3 +300,6 @@ class Peeler(object):
                                 tau=self.tau,
                                 idx_fit_start=self.idx_fit_start,
                             ), open(data_save_name, 'wb'))
+
+a=Peeler()
+b=1

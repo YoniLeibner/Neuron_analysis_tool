@@ -200,15 +200,22 @@ class Dendogram():
             # mul*=-1
             mid_points[mul].append(mid_point)
 
-        init_poses = self.roots_dict[self.base_sec]['length']
+        # for mul in mid_points:
+        #     if len(mid_points[mul])==1 :
+        #         if mid_points[mul][0]<np.min(mid_points[mul*-1]):
+        #             mid_points[mul].append(np.min(mid_points[mul*-1]))
+        #         else:
+        #             mid_points[mul].append(np.max(mid_points[mul*-1]))
 
+        init_poses = self.roots_dict[self.base_sec]['length']
         if len(mid_points[-1])>0:
             ax.plot([np.mean(mid_points[-1])]*2, [0, init_poses[0]*-1], color=colors[0][0], linewidth=self.fix_diam if self.diam_factor is None else self.base_sec.diam * self.diam_factor)
             ax.plot([mid_points[-1][0], mid_points[-1][-1]], [init_poses[0]*-1]*2, color=colors[0][0], linewidth=self.fix_diam if self.diam_factor is None else self.base_sec.diam *self.diam_factor)
         if len(mid_points[1]) > 0:
             ax.plot([np.mean(mid_points[1])]*2, [0, init_poses[1]], color=colors[0][0], linewidth=self.fix_diam if self.diam_factor is None else self.base_sec.diam * self.diam_factor)
             ax.plot([mid_points[1][0], mid_points[1][-1]], [init_poses[1]]*2, color=colors[0][0], linewidth=self.fix_diam if self.diam_factor is None else self.base_sec.diam *self.diam_factor)
-
+        if len(mid_points[-1])>0 and len(mid_points[1]) > 0:
+            ax.plot([min(np.mean(mid_points[1]), np.mean(mid_points[-1])), max(np.mean(mid_points[1]), np.mean(mid_points[-1]))], [0] * 2, color=colors[0][0], linewidth=self.fix_diam if self.diam_factor is None else self.base_sec.diam * self.diam_factor)
         # y = [0.0, 0.0]
         plt.scatter(np.mean(mid_points[-1]+mid_points[1]), 0, color='k', s=10)
         ax.set_xticks([])

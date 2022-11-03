@@ -77,10 +77,17 @@ def spike_protocol(cell, initial_seg):
 
 class Analyzer():
 
-    def __init__(self, cell=None, parts_dict=None, colors_dict=None, type='input_cell'):
+    def __init__(self, cell=None, parts_dict=None, colors_dict=None, type='input_cell', morph_path = None, Rm=10000.0, Ra=100, Cm=1, e_pas=-70):
         if cell is None:
             if type == 'Rall_tree':
                 cell, parts_dict, colors_dict = self.open_rall_tree()
+            elif type == 'ASC' and morph_path:
+                cell, parts_dict, colors_dict = self.open_ASC(morph_path, Rm=Rm, Ra=Ra, Cm=Cm, e_pas=e_pas)
+            elif type == 'swc' and morph_path:
+                cell, parts_dict, colors_dict = self.open_swc(morph_path, Rm=Rm, Ra=Ra, Cm=Cm, e_pas=e_pas)
+            elif type == 'L5PC':
+                cell, parts_dict, colors_dict = self.open_L5PC()
+
         assert parts_dict is not None
         assert colors_dict is not None
         self.cell=cell
@@ -90,6 +97,7 @@ class Analyzer():
         self.colors = color_func(parts_dict=parts_dict, color_dict=colors_dict)
 
     def open_morph(self, morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, nl=None):
+        print('open_morph: ', morph_path)
         hoc_file_name = 'allen_model.hoc'
         h.celsius = 37
         # Create the model
@@ -106,10 +114,10 @@ class Analyzer():
         i3d.instantiate(h.cell)
         cell = h.cell
         parts_dict = dict(all=list())
-        colors_dict = {'all': 'k'}
+        colors_dict = {'all': 'b'}
         for sec in cell.all:
             sec.insert('pas')
-            sec.nseg = int(sec.L / 10) + 1
+            sec.nseg = int(sec.L / 20) + 1
             sec.e_pas = e_pas
             sec.cm = Cm
             sec.Ra = Ra
@@ -131,12 +139,45 @@ class Analyzer():
         cell, parts_dict, colors_dict = self.open_swc(morph_path)
         return cell, dict(Rall_tree = parts_dict['all']), dict(Rall_tree =colors_dict['all'])
 
+    def open_L5PC(self):
+        h.load_file("import3d.hoc")
+        morphology_file = "data/L5PC/cell1.asc"
+        h.load_file("data/L5PC/L5PCbiophys3.hoc")
+        h.load_file("data/L5PC/L5PCtemplate.hoc")
+        cell = h.L5PCtemplate(morphology_file)
+
+        parts_dict = {'soma': [], 'basal': [], 'apical': [], 'axon': [], 'else': []}
+        colors_dict = {'soma': 'k', 'basal': 'r', 'apical': 'b', 'axon': 'green', 'else': 'cyan'}
+        for sec in cell.all:
+            sec.nseg = int(sec.L / 20) + 1
+            for seg in sec:
+                if sec in cell.soma:
+                    parts_dict['soma'].append(seg)
+                elif sec in cell.dend:
+                    parts_dict['basal'].append(seg)
+                elif sec in cell.apic:
+                    parts_dict['apical'].append(seg)
+                elif sec in cell.axon:
+                    parts_dict['axon'].append(seg)
+                else:
+                    parts_dict['else'].append(seg)
+        return cell, parts_dict, colors_dict
+
     def change_color_dict(self, colors_dict):
         for part in self.parts_dict:
             assert part in colors_dict
 
         self.colors_dict = colors_dict
         self.colors = color_func(parts_dict=self.parts_dict, color_dict=colors_dict)
+
+
+    def change_parts_dict(self, parts_dict, colors_dict):
+        for part in parts_dict:
+            assert part in colors_dict
+        self.parts_dict = parts_dict
+        self.colors_dict = colors_dict
+        self.colors = color_func(parts_dict=self.parts_dict, color_dict=colors_dict)
+
 
     def plot_morph(self, ax=None, seg_to_indicate_dict = {}, diam_factor=None, sec_to_change=None, ignore_sections=[], theta=0, scale=0):
         if ax is None:
@@ -156,6 +197,8 @@ class Analyzer():
             x_lim = ax.get_xlim()
             y_lim = ax.get_ylim()
             ax.plot([x_lim[0], x_lim[0]], [y_lim[0], y_lim[0] + scale], color='k')
+            ax.text(x_lim[0]-20, y_lim[0], str(scale)+' (um)', rotation=90)
+            ax.set_xlim([x_lim[0] - 20, x_lim[1]])
         return ax
 
     def plot_morph_with_values(self, seg_val_dict, ax=None, seg_to_indicate_dict = {}, diam_factor=None,
@@ -188,6 +231,8 @@ class Analyzer():
             x_lim = ax.get_xlim()
             y_lim = ax.get_ylim()
             ax.plot([x_lim[0], x_lim[0]], [y_lim[0], y_lim[0] + scale], color='k')
+            ax.text(x_lim[0]-20, y_lim[0], str(scale)+' (um)', rotation=90)
+            ax.set_xlim([x_lim[0] - 20, x_lim[1]])
         return ax, color_bar, points_dict, lines, segs
 
 
@@ -213,9 +258,13 @@ class Analyzer():
             x_lim = ax.get_xlim()
             y_lim = ax.get_ylim()
             ax.plot([x_lim[0], x_lim[0]], [y_lim[0], y_lim[0] + scale], color='k')
+            ax.text(x_lim[0]-20, y_lim[0], str(scale)+' (um)', rotation=90)
+            ax.set_xlim([x_lim[0] - 20, x_lim[1]])
         return ax, color_bar
 
-    def plot_morph_with_value_func(self, func=seg_Rin_func, run_time=0, theta=0.0):
+    def plot_morph_with_value_func(self, func=seg_Rin_func, run_time=0, theta=0.0, diam_factor=None, cmap=plt.cm.turbo,
+                                   ax = None, seg_to_indicate_dict = {},
+                                   sec_to_change = None, ignore_sections = [], scale = 0, plot_color_bar = True, bounds = None):
         if run_time>0:
             h.tstop=run_time
             h.run()
@@ -223,7 +272,8 @@ class Analyzer():
         for part in self.parts_dict:
             for seg in self.parts_dict[part]:
                 value_dict[seg] = func(seg)
-        return self.plot_morph_with_values(value_dict, theta=theta)[:2]
+        return self.plot_morph_with_values(value_dict, theta=theta, diam_factor=diam_factor, cmap=cmap, ax=ax, seg_to_indicate_dict=seg_to_indicate_dict,
+                                            sec_to_change=sec_to_change, ignore_sections=ignore_sections, scale=scale, plot_color_bar=plot_color_bar, bounds=bounds)[:2]
 
     def record_protocol(self, protocol=spike_protocol, cut_start_ms=0, record_name='v'):
         record_dict = dict()
@@ -248,7 +298,6 @@ class Analyzer():
         time = np.array(time)[int(cut_start_ms / h.dt):]
         time -= time[0]
         return record_dict, time
-
 
     def create_movie_from_rec2(self, record_dict, time, seg_to_indicate_dict=dict(), diam_factor=None,
                             sec_to_change=None, ignore_sections=[], theta=0, scale=500, cmap=plt.cm.turbo,
@@ -350,20 +399,34 @@ class Analyzer():
         # self.last_t = 0
         # animation.write_gif(os.path.join(save_to, clip_name + '.gif'), fps=int(1.0 / h.dt) if fps is None else fps/slow_down_factor)
 
+    def save_movie_from_rec(self, record_dict, time, seg_to_indicate_dict=dict(), diam_factor=None,
+                              sec_to_change=None, ignore_sections=[], theta=0, scale=500, cmap=plt.cm.turbo,
+                              plot_color_bar=True, save_to='', clip_name='clip', fps=None, threads=4,
+                              preset='ultrafast', slow_down_factor=1, func_for_missing_frames=np.mean):
+
+        animation = self.create_movie_from_rec(record_dict, time, seg_to_indicate_dict, diam_factor,
+                              sec_to_change, ignore_sections, theta, scale, cmap,
+                              plot_color_bar, clip_name, fps, threads,
+                              preset, slow_down_factor, func_for_missing_frames)
+
+        animation.write_videofile(os.path.join(save_to, clip_name + '.mp4'),
+                              fps=int(1000.0 / h.dt) if fps is None else fps / slow_down_factor, threads=threads,
+                              audio=False, preset=preset)
 
 
     def create_movie_from_rec(self, record_dict, time, seg_to_indicate_dict=dict(), diam_factor=None,
                             sec_to_change=None, ignore_sections=[], theta=0, scale=500, cmap=plt.cm.turbo,
-                            plot_color_bar=True, save_to='', clip_name='clip', fps=None, threads=4, preset = 'ultrafast', slow_down_factor=1, func_for_missing_frames=np.mean):
+                            plot_color_bar=True, clip_name='clip', fps=None, threads=4, preset = 'ultrafast',
+                            slow_down_factor=1, func_for_missing_frames=np.mean):
 
-        mpl.use('TkAgg')
+        # mpl.use('TkAgg')
         import matplotlib.style as mplstyle
         mplstyle.use('fast')
         time /= 1000.0
         time *= slow_down_factor
         min_value = np.min([np.min(record_dict[sec][pos]) for sec in record_dict for pos in record_dict[sec]])
         max_value = np.max([np.max(record_dict[sec][pos]) for sec in record_dict for pos in record_dict[sec]])
-        max_value = min_value+10#################remove this part#################
+        # max_value = min_value+10#################remove this part#################
         ax = plt.gca()
         fig = ax.get_figure()
         value_dict = dict()
@@ -402,10 +465,9 @@ class Analyzer():
             return mplfig_to_npimage(fig)
 
         animation = VideoClip(make_frame, duration=time[-1])
-        animation.write_videofile(os.path.join(save_to, clip_name + '.mp4'),
-                                  fps=int(1000.0 / h.dt) if fps is None else fps / slow_down_factor, threads=threads,
-                                  audio=False, preset=preset)
-        mpl.use('Qt5Agg')
+
+        # mpl.use('Qt5Agg')
+        return animation
 
     def create_morph_movie(self, protocol=spike_protocol, cut_start_ms=0, record_name='v',
                             seg_to_indicate_dict=dict(), diam_factor=None,
@@ -435,7 +497,7 @@ class Analyzer():
                                diam_factor=None, s=10, fix_diam=1.)
         dendogram.cumpute_distances(initial_seg)
         max_y, x_pos = dendogram.plot(ax=ax, plot_legend=plot_legend, ignore_sections=ignore_sections)
-        return ax
+        return ax, x_pos
 
     def plot_cable(self, initial_seg = None ,ax=None,
                    factor_e_space=25, factor_m_space=10 ,
@@ -460,7 +522,6 @@ class Analyzer():
                                                         x_start=initial_seg.x,
                                                         more_conductions=self.more_conductances,
                                                         seg_dist_dict=seg_dist_dict,
-                                                        cross_dist_dict=[], # not implemented yet
                                                         part_dict=self.parts_dict,
                                                         ignore_sections=ignore_sections)
         max_cable = 0
@@ -478,25 +539,33 @@ class Analyzer():
             y = np.arange(0, len(cable), 1) / factor_e_space
 
             start_pos = -cable / 2.0 + shift
-
             for morph_part in self.parts_dict.keys():#'basal', 'tuft', 'trunk', 'oblique']:
+                remove_start_diam = False
                 part_cable = results[part][morph_part][cable_type].flatten() / factor
                 if cable_type == 'd3_2':
                     part_cable = results[part][morph_part][cable_type].flatten()
                     part_cable_befor_d_3_2 = np.power(part_cable, 3.0 / 2.0)
                     part_cable = cable * (part_cable_befor_d_3_2 / befor_d_3_2)
+                if np.nansum(part_cable) > 0 and part_cable[0] == 0:
+                    part_cable[0] = (results[part]['all'][cable_type].flatten() / factor)[0]
+                    remove_start_diam=True
+                    temp_=start_pos[0]
+                    start_pos[0] = -cable[0] / 2.0+shift
                 plot_cable = part_cable[part_cable > 0]
                 start_pos_temp = start_pos[part_cable > 0]
                 if x_axis:
                     ax.fill_betweenx(direction * y[part_cable > 0], start_pos_temp, start_pos_temp + plot_cable, label=morph_part, color=self.colors_dict[morph_part])
                 else:
                     ax.fill_between(direction * y[part_cable > 0], start_pos_temp, start_pos_temp + plot_cable, label=morph_part, color=self.colors_dict[morph_part])
+                if remove_start_diam:
+                    part_cable[0]=0
+                    start_pos[0] = temp_
                 start_pos += part_cable
         if x_axis:
             ax.scatter(shift, 0, s=dots_size, color=start_color, label='start')
         else:
             ax.scatter(0, shift, s=dots_size, color=start_color, label='start')
-        handles, labels = plt.gca().get_legend_handles_labels()
+        handles, labels = ax.get_legend_handles_labels()
         by_label = dict(zip(labels, handles))
         if plot_legend:
             ax.legend(by_label.values(), by_label.keys(), loc='best')
@@ -519,5 +588,37 @@ class Analyzer():
         ax.set_yscale('log')
         return ax, norm_by
 
-    def create_card(self):
-        pass
+    def create_card(self, initial_seg=None, theta=0, scale=500, factor_e_space=25, cable_type='d3_2', diam_factor=None, **kwargs):
+        fig, ax = plt.subplots(1, 4, figsize=(12, 3))
+        self.plot_morph(ax=ax[0], theta=theta, seg_to_indicate_dict={initial_seg:dict(size=50, color='green', alpha=1)}, scale=scale, diam_factor=diam_factor)
+        _, x_pos = self.plot_dendogram(initial_seg=initial_seg, ax=ax[1], electrical=True, plot_legend=False)
+        self.plot_cable(initial_seg=initial_seg, ax=ax[1], factor_e_space=factor_e_space, cable_type=cable_type, plot_legend=True, start_loc=x_pos+10)
+        for a in ax[1:]:
+            a.spines['top'].set_visible(False)
+            a.spines['right'].set_visible(False)
+        ax[1].set_axis_off()
+        x_lim = ax[1].get_xlim()
+        y_lim = ax[1].get_ylim()
+        ax[1].plot([x_lim[0], x_lim[0]+10], [y_lim[0], y_lim[0]], color='k')
+        if cable_type=='d3_2':
+            ax[1].text(x_lim[0], y_lim[0]-0.25, '10 (um)')
+        else:
+            ax[1].text(x_lim[0], y_lim[0]-0.25, '10 (um^2)')
+
+        ax[1].plot([x_lim[0], x_lim[0]], [y_lim[0], y_lim[0] + 0.5], color='k')
+        ax[1].text(x_lim[0]-15, y_lim[0], '0.5 (lamda)', rotation=90)
+        ax[1].set_xlim([x_lim[0]-15, x_lim[1]])
+        ax[1].set_ylim([y_lim[0]-0.25, y_lim[1]])
+        self.plot_attanuation(initial_seg=initial_seg, ax=ax[2], protocol=long_pulse_protocol, ** kwargs)
+        self.plot_attanuation(initial_seg=initial_seg, ax=ax[3], protocol=short_pulse_protocol, ** kwargs)
+
+        ax[3].set_xlim(ax[2].get_xlim())
+        ax[3].set_ylim(ax[2].get_ylim())
+        ax[3].set_yticks([])
+
+        ax[0].set_title('morphology')
+        ax[1].set_title(cable_type +' dendogram')
+        ax[2].set_title('long pulse attanuation')
+        ax[3].set_title('short pulse attanuation')
+
+        return fig, ax

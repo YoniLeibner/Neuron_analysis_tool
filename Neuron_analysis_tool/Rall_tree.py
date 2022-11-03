@@ -2,7 +2,7 @@ import numpy as np
 from copy import deepcopy
 
 EPS = 1e-3
-depth = 3
+depth = 5
 
 
 def section(f, start, end, diam, num, prev_num, type=3, n_samples=10):

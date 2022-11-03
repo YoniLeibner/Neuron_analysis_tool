@@ -180,22 +180,23 @@ def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate=
     all_points2 = dict()
     for sec in tqdm(all_points, desc='optimizing lines'):
         all_points2[sec] = list()
-        x=all_points[sec][0]['x']
-        y=all_points[sec][0]['y']
-        color = all_points[sec][0]['color']
-        current_seg = all_points[sec][0]['seg']
-        for point in all_points[sec]:
-            if point['seg'] == current_seg:
-                assert point['color'] == color
-                x.append(point['x'][1])
-                y.append(point['y'][1])
-            else:
-                all_points2[sec].append(dict(x=x, y=y, seg=current_seg, color=color))
-                x = point['x']
-                y = point['y']
-                color = point['color']
-                current_seg = point['seg']
-        all_points2[sec].append(dict(x=x, y=y, seg=current_seg, color=color))
+        if len(all_points[sec])>0:
+            x=all_points[sec][0]['x']
+            y=all_points[sec][0]['y']
+            color = all_points[sec][0]['color']
+            current_seg = all_points[sec][0]['seg']
+            for point in all_points[sec]:
+                if point['seg'] == current_seg:
+                    assert point['color'] == color
+                    x.append(point['x'][1])
+                    y.append(point['y'][1])
+                else:
+                    all_points2[sec].append(dict(x=x, y=y, seg=current_seg, color=color))
+                    x = point['x']
+                    y = point['y']
+                    color = point['color']
+                    current_seg = point['seg']
+            all_points2[sec].append(dict(x=x, y=y, seg=current_seg, color=color))
     all_points=all_points2
 
     # todo change x, y values to electrical units
