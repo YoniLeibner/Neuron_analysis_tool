@@ -1,38 +1,63 @@
+from neuron import h
+import numpy as np
 
 #todo we need to generalize to all channels and allow to add protocol run and record all channels
+
+def get_condactance(mechanisms):
+    try:
+        return getattr(mechanisms, 'g'+str(mechanisms))
+    except:
+        return 0
+
+
 class more_conductances():
-    def __init__(self, cell, run_time=3000, record_name='gIhbar_Ih_human_linear'):
+    def __init__(self, cell, run_time=3000, record_names=['gIhbar_Ih_human_linear'], is_resting=True):
         self.name = 'Ih_check'
         self.cell=cell
         self.run_time = run_time
-        self.record_name = '_ref_'+record_name
+        self.is_resting=is_resting
+        self.record_names = []
+        if not self.is_resting:
+            self.record_names = ['_ref_'+name for name in record_names]
         self.run_resting()
 
-    def record_Ih(self):
+    def record_condactances(self):
         record_dict = dict()
         for sec in self.cell.all:
             record_dict[sec] = dict()
             for i, seg in enumerate(sec):
-                try:
-                    record_dict[sec][seg] = h.Vector()
-                    # record_dict[sec][seg].record(sec(seg.x)._ref_gIh_Ih_human_shifts_mul_add)
-                    record_dict[sec][seg].record(getattr(sec(seg.x), self.record_name))
-                except:
-                    record_dict[sec][seg]=0 # no Ih hare
+                record_dict[sec][seg] = dict()
+                for record_name in self.record_names:
+                    try:
+                        record_dict[sec][seg][record_name]=h.Vector()
+                        record_dict[sec][seg][record_name].record(getattr(sec(seg.x), record_name))
+                    except:
+                        record_dict[sec][seg]=0 # no Ih hare
         return record_dict
 
     def run_resting(self):
-        self.g_Ih_record_dict = self.record_Ih()
+        if not self.is_resting:
+            self.record_dict = self.record_condactances()
         h.tstop = self.run_time
         h.run()
-        for sec in self.g_Ih_record_dict.keys():
-            for seg in self.g_Ih_record_dict[sec].keys():
-                if self.g_Ih_record_dict[sec][seg] == 0: continue
-                self.g_Ih_record_dict[sec][seg] = np.array(self.g_Ih_record_dict[sec][seg])[-1] # stady state opening
+        if not self.is_resting:
+            for sec in self.record_dict.keys():
+                for seg in self.record_dict[sec].keys():
+                    for record_name in self.record_dict[sec][seg].keys():
+                        if self.record_dict[sec][seg][record_name] == 0: continue
+                        self.record_dict[sec][seg][record_name] = np.array(self.record_dict[sec][seg][record_name])[-1] # stady state opening
+        else:
+            self.record_dict = dict()
+            for sec in self.cell.all:
+                self.record_dict[sec] = dict()
+                for i, seg in enumerate(sec):
+                    self.record_dict[sec][seg] = dict()
+                    for mechanisms in seg:
+                        self.record_dict[sec][seg]['g'+str(mechanisms)] = get_condactance(mechanisms)
 
     def cumpute(self, seg):
         sec= seg.sec
-        g_total = seg.g_pas + self.g_Ih_record_dict[sec][seg]
+        g_total = seg.g_pas + sum([self.record_dict[sec][seg][record_name] for record_name in self.record_dict[sec][seg]])
         return 1.0/g_total
 
 

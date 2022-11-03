@@ -40,7 +40,7 @@ analyser.change_parts_dict(parts_dict=parts_dict, colors_dict=colors_dict)
 
 analyser.create_card(theta=-75)
 plt.show()
-analyser.create_card(initial_seg=list(cell.apic[101])[-1], theta=-75)
+analyser.create_card(start_seg=list(cell.apic[101])[-1], theta=-75)
 plt.show()
 analyser.plot_morph_with_value_func(func = test1_func, run_time=1000, theta=-75)
 # analyser.plot_morph_with_value_func(run_time=1000, theta=-75)
@@ -54,19 +54,19 @@ analyser.plot_morph_with_value_func(func = test1_func, run_time=1000, theta=-75)
 #
 # plt.show()
 
-# analyser.plot_dendogram(initial_seg=cell.apic[60](0.5))
+# analyser.plot_dendogram(start_seg=cell.apic[60](0.5))
 # plt.show()
 # a=1
 
 # print('run')
-# analyser.plot_cable(initial_seg=soma(0), ax=None,
+# analyser.plot_cable(start_seg=soma(0), ax=None,
 #             factor_e_space=50,#25, #this is a problem do to the spacing!!! w ecan get the same branch twise!!!
 #             factor_m_space=10,
 #             dots_loc_seg=[], ignore_sections=[],
 #             cable_type='d3_2', start_loc=0, x_axis=True, plot_legend=False)
 # plt.show()
 
-# analyser.plot_cable(initial_seg=cell.apic[60](0.5), ax=None,
+# analyser.plot_cable(start_seg=cell.apic[60](0.5), ax=None,
 #            factor_e_space=25, factor_m_space=10,
 #            dots_loc_seg=[], ignore_sections=[],
 #            cable_type='dist', start_loc=0, x_axis=True)
@@ -79,12 +79,12 @@ analyser.plot_morph_with_value_func(func = test1_func, run_time=1000, theta=-75)
 # analyser.change_color_dict(colors_dict2)
 #
 # ax, norm_by = analyser.plot_attanuation(protocol=long_pulse_protocol, ax=ax, seg_to_indicate=[bif_seg],
-#                           initial_seg =list(apic[29])[-1], record_to_value_func=None, norm=True)
+#                           start_seg =list(apic[29])[-1], record_to_value_func=None, norm=True)
 #
 # colors_dict3 = {'soma':'pink', 'basal':'r', 'apical':'r', 'axon':'r', 'else':'r'}
 # analyser.change_color_dict(colors_dict3)
 # analyser.plot_attanuation(protocol=long_pulse_protocol, ax=ax, seg_to_indicate=[bif_seg],
-#                           initial_seg =list(soma)[0], record_to_value_func=None, norm=False, norm_by=norm_by, ls='--', dashes=(1, 200))
+#                           start_seg =list(soma)[0], record_to_value_func=None, norm=False, norm_by=norm_by, ls='--', dashes=(1, 200))
 # plt.show()
 # analyser.change_color_dict(colors_dict)
 # exit(0)

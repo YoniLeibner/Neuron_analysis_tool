@@ -15,11 +15,11 @@ class Peeler(object):
         # self.fig, self.ax = plt.subplots(2, 2, gridspec_kw={'height_ratios': [14, 1]})
         plt.subplots_adjust(bottom=0.2, wspace=0.35)
         self.buttoms_ax = plt.axes([0, 0.005, 0.1, 0.075])
-        self.set_buttons()
+        self.start_buttons()
         self.ready_to_fit = False
         plt.show()
 
-    def set_buttons(self):
+    def start_buttons(self):
         b1 = plt.axes([0.0, 0.005, 0.2, 0.075])
         b2 = plt.axes([0.2, 0.005, 0.1, 0.075])
         b3 = plt.axes([0.3, 0.005, 0.1, 0.075])
@@ -56,6 +56,38 @@ class Peeler(object):
 
         self.breturn = Button(b9, 'return')
         self.breturn_id = self.breturn.on_clicked(self.return_)
+
+    def set_buttons(self):
+        self.bopen.label.set_text('Open Saved')
+        self.bload.label.set_text('Load')
+        self.bcut.label.set_text('Cut')
+        self.bdown.on_clicked(self.cut)
+        self.bflip.label.set_text('Flip')
+        self.bdown.on_clicked(self.flip)
+        self.bup.label.set_text('Up')
+        self.bdown.on_clicked(self.up)
+        self.bdown.label.set_text('Down')
+        self.bdown.on_clicked(self.down)
+        self.bfit.label.set_text('fit')
+        self.bsave.label.set_text('Save')
+        self.breturn.label.set_text('return')
+
+
+    def set_buttons2(self):
+        self.bopen.label.set_text('Open Saved')
+        self.bload.label.set_text('Load')
+        self.bcut.label.set_text('')
+        self.bcut.on_clicked(self.pass_func)
+        self.bflip.label.set_text('')
+        self.bflip.on_clicked(self.pass_func)
+        self.bup.label.set_text('')
+        self.bup.on_clicked(self.pass_func)
+        self.bdown.label.set_text('')
+        self.bdown.on_clicked(self.pass_func)
+        self.bfit.label.set_text('fit')
+        self.bsave.label.set_text('Save')
+        self.breturn.label.set_text('return')
+
 
     def pass_func(self, to_print):
         pass
@@ -112,12 +144,23 @@ class Peeler(object):
     def plot(self, num, color='k'):
         self.ax[0].clear()
         self.ax[1].clear()
+        if self.fit_started():
+            self.set_buttons2()
+        else:
+            self.set_buttons()
         self.ax[0].plot(self.T[num], self.V[num], color=color, zorder=1)
         self.ax[1].plot(self.T[num], np.log(self.V[num]), color=color, zorder=1)
         self.ax[0].set_xlabel('time (ms)')
         self.ax[0].set_ylabel('voltage (mV)')
         self.ax[1].set_xlabel('time (ms)')
         self.ax[1].set_ylabel('log-voltage (log(mV))')
+
+        x_lim = self.ax[0].get_xlim()
+        y_lim = self.ax[0].get_ylim()
+        for i, tau in enumerate(self.tau):
+            print(i, tau, y_lim[1]-(i+1)*(y_lim[1]-y_lim[0])/5.0)
+            self.ax[0].text(x_lim[1]-(x_lim[1]-x_lim[0])/3.0, y_lim[1]-(i+1)*(y_lim[1]-y_lim[0])/20.0, 'tau_'+str(i)+' = '+str(round(tau, 3)), fontsize=5)
+
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
 
@@ -236,11 +279,12 @@ class Peeler(object):
             self.ax[1].scatter([start, end], [V_start, V_end], zorder=3)
             X = self.T[current_num].copy()
             self.ax[1].plot(X, np.log(self.C[-1]) + -1.0/self.tau[-1]*X, zorder=2)
+            self.fig.suptitle('tau '+str(len(self.tau))+' = '+str(round(tau, 3)))
 
-            self.bfit.label.set_text('ok')
             self.temp_stuff = dict(start=start, end=end)
             self.ready_to_fit = False
             self.fig.canvas.draw()
+            self.bfit.label.set_text('ok')
             # block other bottuns
 
 
@@ -249,13 +293,14 @@ class Peeler(object):
         start = self.temp_stuff['start']
         end = self.temp_stuff['end']
         current_num = len(self.V) - 1
-        self.bfit.label.set_text('fit')
+
         self.action_names.append('confirm-fit' + str(len(self.C)))
         T, V = self.remove_exp(self.T[current_num], self.V[current_num], self.C[-1], self.tau[-1])
         self.T.append(T)
         self.V.append(V)
         self.plot(current_num + 1)
         self.fig.suptitle('')
+        self.bfit.label.set_text('fit')
         self.ready_to_fit = True
 
     def save(self, event):
@@ -269,16 +314,19 @@ class Peeler(object):
         X = self.T[base_idx].copy()
         y_lim = self.ax[1].get_ylim()
         estimated_V = None
+        acc_c = 0
         for c, tau in zip(self.C, self.tau):
-            self.ax[1].plot(X, np.log(c) + -1.0 / tau * X, zorder=2)
+            acc_c+=c
+            # self.ax[1].plot(X, c + -1.0 / tau * X, zorder=2)
+            self.ax[1].plot(X, np.log(acc_c) + -1.0 / tau * X, zorder=2)
             if estimated_V is None:
                 estimated_V  = c * np.exp(-X / tau)
             else:
                 estimated_V += c * np.exp(-X/ tau)
-        for b in self.bounds:
-            V_start = np.log(self.V[base_idx][self.T[base_idx] >= b[0]][0])
-            V_end = np.log(self.V[base_idx][self.T[base_idx] >= b[1]][0])
-            self.ax[1].scatter(b, [V_start, V_end], zorder=3)
+        # for b in self.bounds:
+        #     V_start = np.log(self.V[base_idx][self.T[base_idx] >= b[0]][0])
+        #     V_end = np.log(self.V[base_idx][self.T[base_idx] >= b[1]][0])
+        #     self.ax[1].scatter(b, [V_start, V_end], zorder=3)
         self.ax[0].plot(X, estimated_V, color='r', ls='--')
         self.ax[1].set_ylim(ymin=y_lim[0], ymax=y_lim[1])
         self.fig.suptitle(', '.join(['tau'+str(i)+'='+str(round(self.tau[i], 1)) for i in range(len(self.tau))])+' (ms)')

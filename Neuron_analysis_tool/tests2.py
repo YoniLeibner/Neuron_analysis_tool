@@ -21,17 +21,17 @@ analyser.plot_dendogram()
 plt.show()
 
 #
-# analyser.plot_dendogram(initial_seg=terninals[0](1))
+# analyser.plot_dendogram(start_seg=terninals[0](1))
 # plt.show()
 exit(0)
 print('run')
-# analyser.plot_cable(initial_seg=None, ax=None,
+# analyser.plot_cable(start_seg=None, ax=None,
 #            factor_e_space=25, factor_m_space=10,
 #            dots_loc_seg=[], ignore_sections=[],
 #            cable_type='d3_2', start_loc=0, x_axis=True, plot_legend=False)
 # plt.show()
 #
-# analyser.plot_cable(initial_seg=cell.apic[60](0.5), ax=None,
+# analyser.plot_cable(start_seg=cell.apic[60](0.5), ax=None,
 #            factor_e_space=25, factor_m_space=10,
 #            dots_loc_seg=[], ignore_sections=[],
 #            cable_type='dist', start_loc=0, x_axis=True)
@@ -39,11 +39,11 @@ print('run')
 
 
 # analyser.plot_attanuation(protocol=long_pulse_protocol, ax=None, seg_to_indicate=[bif_seg],
-#                           initial_seg =None, record_to_value_func=None, norm=True)
+#                           start_seg =None, record_to_value_func=None, norm=True)
 # plt.show()
 #
 # analyser.plot_attanuation(protocol=long_pulse_protocol, ax=None, seg_to_indicate=[bif_seg],
-#                           initial_seg =cell.apic[60](0.5), record_to_value_func=None, norm=True)
+#                           start_seg =cell.apic[60](0.5), record_to_value_func=None, norm=True)
 # plt.show()
 
 # analyser.create_morph_movie(cut_start_ms=1998.0, fps=1, clip_name='clip_3')

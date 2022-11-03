@@ -3,13 +3,18 @@
   <component name="ChangeListManager">
     <list default="true" id="203c9854-7fa7-4948-a9c2-8a65a205a2b2" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/Rall_tree.py" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/Rall_tree.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/cables_bi_direction.py" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/cables_bi_direction.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/dendogram_ploter.py" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/dendogram_ploter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/.ipynb_checkpoints/example-L5pc-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/.ipynb_checkpoints/example-L5pc-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/__temp__.mp4" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/__temp__.mp4" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/data/temp1.png" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/data/temp1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/data/temp1_data.p" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/data/temp1_data.p" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/example Rall model.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/example Rall model.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/example-L5pc.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/example-L5pc.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/example.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/example.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/load.py" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/load.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/morph_ploter.py" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/morph_ploter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/more_conductances.py" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/more_conductances.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/peeler.py" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/peeler.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/tests.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/tests2.py" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/tests2.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/tests_Rall_tree.py" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/tests_Rall_tree.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -21,42 +26,23 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="peeler.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="peeler.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/peeler.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="378">
-              <caret line="14" column="88" selection-start-line="14" selection-start-column="88" selection-end-line="14" selection-end-column="88" />
+            <state relative-caret-position="495">
+              <caret line="161" column="148" selection-start-line="161" selection-start-column="148" selection-end-line="161" selection-end-column="148" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
-                <element signature="e#9042#11102#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="tests_Rall_tree.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/tests_Rall_tree.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret column="38" selection-start-column="38" selection-end-column="38" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Rall_tree.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/Rall_tree.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="233">
-              <caret line="17" column="36" selection-start-line="17" selection-start-column="36" selection-end-line="17" selection-end-column="36" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="load.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="load.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/load.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1598">
-              <caret line="429" column="22" selection-start-line="429" selection-start-column="22" selection-end-line="429" selection-end-column="22" />
+            <state relative-caret-position="1479">
+              <caret line="434" column="95" selection-start-line="434" selection-start-column="84" selection-end-line="434" selection-end-column="95" />
               <folding>
                 <element signature="e#0#25#0" expanded="true" />
               </folding>
@@ -64,14 +50,35 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="morph_ploter.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/morph_ploter.py">
+      <file leaf-file-name="more_conductances.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/more_conductances.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="663">
-              <caret line="190" column="43" selection-start-line="190" selection-start-column="43" selection-end-line="190" selection-end-column="43" />
+            <state relative-caret-position="540">
+              <caret line="20" column="70" selection-start-line="20" selection-start-column="58" selection-end-line="20" selection-end-column="70" />
               <folding>
-                <element signature="e#0#31#0" expanded="true" />
+                <element signature="e#0#20#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="attenuation_plotter.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/attenuation_plotter.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="27">
+              <caret line="129" column="104" selection-start-line="129" selection-start-column="97" selection-end-line="129" selection-end-column="104" />
+              <folding>
+                <element signature="e#0#20#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="allen_model.hoc" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/allen_model.hoc">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="297">
+              <caret line="17" column="35" selection-start-line="17" selection-start-column="29" selection-end-line="17" selection-end-column="35" />
             </state>
           </provider>
         </entry>
@@ -85,39 +92,17 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="dendogram_ploter.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/dendogram_ploter.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="778">
-              <caret line="217" column="127" selection-start-line="217" selection-start-column="127" selection-end-line="217" selection-end-column="127" />
-            </state>
-          </provider>
-        </entry>
-      </file>
     </leaf>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>is_back</find>
-      <find>length</find>
-      <find>section</find>
-      <find>parts_dict</find>
-      <find>color_func</find>
-      <find>all_points</find>
-      <find>test1_func</find>
-      <find>bounds</find>
-      <find>dots_loc_seg</find>
-      <find>plot_morph</find>
-      <find>cable_type</find>
       <find>DADX</find>
       <find>mid_pos</find>
       <find>cross_dist_dict</find>
-      <find>initial_seg</find>
       <find>x_lim</find>
       <find>part_cable</find>
       <find>start_pos</find>
       <find>mid_points</find>
-      <find>results</find>
       <find>plot_legend</find>
       <find>diam_factor</find>
       <find>seg_to_indicate_dict</find>
@@ -125,10 +110,29 @@
       <find>VideoClip</find>
       <find>plot_morphc</find>
       <find>slow_down_factor</find>
-      <find>l</find>
       <find>seg_to_indicate</find>
       <find>return</find>
+      <find>initial_seg</find>
+      <find>l</find>
+      <find>colors_dict</find>
+      <find>change</find>
+      <find>results</find>
+      <find>norm_by</find>
+      <find>record_condactances</find>
+      <find>mechanisms</find>
+      <find>more_conductances</find>
+      <find>record_names</find>
+      <find>ready_to_fit</find>
+      <find>set_buttons</find>
+      <find>ok</find>
+      <find>plot</find>
     </findStrings>
+    <replaceStrings>
+      <replace>start_seg</replace>
+    </replaceStrings>
+    <dirStrings>
+      <dir>$PROJECT_DIR$/Neuron_analysis_tool</dir>
+    </dirStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -142,10 +146,11 @@
         <option value="$PROJECT_DIR$/Neuron_analysis_tool/dendogram_ploter.py" />
         <option value="$PROJECT_DIR$/Neuron_analysis_tool/tests_Rall_tree.py" />
         <option value="$PROJECT_DIR$/Neuron_analysis_tool/Rall_tree.py" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/peeler.py" />
         <option value="$PROJECT_DIR$/Neuron_analysis_tool/tests.py" />
         <option value="$PROJECT_DIR$/Neuron_analysis_tool/morph_ploter.py" />
+        <option value="$PROJECT_DIR$/Neuron_analysis_tool/more_conductances.py" />
         <option value="$PROJECT_DIR$/Neuron_analysis_tool/load.py" />
+        <option value="$PROJECT_DIR$/Neuron_analysis_tool/peeler.py" />
       </list>
     </option>
   </component>
@@ -205,7 +210,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.tests.py">
+  <component name="RunManager" selected="Python.peeler">
     <configuration name="Rall_tree" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Neuron_analysis_tool" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -379,23 +384,23 @@
     <frame x="72" y="0" width="3768" height="2160" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.1504777" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1504777" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
+      <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Python Console" order="7" weight="0.329907" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.3343123" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3343123" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Debug" order="3" visible="true" weight="0.3974547" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.3974547" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Find" order="1" />
     </layout>
     <layout-to-restore>
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -430,12 +435,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Neuron_analysis_tool/load.py</url>
-          <line>570</line>
+          <line>588</line>
           <option name="timeStamp" value="136" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Neuron_analysis_tool/load.py</url>
-          <line>572</line>
+          <line>590</line>
           <option name="timeStamp" value="138" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -453,21 +458,11 @@
           <line>40</line>
           <option name="timeStamp" value="143" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Neuron_analysis_tool/load.py</url>
-          <line>117</line>
-          <option name="timeStamp" value="144" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Neuron_analysis_tool/load.py</url>
-          <line>90</line>
-          <option name="timeStamp" value="148" />
-        </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="149" />
+      <option name="time" value="155" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
@@ -514,7 +509,6 @@
           <caret line="176" column="26" selection-start-line="176" selection-start-column="26" selection-end-line="176" selection-end-column="26" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
-            <element signature="e#9042#11102#0" />
           </folding>
         </state>
       </provider>
@@ -533,13 +527,6 @@
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/anaconda3/lib/python3.8/site-packages/matplotlib/widgets.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="447">
-          <caret line="206" selection-start-line="206" selection-end-line="206" />
         </state>
       </provider>
     </entry>
@@ -618,13 +605,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/allen_model.hoc">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="999">
-          <caret line="43" column="20" selection-start-line="43" selection-start-column="16" selection-end-line="43" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/anaconda3/lib/python3.8/site-packages/numpy/core/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="723">
@@ -656,13 +636,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/more_conductances.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="426">
-          <caret line="17" column="41" selection-start-line="17" selection-start-column="41" selection-end-line="17" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/anaconda3/lib/python3.8/site-packages/matplotlib/artist.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="447">
@@ -677,16 +650,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/attenuation_plotter.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3168">
-          <caret line="119" selection-start-line="119" selection-end-line="119" />
-          <folding>
-            <element signature="e#0#20#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_imps/_pydev_execfile.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="459">
@@ -698,13 +661,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="778">
           <caret line="217" column="127" selection-start-line="217" selection-start-column="127" selection-end-line="217" selection-end-column="127" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/cables_bi_direction.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1008">
-          <caret line="223" column="76" selection-start-line="223" selection-start-column="76" selection-end-line="223" selection-end-column="76" />
         </state>
       </provider>
     </entry>
@@ -725,13 +681,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/tests_Rall_tree.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="38" selection-start-column="38" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/anaconda3/lib/python3.8/site-packages/bokeh/models/plots.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="401">
@@ -746,17 +695,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/peeler.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="378">
-          <caret line="14" column="88" selection-start-line="14" selection-start-column="88" selection-end-line="14" selection-end-column="88" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-            <element signature="e#9042#11102#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../NEURON_tutorial/Python_scripts/Layer_5b_pyramidal_cell.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="351">
@@ -764,13 +702,6 @@
           <folding>
             <element signature="e#0#31#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/Rall_tree.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="233">
-          <caret line="17" column="36" selection-start-line="17" selection-start-column="36" selection-end-line="17" selection-end-column="36" />
         </state>
       </provider>
     </entry>
@@ -801,12 +732,110 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/tests_Rall_tree.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="297">
+          <caret line="11" column="41" selection-start-line="11" selection-start-column="41" selection-end-line="11" selection-end-column="41" />
+          <folding>
+            <element signature="e#0#67#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/Rall_tree.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="233">
+          <caret line="17" column="36" selection-start-line="17" selection-start-column="36" selection-end-line="17" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/allen_model.hoc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="297">
+          <caret line="17" column="35" selection-start-line="17" selection-start-column="29" selection-end-line="17" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/cables_bi_direction.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1008">
+          <caret line="223" column="76" selection-start-line="223" selection-start-column="76" selection-end-line="223" selection-end-column="76" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/attenuation_plotter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="27">
+          <caret line="129" column="104" selection-start-line="129" selection-start-column="97" selection-end-line="129" selection-end-column="104" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/mods/SK_E2.mod">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="189">
+          <caret line="7" column="30" selection-start-line="7" selection-start-column="24" selection-end-line="7" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/mods/Ih.mod">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="162">
+          <caret line="6" column="21" selection-start-line="6" selection-start-column="18" selection-end-line="6" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/mods/K_Tst.mod">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/mods/NaTs2_t.mod">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/mods/Nap_Et2.mod">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="324">
+          <caret line="12" column="19" lean-forward="true" selection-start-line="12" selection-start-column="19" selection-end-line="12" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/mods/NaTa_t.mod">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/load.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1598">
-          <caret line="429" column="22" selection-start-line="429" selection-start-column="22" selection-end-line="429" selection-end-column="22" />
+        <state relative-caret-position="1479">
+          <caret line="434" column="95" selection-start-line="434" selection-start-column="84" selection-end-line="434" selection-end-column="95" />
           <folding>
             <element signature="e#0#25#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/more_conductances.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="540">
+          <caret line="20" column="70" selection-start-line="20" selection-start-column="58" selection-end-line="20" selection-end-column="70" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/anaconda3/lib/python3.8/site-packages/matplotlib/widgets.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="447">
+          <caret line="206" selection-start-line="206" selection-end-line="206" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/peeler.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="495">
+          <caret line="161" column="148" selection-start-line="161" selection-start-column="148" selection-end-line="161" selection-end-column="148" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>

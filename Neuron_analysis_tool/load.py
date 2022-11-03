@@ -25,12 +25,12 @@ def seg_Rin_func(seg):
     imp.compute(0, 1)
     return imp.input(seg.x, sec=seg.sec)
 
-def long_pulse_protocol(cell, initial_seg):
+def long_pulse_protocol(cell, start_seg):
     delay=2000.0
     dur=1000.0
     amp=.1
     h.tstop = delay+dur+500.0
-    clamp = h.IClamp(initial_seg.x, sec = initial_seg.sec)
+    clamp = h.IClamp(start_seg.x, sec = start_seg.sec)
     clamp.delay = delay
     clamp.dur = dur
     clamp.amp = amp
@@ -39,12 +39,12 @@ def long_pulse_protocol(cell, initial_seg):
     h.run()
     return h.tstop, delay, dur, amp
 
-def short_pulse_protocol(cell, initial_seg):
+def short_pulse_protocol(cell, start_seg):
     delay=2000.0
     dur=2.0
-    amp=4
+    amp=0.1
     h.tstop = delay+dur+20.0
-    clamp = h.IClamp(initial_seg.x, sec = initial_seg.sec)
+    clamp = h.IClamp(start_seg.x, sec = start_seg.sec)
     clamp.delay = delay
     clamp.dur = dur
     clamp.amp = amp
@@ -53,14 +53,14 @@ def short_pulse_protocol(cell, initial_seg):
     h.run()
     return h.tstop, delay, dur, amp
 
-def spike_protocol(cell, initial_seg):
+def spike_protocol(cell, start_seg):
     spike_data = np.loadtxt(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data/spike.txt'))
     dt=spike_data.T[0][1]-spike_data.T[0][0]
     V = np.concatenate([np.zeros(int(1000.0/dt))]+[spike_data.T[1]]*10)
     T = np.arange(0, len(V), 1) * dt
     spike_vec = h.Vector(V)
 
-    clamp = h.SEClamp(initial_seg.x, sec=initial_seg.sec)
+    clamp = h.SEClamp(start_seg.x, sec=start_seg.sec)
     clamp.rs = 1e-3
     clamp.dur1 = 1e9
     spike_vec.play(clamp._ref_amp1, spike_data.T[0][1]-spike_data.T[0][0])
@@ -76,8 +76,7 @@ def spike_protocol(cell, initial_seg):
 
 
 class Analyzer():
-
-    def __init__(self, cell=None, parts_dict=None, colors_dict=None, type='input_cell', morph_path = None, Rm=10000.0, Ra=100, Cm=1, e_pas=-70):
+    def __init__(self, cell=None, parts_dict=None, colors_dict=None, type='input_cell', morph_path = None, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, conductances_list=[]):
         if cell is None:
             if type == 'Rall_tree':
                 cell, parts_dict, colors_dict = self.open_rall_tree()
@@ -92,7 +91,7 @@ class Analyzer():
         assert colors_dict is not None
         self.cell=cell
         self.parts_dict = parts_dict
-        self.more_conductances = more_conductances_fake(cell)
+        self.more_conductances = more_conductances(cell, run_time=2000, record_names=conductances_list, is_resting=len(conductances_list)==0)
         self.colors_dict = colors_dict
         self.colors = color_func(parts_dict=parts_dict, color_dict=colors_dict)
 
@@ -113,8 +112,10 @@ class Analyzer():
         i3d = h.Import3d_GUI(nl, 0)
         i3d.instantiate(h.cell)
         cell = h.cell
-        parts_dict = dict(all=list())
-        colors_dict = {'all': 'b'}
+        # parts_dict = dict(all=list())
+
+        parts_dict = {'soma': [], 'basal': [], 'apical': [], 'axon': [], 'else': []}
+        colors_dict = {'soma': 'k', 'basal': 'r', 'apical': 'b', 'axon': 'green', 'else': 'cyan'}
         for sec in cell.all:
             sec.insert('pas')
             sec.nseg = int(sec.L / 20) + 1
@@ -123,7 +124,16 @@ class Analyzer():
             sec.Ra = Ra
             sec.g_pas = 1.0 / Rm
             for seg in sec:
-                parts_dict['all'].append(seg)
+                if sec in cell.soma:
+                    parts_dict['soma'].append(seg)
+                elif sec in list(cell.basal):
+                    parts_dict['basal'].append(seg)
+                elif sec in list(cell.apical):
+                    parts_dict['apical'].append(seg)
+                elif sec in list(cell.axonal):
+                    parts_dict['axon'].append(seg)
+                else:
+                    parts_dict['else'].append(seg)
         return cell, parts_dict, colors_dict
 
     def open_ASC(self, morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas = -70):
@@ -136,8 +146,8 @@ class Analyzer():
 
     def open_rall_tree(self):
         morph_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data/Rall_tree5.swc')
-        cell, parts_dict, colors_dict = self.open_swc(morph_path)
-        return cell, dict(Rall_tree = parts_dict['all']), dict(Rall_tree =colors_dict['all'])
+        # cell, parts_dict, colors_dict = self.open_swc(morph_path)
+        return self.open_swc(morph_path) #cell, dict(Rall_tree = parts_dict['all']), dict(Rall_tree =colors_dict['all'])
 
     def open_L5PC(self):
         h.load_file("import3d.hoc")
@@ -162,6 +172,14 @@ class Analyzer():
                 else:
                     parts_dict['else'].append(seg)
         return cell, parts_dict, colors_dict
+
+    def get_mechanism_names(self):
+        mechanisms_names = set()
+        for sec in self.cell.all:
+            for seg in sec:
+                for mechanisms in seg:
+                    mechanisms_names.add(str(mechanisms))
+        return list(mechanisms_names)
 
     def change_color_dict(self, colors_dict):
         for part in self.parts_dict:
@@ -310,7 +328,7 @@ class Analyzer():
         time *= slow_down_factor
         min_value = np.min([np.min(record_dict[sec][pos]) for sec in record_dict for pos in record_dict[sec]])
         max_value = np.max([np.max(record_dict[sec][pos]) for sec in record_dict for pos in record_dict[sec]])
-        max_value = min_value+10#################remove this part#################
+        # max_value = min_value+10#################remove this part#################
         ax = plt.gca()
         fig = ax.get_figure()
         value_dict = dict()
@@ -484,30 +502,30 @@ class Analyzer():
     # def plot_morph_with_value_func_after_protocol(self, func=seg_Rin_func, run_time=0):
     #     pass
 
-    def plot_dendogram(self, initial_seg = None ,ax=None, dots_loc_seg = [], plot_legend=True, ignore_sections=[], electrical=False):
+    def plot_dendogram(self, start_seg = None ,ax=None, dots_loc_seg = [], plot_legend=True, ignore_sections=[], electrical=False):
         if ax is None:
             ax = plt.gca()
-        if initial_seg is None:
-            initial_seg = self.cell.soma[0](0.5)
+        if start_seg is None:
+            start_seg = self.cell.soma[0](0.5)
         dendogram = Dendogram(self.cell,
                                seg_length_function=get_segment_length_lamda if electrical else get_segment_length_um,
                                color_func=self.colors,
                                dots_loc=[[seg.sec.name().split('.')[-1], seg.x] for seg in dots_loc_seg],
                                more_conductances=self.more_conductances,
                                diam_factor=None, s=10, fix_diam=1.)
-        dendogram.cumpute_distances(initial_seg)
+        dendogram.cumpute_distances(start_seg)
         max_y, x_pos = dendogram.plot(ax=ax, plot_legend=plot_legend, ignore_sections=ignore_sections)
         return ax, x_pos
 
-    def plot_cable(self, initial_seg = None ,ax=None,
+    def plot_cable(self, start_seg = None ,ax=None,
                    factor_e_space=25, factor_m_space=10 ,
                    dots_loc_seg = [], ignore_sections=[],
                    cable_type='electric', start_loc=0, x_axis=True,
                     factor=1, dots_size=10, start_color='k', plot_legend=True): #'d3_2', 'dist'
         if ax is None:
             ax = plt.gca()
-        if initial_seg is None:
-            initial_seg = self.cell.soma[0](0.5)
+        if start_seg is None:
+            start_seg = self.cell.soma[0](0.5)
 
         seg_dist_dict = dict()
         for part in ['sons', 'parent']:
@@ -518,8 +536,8 @@ class Analyzer():
         results, seg_dist, cross_dist_dict = get_cable( self.cell,
                                                         factor_e_space=factor_e_space,
                                                         factor_m_space=factor_m_space,
-                                                        start_section=initial_seg.sec,
-                                                        x_start=initial_seg.x,
+                                                        start_section=start_seg.sec,
+                                                        x_start=start_seg.x,
                                                         more_conductions=self.more_conductances,
                                                         seg_dist_dict=seg_dist_dict,
                                                         part_dict=self.parts_dict,
@@ -546,7 +564,7 @@ class Analyzer():
                     part_cable = results[part][morph_part][cable_type].flatten()
                     part_cable_befor_d_3_2 = np.power(part_cable, 3.0 / 2.0)
                     part_cable = cable * (part_cable_befor_d_3_2 / befor_d_3_2)
-                if np.nansum(part_cable) > 0 and part_cable[0] == 0:
+                if part_cable[1]>0 and part_cable[0] == 0:
                     part_cable[0] = (results[part]['all'][cable_type].flatten() / factor)[0]
                     remove_start_diam=True
                     temp_=start_pos[0]
@@ -573,26 +591,35 @@ class Analyzer():
             ax.legend([], [], loc='best')
         return ax
 
-    def plot_attanuation(self, protocol=long_pulse_protocol, ax=None, seg_to_indicate=[], indication_color='orange', initial_seg =None, record_to_value_func=None, norm=True, norm_by=1.0, **kwargs):
+    def plot_attanuation(self, protocol=long_pulse_protocol, ax=None, seg_to_indicate=[], indication_color='orange', start_seg =None, record_to_value_func=None, norm=True, norm_by=1.0, **kwargs):
         if ax is None:
             ax = plt.gca()
-        if initial_seg is None:
-            initial_seg = self.cell.soma[0](0.5)
+        if start_seg is None:
+            start_seg = self.cell.soma[0](0.5)
 
         att = attenuation(self.cell, color_func=self.colors, seg_length_function=get_segment_length_lamda,
                           more_conductances=self.more_conductances, param_to_record='v',
                           record_to_value_func=record_to_value_func)
-        tstop, delay, dur, amp = protocol(self.cell, initial_seg)
-        ax, norm_by = att.plot(start_seg=initial_seg, norm=norm, norm_by=norm_by, cut_start=int((delay - 1) / h.dt),
+        tstop, delay, dur, amp = protocol(self.cell, start_seg)
+        ax, norm_by = att.plot(start_seg=start_seg, norm=norm, norm_by=norm_by, cut_start=int((delay - 1) / h.dt),
                       seg_to_indicate={seg:dict(size=30, color=indication_color, alpha=1) for seg in seg_to_indicate}, ax=ax, **kwargs)
         ax.set_yscale('log')
+        # ax.get_yaxis().get_major_formatter().labelOnlyBase = True
+        # ax.yaxis.set_major_locator(plt.MaxNLocator(number_of_lacations))
+        ax.set_xlabel('distance from origin (x / lamda)')
+        if norm or (not norm_by==1.0):
+            ax.set_ylabel('V(x)/V(0) (%)')
+        else:
+            ax.set_ylabel('attanuation (mV)')
+
         return ax, norm_by
 
-    def create_card(self, initial_seg=None, theta=0, scale=500, factor_e_space=25, cable_type='d3_2', diam_factor=None, **kwargs):
+    def create_card(self, start_seg=None, theta=0, scale=500, factor_e_space=25, cable_type='d3_2', diam_factor=None, plot_legend=False, start_color='green', start_dots_size=50, **kwargs):
         fig, ax = plt.subplots(1, 4, figsize=(12, 3))
-        self.plot_morph(ax=ax[0], theta=theta, seg_to_indicate_dict={initial_seg:dict(size=50, color='green', alpha=1)}, scale=scale, diam_factor=diam_factor)
-        _, x_pos = self.plot_dendogram(initial_seg=initial_seg, ax=ax[1], electrical=True, plot_legend=False)
-        self.plot_cable(initial_seg=initial_seg, ax=ax[1], factor_e_space=factor_e_space, cable_type=cable_type, plot_legend=True, start_loc=x_pos+10)
+        plt.subplots_adjust(wspace=0.5)
+        self.plot_morph(ax=ax[0], theta=theta, seg_to_indicate_dict={start_seg:dict(size=start_dots_size, color=start_color, alpha=1)}, scale=scale, diam_factor=diam_factor)
+        _, x_pos = self.plot_dendogram(start_seg=start_seg, ax=ax[1], electrical=True, plot_legend=False)
+        self.plot_cable(start_seg=start_seg, ax=ax[1], factor_e_space=factor_e_space, cable_type=cable_type, plot_legend=plot_legend, start_loc=x_pos+10, start_color=start_color, dots_size=start_dots_size)
         for a in ax[1:]:
             a.spines['top'].set_visible(False)
             a.spines['right'].set_visible(False)
@@ -609,12 +636,23 @@ class Analyzer():
         ax[1].text(x_lim[0]-15, y_lim[0], '0.5 (lamda)', rotation=90)
         ax[1].set_xlim([x_lim[0]-15, x_lim[1]])
         ax[1].set_ylim([y_lim[0]-0.25, y_lim[1]])
-        self.plot_attanuation(initial_seg=initial_seg, ax=ax[2], protocol=long_pulse_protocol, ** kwargs)
-        self.plot_attanuation(initial_seg=initial_seg, ax=ax[3], protocol=short_pulse_protocol, ** kwargs)
-
+        self.plot_attanuation(start_seg=start_seg, ax=ax[2], protocol=long_pulse_protocol, ** kwargs)
+        self.plot_attanuation(start_seg=start_seg, ax=ax[3], protocol=short_pulse_protocol, ** kwargs)
+        ylim = ax[2].get_ylim()
         ax[3].set_xlim(ax[2].get_xlim())
-        ax[3].set_ylim(ax[2].get_ylim())
-        ax[3].set_yticks([])
+        ax[3].set_ylim(ylim)
+        y_ticks = np.array([10**-i for i in range(5)])
+        y_ticks = y_ticks[np.logical_and(y_ticks > ylim[0], y_ticks < ylim[-1])]
+        if len(y_ticks)==1:
+            y_ticks = np.array([10**0, 10**-1])
+        ax[2].set_yticks(y_ticks)
+        # ax[2].set_yticklabels(y_ticks)
+        ax[3].set_yticks(y_ticks)
+        ax[3].set_yticklabels(['' for i in range(len(y_ticks))])
+        # from matplotlib.ticker import ScalarFormatter
+        # formatter = ScalarFormatter()
+        # # formatter.set_scientific(False)
+        # ax[2].set_major_formatter(formatter)
 
         ax[0].set_title('morphology')
         ax[1].set_title(cable_type +' dendogram')
