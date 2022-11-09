@@ -55,7 +55,7 @@ def helping(f, depth, max_depth=3, start={'x': 0, 'y': 0, 'z': 0}, num_to_create
                       diam=((diam ** 1.5) / 2.0) ** (2.0 / 3.0), Rm=Rm, Ra=Ra, n_samples=n_samples,
                       E_length=E_length, num=num - 1, prev_num=num - 1, types=[4, 4])
     else:
-        elevation = 2**(max_depth - depth-1) / 2.0 * 10.0
+        elevation = 2**(max_depth - depth-1) / 2.0 * 30.0
         l2 = (l ** 2 - elevation ** 2) ** 0.5
         end1 = {'x': start['x'] + l2, 'y': start['y'] + elevation, 'z': start['z']}
         start['z'] += EPS

@@ -103,6 +103,14 @@
 	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
+./NMDA.c: ../mods/NMDA.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) NMDA.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+
+./NMDA.o: ./NMDA.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
+
 ./ProbAMPA.c: ../mods/ProbAMPA.mod
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
 	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) ProbAMPA.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")

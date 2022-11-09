@@ -1,5 +1,7 @@
 import numpy as np
 
+LAMDA = '\u03BB'
+MICRO = '\u03BC'
 
 def get_segment_length_lamda(seg, more_conductances):
     """

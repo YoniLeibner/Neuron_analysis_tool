@@ -116,7 +116,7 @@ class attenuation:
             x.append(self.distance_dict[sec][seg]['l'])
             y.append(self.record_to_value_func(np.array(self.record_dict[sec][seg])[cut_start:])/norm)
             if seg in seg_to_indicate.keys():
-                ax.scatter(x[-1], y[-1], color=seg_to_indicate[seg]['color'], s=seg_to_indicate[seg]['size'], zorder=10)
+                ax.scatter(x[-1], y[-1], color=seg_to_indicate[seg]['color'], s=seg_to_indicate[seg]['size'], alpha=seg_to_indicate[seg]['alpha'], zorder=10)
             ax.plot(x[-2:], y[-2:], color=c, **kwargs)
         if reverse:
             if not sec.parentseg() is None:
@@ -148,7 +148,7 @@ class attenuation:
                 x.append(self.distance_dict[sec][seg]['l'])
                 y.append(self.record_to_value_func(np.array(self.record_dict[sec][seg])[cut_start:])/norm_by)
                 if seg in seg_to_indicate.keys():
-                    ax.scatter(x[-1], y[-1], color=seg_to_indicate[seg]['color'], s=seg_to_indicate[seg]['size'], zorder=10)
+                    ax.scatter(x[-1], y[-1], color=seg_to_indicate[seg]['color'], s=seg_to_indicate[seg]['size'], alpha=seg_to_indicate[seg]['alpha'], zorder=10)
                 ax.plot(x[-2:], y[-2:], color=c, **kwargs)
         #now we go to the sones and
         for son in sec.children():
@@ -156,12 +156,12 @@ class attenuation:
 
         x, y = [self.distance_dict[sec][start_seg]['l']], [self.record_to_value_func(np.array(self.record_dict[sec][start_seg])[cut_start:])/norm_by]
         for seg in segs[::-1]:
-            if seg.x < start_seg.x:
+            if seg.x <= start_seg.x:
                 c, _ = self.color_func.get_seg_color(seg)
                 x.append(self.distance_dict[sec][seg]['l'])
                 y.append(self.record_to_value_func(np.array(self.record_dict[sec][seg])[cut_start:])/norm_by)
                 if seg in seg_to_indicate.keys():
-                    ax.scatter(x[-1], y[-1], color=seg_to_indicate[seg]['color'], s=seg_to_indicate[seg]['size'], zorder=10)
+                    ax.scatter(x[-1], y[-1], color=seg_to_indicate[seg]['color'], s=seg_to_indicate[seg]['size'], alpha=seg_to_indicate[seg]['alpha'], zorder=10)
                 ax.plot(x[-2:], y[-2:], color=c, **kwargs)
         if not sec.parentseg() is None:
             done = self.plot_helper(sec.parentseg().sec, parent_seg=seg, done=done, reverse=True, ax=ax, cut_start=cut_start, norm=norm_by, seg_to_indicate=seg_to_indicate, **kwargs)

@@ -16,6 +16,7 @@ extern void _na_reg(void);
 extern void _Nap_Et2_reg(void);
 extern void _NaTa_t_reg(void);
 extern void _NaTs2_t_reg(void);
+extern void _NMDA_reg(void);
 extern void _ProbAMPA_reg(void);
 extern void _ProbAMPANMDA2_ratio_reg(void);
 extern void _ProbAMPANMDA_EMS_reg(void);
@@ -44,6 +45,7 @@ void modl_reg(){
     fprintf(stderr," \"mods/Nap_Et2.mod\"");
     fprintf(stderr," \"mods/NaTa_t.mod\"");
     fprintf(stderr," \"mods/NaTs2_t.mod\"");
+    fprintf(stderr," \"mods/NMDA.mod\"");
     fprintf(stderr," \"mods/ProbAMPA.mod\"");
     fprintf(stderr," \"mods/ProbAMPANMDA2_ratio.mod\"");
     fprintf(stderr," \"mods/ProbAMPANMDA_EMS.mod\"");
@@ -69,6 +71,7 @@ void modl_reg(){
   _Nap_Et2_reg();
   _NaTa_t_reg();
   _NaTs2_t_reg();
+  _NMDA_reg();
   _ProbAMPA_reg();
   _ProbAMPANMDA2_ratio_reg();
   _ProbAMPANMDA_EMS_reg();

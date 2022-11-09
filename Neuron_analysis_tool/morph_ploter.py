@@ -82,10 +82,12 @@ def cell_to_points(cell, color_func, rotation_matrix=np.eye(3), rotation_matrix_
     return all_points
 
 
-def plot(ax, all_points, norm, cmap, add_nums=False, seg_to_indicate={}, counter=None, diam_factor=None, animated=False):
+def plot(ax, all_points, norm, cmap, add_nums=False, seg_to_indicate={}, counter=None, diam_factor=None, ignore_soma=False):
     lines=[]
     segs = []
     for sec in all_points:
+        if ignore_soma and sec in sec.cell().soma:
+            continue
         for i in all_points[sec]:
             x=i['x']
             y=i['y']
@@ -120,7 +122,7 @@ def get_norm(all_vals):
 
 def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate={},
                counter=None, cmap = plt.cm.coolwarm, norm_colors=True, fig=None,  ax=None, bounds=None,
-               sec_to_change =None, diam_factor=None, plot_color_bar=True, theta=0, ignore_sections=[]):
+               sec_to_change =None, diam_factor=None, plot_color_bar=True, theta=0, ignore_sections=[], ignore_soma=False, color_bar_idx = [0.9, 0.2, 0.02, 0.6]):
 
 
     all_points_arr = []
@@ -162,13 +164,6 @@ def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate=
         all_color_vals = []
         for sec in all_points:
             for i, d in enumerate(all_points[sec]):
-                # if all_points[sec][i]['color'] > bounds[1]:
-                #     print('changed val to ',sec, all_points[sec][i]['color'] , 'to', bounds[1])
-                #     all_points[sec][i]['color'] = bounds[1]
-                #
-                # if all_points[sec][i]['color'] < bounds[0]:
-                #     print('changed val to ',sec, all_points[sec][i]['color'] , 'to', bounds[0])
-                #     all_points[sec][i]['color'] = bounds[0]
                 all_color_vals.append(all_points[sec][i]['color'])
         norm = get_norm(all_color_vals)
     elif norm_colors:
@@ -176,9 +171,10 @@ def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate=
     else:
         norm=None
 
-    # aggrigate_lines
     all_points2 = dict()
     for sec in tqdm(all_points, desc='optimizing lines'):
+        if sec in cell.soma:
+            pass
         all_points2[sec] = list()
         if len(all_points[sec])>0:
             x=all_points[sec][0]['x']
@@ -197,12 +193,31 @@ def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate=
                     color = point['color']
                     current_seg = point['seg']
             all_points2[sec].append(dict(x=x, y=y, seg=current_seg, color=color))
+    if ignore_soma:
+        sec=cell.soma[0]
+        soma_diam = cell.soma[0].diam * (diam_factor if diam_factor else 1)
+        soma_length = cell.soma[0].L * (diam_factor if diam_factor else 1)
+        soma_x = abs(all_points[sec][0]['x'][0] - all_points[sec][-1]['x'][-1])
+        soma_y = abs(all_points[sec][0]['y'][0] - all_points[sec][-1]['y'][-1])
+        soma_angle = np.rad2deg(np.arctan(soma_y/soma_x))
     all_points=all_points2
-
+    ax, lines, segs = plot(ax, all_points, norm=norm, cmap=cmap, add_nums=add_nums, seg_to_indicate=seg_to_indicate,counter=counter, diam_factor=diam_factor, ignore_soma=ignore_soma)
+    if ignore_soma:
+        segs.append(list(cell.soma[0])[len(list(cell.soma[0]))//2])
+        c, _ = color_func(segs[-1])
+        if norm is not None:
+            c = cmap(norm(c))
+        lines.append(ax.add_patch(mpl.patches.Ellipse((0, 0), soma_length*2, soma_diam*2, soma_angle, color=c, clip_on=False, zorder=2)))
+        for seg in seg_to_indicate.keys():
+            if seg.sec == cell.soma[0]:
+                ax.scatter(0, 0, s=seg_to_indicate[seg]['size'], color=seg_to_indicate[seg]['color'], zorder=3, alpha=seg_to_indicate[seg]['alpha'])
+                break
+        # ax.add_patch(lines[-1])
     # todo change x, y values to electrical units
-    ax, lines, segs=plot(ax, all_points, norm=norm, cmap=cmap, add_nums=add_nums, seg_to_indicate=seg_to_indicate, counter=counter, diam_factor=diam_factor)
+
+
     if norm_colors and plot_color_bar:
-        cax = fig.add_axes([0.9, 0.2, 0.02, 0.6])
+        cax = fig.add_axes(color_bar_idx)
         cb = mpl.colorbar.ColorbarBase(cax, cmap=cmap, norm=norm, spacing='uniform')
         # cb.set_label('param')
     else:
