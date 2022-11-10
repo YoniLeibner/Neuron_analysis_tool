@@ -17,8 +17,6 @@ import matplotlib as mpl
 from tqdm import tqdm
 
 
-
-
 def seg_Rin_func(seg):
     imp = h.Impedance(seg.x, sec=seg.sec)
     imp.loc(seg.x, sec=seg.sec)
@@ -258,7 +256,7 @@ class Analyzer():
             y_lim = ax.get_ylim()
             ax.plot([x_lim[0], x_lim[0]], [y_lim[0], y_lim[0] + scale], color='k')
 
-            ax.text(x_lim[0]-20, y_lim[0], str(scale)+' (um)', rotation=90, fontsize=(y_lim[1]-y_lim[0])*0.01)
+            ax.text(x_lim[0]-20, y_lim[0], str(scale)+' ('+MICRO+'m)', rotation=90, fontsize=(y_lim[1]-y_lim[0])*0.01)
             ax.set_xlim([x_lim[0] - 20, x_lim[1]])
         return ax, color_bar, points_dict, lines, segs
 
@@ -378,7 +376,7 @@ class Analyzer():
                 t1 = time[start_idx:end_idx]*1000.0/slow_down_factor
                 ax2.clear()
                 ax2.plot(t1,v1, color=show_records_from[voltage_segs[0]]['color'])
-                ax2.set_ylim(color_bar.vmin, color_bar.vmax)
+                ax2.set_ylim(min_value, max_value)
                 ax2.set_ylabel(ylabel)
                 ax2.set_xlabel(xlabel)
                 ax2.set_title(show_records_from[voltage_segs[0]]['label'])
@@ -388,7 +386,7 @@ class Analyzer():
                     ax3.clear()
                     v2 = records.get_record(voltage_segs[1])[start_idx:end_idx]
                     ax3.plot(t1, v2, color=show_records_from[voltage_segs[1]]['color'])
-                    ax3.set_ylim(color_bar.vmin, color_bar.vmax)
+                    ax3.set_ylim(min_value, max_value)
                     ax3.axvline(t*1000.0/slow_down_factor, color='r', ls='--')
                     ax3.set_title(show_records_from[voltage_segs[1]]['label'])
                     ax3.set_ylabel(ylabel)
@@ -416,30 +414,17 @@ class Analyzer():
     # def plot_morph_with_value_func_after_protocol(self, func=seg_Rin_func, run_time=0):
     #     pass
 
-    def plot_dendogram(self, start_seg = None ,ax=None, segs_to_indecate = dict(), plot_legend=True, ignore_sections=[], electrical=False, diam_factor=None):
+    def plot_dendogram(self, start_seg = None ,ax=None, segs_to_indecate = dict(), plot_legend=True, ignore_sections=[], electrical=False, diam_factor=None, distance=None):
         max_y, x_pos = plot_dendogram(self.cell, start_seg, self.more_conductances,
                        self.colors, ax=ax, plot_legend=plot_legend, ignore_sections=ignore_sections,
-                       segs_to_indecate=segs_to_indecate, electrical=electrical, diam_factor=diam_factor)
-
-        # if ax is None:
-        #     ax = plt.gca()
-        # if start_seg is None:
-        #     start_seg = self.cell.soma[0](0.5)
-        # dendogram = Dendogram(self.cell,
-        #                        seg_length_function=get_segment_length_lamda if electrical else get_segment_length_um,
-        #                        color_func=self.colors,
-        #                        dots_loc=[[seg.sec.name().split('.')[-1], seg.x] for seg in dots_loc_seg],
-        #                        more_conductances=self.more_conductances,
-        #                        diam_factor=None, s=10, fix_diam=1.)
-        # dendogram.cumpute_distances(start_seg)
-        # max_y, x_pos = dendogram.plot(ax=ax, plot_legend=plot_legend, ignore_sections=ignore_sections)
+                       segs_to_indecate=segs_to_indecate, electrical=electrical, diam_factor=diam_factor, distance=distance)
         return ax, x_pos
 
     def plot_cable(self, start_seg = None ,ax=None,
                    factor_e_space=25, factor_m_space=10 ,
                    dots_loc_seg = [], ignore_sections=[],
                    cable_type='electric', start_loc=0, x_axis=True,
-                    factor=1, dots_size=10, start_color='k', plot_legend=True): #'d3_2', 'dist'
+                    factor=1, dots_size=10, start_color='k', plot_legend=True, distance=None): #'d3_2', 'dist'
         if ax is None:
             ax = plt.gca()
         if start_seg is None:
@@ -458,7 +443,8 @@ class Analyzer():
                                                         more_conductances=self.more_conductances,
                                                         seg_dist_dict=seg_dist_dict,
                                                         part_dict=self.parts_dict,
-                                                        ignore_sections=ignore_sections)
+                                                        ignore_sections=ignore_sections,
+                                                        distance=distance)
         max_cable = 0
         shift = 0
         for part, direction in zip(results.keys(), [1, -1]):
@@ -508,11 +494,11 @@ class Analyzer():
             ax.legend([], [], loc='best')
         return ax
 
-    def plot_attanuation(self, protocol=long_pulse_protocol, ax=None, seg_to_indicate_dict=dict(), start_seg =None, record_to_value_func=None, norm=True, record_name='v', norm_by=None, electrical=True, **kwargs):
+    def plot_attanuation(self, protocol=long_pulse_protocol, ax=None, seg_to_indicate_dict=dict(), start_seg =None, record_to_value_func=None, norm=True, record_name='v', norm_by=None, electrical=True, distance=None, **kwargs):
 
         ax, norm_by = plot_attenuation(cell=self.cell, start_seg=start_seg, protocol=protocol, more_conductances=self.more_conductances, color_func=self.colors, ax=ax, record_name=record_name,
                          cut_start_ms=None, record_to_value=record_to_value, norm_by=norm_by, norm=norm, electrical=True,
-                         seg_to_indicate=seg_to_indicate_dict, **kwargs)
+                         seg_to_indicate=seg_to_indicate_dict, distance=distance, **kwargs)
 
         ax.set_yscale('log')
         ax.set_xlabel('distance from origin (x / '+LAMDA+')')
@@ -531,16 +517,18 @@ class Analyzer():
             start_seg = list(start_seg)
             start_seg = start_seg[len(start_seg)//2]
         seg_to_indicate_dict = {start_seg: dict(size=start_dots_size, color=start_color, alpha=1)}
+        distance = Distance(self.cell, self.more_conductances)
+        distance.compute(start_seg=start_seg)
+
         self.plot_morph(ax=ax[0], theta=theta, seg_to_indicate_dict=seg_to_indicate_dict, scale=scale, diam_factor=diam_factor, ignore_soma=not self.type.startswith('Rall_tree'))
-        _, x_pos = self.plot_dendogram(start_seg=start_seg, ax=ax[1], electrical=True, plot_legend=False, segs_to_indecate=seg_to_indicate_dict)
-        self.plot_cable(start_seg=start_seg, ax=ax[1], factor_e_space=factor_e_space, cable_type=cable_type, plot_legend=plot_legend, start_loc=x_pos+10, start_color=start_color, dots_size=start_dots_size)
+        _, x_pos = self.plot_dendogram(start_seg=start_seg, ax=ax[1], electrical=True, plot_legend=False, segs_to_indecate=seg_to_indicate_dict, distance=distance)
+        self.plot_cable(start_seg=start_seg, ax=ax[1], factor_e_space=factor_e_space, cable_type=cable_type, plot_legend=plot_legend, start_loc=x_pos+10, start_color=start_color, dots_size=start_dots_size, distance=distance)
         for a in ax[1:]:
             a.spines['top'].set_visible(False)
             a.spines['right'].set_visible(False)
         ax[1].set_axis_off()
         x_lim = ax[1].get_xlim()
         y_lim = ax[1].get_ylim()
-
 
         ax[1].plot([x_lim[0], x_lim[0]+10], [y_lim[0], y_lim[0]], color='k')
         if cable_type=='d3_2':
@@ -554,8 +542,8 @@ class Analyzer():
         ax[1].set_xlim([x_lim[0]-15, x_lim[1]])
         ax[1].set_ylim([y_lim[0]-0.25, y_lim[1]])
 
-        self.plot_attanuation(start_seg=start_seg, ax=ax[2], protocol=long_pulse_protocol, seg_to_indicate_dict=seg_to_indicate_dict, ** kwargs)
-        self.plot_attanuation(start_seg=start_seg, ax=ax[3], protocol=short_pulse_protocol, seg_to_indicate_dict=seg_to_indicate_dict, ** kwargs)
+        self.plot_attanuation(start_seg=start_seg, ax=ax[2], protocol=long_pulse_protocol, seg_to_indicate_dict=seg_to_indicate_dict, distance=distance, ** kwargs)
+        self.plot_attanuation(start_seg=start_seg, ax=ax[3], protocol=short_pulse_protocol, seg_to_indicate_dict=seg_to_indicate_dict, distance=distance, ** kwargs)
         ylim = ax[2].get_ylim()
         ax[3].set_xlim(ax[2].get_xlim())
         ax[3].set_ylim(ylim)

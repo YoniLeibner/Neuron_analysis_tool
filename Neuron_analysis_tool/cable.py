@@ -15,10 +15,12 @@ def get_cable(cell,
               more_conductances={},
               seg_dist_dict={},
               part_dict=dict(),
-              ignore_sections = []):
+              ignore_sections = [],
+              distance=None):
 
-    distance = Distance(cell, more_conductances)
-    distance.compute(start_seg=start_seg)
+    if (distance is None) or (not distance.start_seg == start_seg):
+        distance = Distance(cell, more_conductances)
+        distance.compute(start_seg=start_seg)
 
     cross_dist_dict = dict(sons=[], parent=[])
     total_res = dict()

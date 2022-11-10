@@ -222,4 +222,5 @@ def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate=
         # cb.set_label('param')
     else:
         cb=None
-    return fig, ax, cb, all_points, lines, segs
+        cax=None
+    return fig, ax, cax, all_points, lines, segs
