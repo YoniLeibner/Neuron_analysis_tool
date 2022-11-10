@@ -2,11 +2,12 @@ from neuron import h, gui
 from Neuron_analysis_tool.more_conductances import more_conductances, more_conductances_fake
 from Neuron_analysis_tool.color_func import color_func
 from Neuron_analysis_tool.morph_ploter import plot_morph
-from Neuron_analysis_tool.morph_ploter import plot as plot_morph2
 from Neuron_analysis_tool.morph_ploter import get_norm
-from Neuron_analysis_tool.dendogram_ploter import Dendogram
-from Neuron_analysis_tool.cables_bi_direction import get_cable
-from Neuron_analysis_tool.attenuation_plotter import run_attenuation_ploter, attenuation
+from Neuron_analysis_tool.dendogram import plot_dendogram
+from Neuron_analysis_tool.cable import get_cable
+from Neuron_analysis_tool.attenuation import plot_attenuation, record_to_value
+from Neuron_analysis_tool.record import record, record_all
+from Neuron_analysis_tool.distance import Distance
 from Neuron_analysis_tool.utils import *
 import matplotlib.pyplot as plt
 from moviepy.editor import VideoClip
@@ -119,7 +120,7 @@ class Analyzer():
         colors_dict = {'soma': 'k', 'basal': 'r', 'apical': 'b', 'axon': 'green', 'else': 'cyan'}
         for sec in cell.all:
             sec.insert('pas')
-            sec.nseg = int(sec.L / 20) + 1
+            sec.nseg = int(sec.L / 10) + 1
             sec.e_pas = e_pas
             sec.cm = Cm
             sec.Ra = Ra
@@ -261,34 +262,6 @@ class Analyzer():
             ax.set_xlim([x_lim[0] - 20, x_lim[1]])
         return ax, color_bar, points_dict, lines, segs
 
-
-    def plot_morph_with_values2(self, ax=None, seg_to_indicate_dict = {}, diam_factor=None,
-                               scale=0, cmap=plt.cm.turbo,
-                               plot_color_bar=True, bounds=None, points_dict=None):
-        if ax is None:
-            ax = plt.gca()
-        fig = plt.gca().figure
-        norm=get_norm(bounds)
-        ax.set_aspect('equal', adjustable='box')
-        ax = plot_morph2(ax, points_dict, norm=norm, cmap=cmap, add_nums=False,
-                         seg_to_indicate=seg_to_indicate_dict, counter=None, diam_factor=diam_factor)
-        if plot_color_bar:
-            cax = fig.add_axes([0.95, 0.2, 0.02, 0.6])
-            color_bar = mpl.colorbar.ColorbarBase(cax, cmap=cmap, norm=norm, spacing='uniform')
-        else:
-            color_bar=None
-        ax.grid(False)
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.set_axis_off()
-        if not scale == 0:
-            x_lim = ax.get_xlim()
-            y_lim = ax.get_ylim()
-            ax.plot([x_lim[0], x_lim[0]], [y_lim[0], y_lim[0] + scale], color='k')
-            ax.text(x_lim[0]-20, y_lim[0], str(scale)+' (um)', rotation=90)
-            ax.set_xlim([x_lim[0] - 20, x_lim[1]])
-        return ax, color_bar
-
     def plot_morph_with_value_func(self, func=seg_Rin_func, run_time=0, theta=0.0, diam_factor=None, cmap=plt.cm.turbo,
                                    ax = None, seg_to_indicate_dict = {},
                                    sec_to_change = None, ignore_sections = [], scale = 0, plot_color_bar = True, bounds = None):
@@ -302,130 +275,13 @@ class Analyzer():
         return self.plot_morph_with_values(value_dict, theta=theta, diam_factor=diam_factor, cmap=cmap, ax=ax, seg_to_indicate_dict=seg_to_indicate_dict,
                                             sec_to_change=sec_to_change, ignore_sections=ignore_sections, scale=scale, plot_color_bar=plot_color_bar, bounds=bounds)[:2]
 
-    def record_protocol(self, protocol=spike_protocol, cut_start_ms=0, record_name='v'):
-        record_dict = dict()
-        for sec in self.cell.all:
-            record_dict[sec] = dict()
-            for seg in sec:
-                try:
-                    record_dict[sec][seg.x] = h.Vector()
-                    record_dict[sec][seg.x].record(getattr(sec(seg.x), '_ref_' + record_name))
-                except:
-                    record_dict[sec][seg.x] = None
-        time = h.Vector()
-        time.record(h._ref_t)
+    def record_protocol(self, protocol=spike_protocol, cut_start_ms=None, record_name='v'):
+        records = record_all(self.cell, record_name=record_name)
         tstop, delay, dur, amp, extra = protocol(self.cell, self.cell.soma[0](0.5))
-
-        total_len_idx = int((tstop - cut_start_ms) / h.dt)
-        for sec in self.cell.all:
-            for seg in sec:
-                if record_dict[sec][seg.x] is None:
-                    record_dict[sec][seg.x] = np.zeros(total_len_idx)
-                else:
-                    record_dict[sec][seg.x] = np.array(record_dict[sec][seg.x])[int(cut_start_ms / h.dt):]
-        time = np.array(time)[int(cut_start_ms / h.dt):]
-        time -= time[0]
-        return record_dict, time
-    #
-    # def create_movie_from_rec2(self, record_dict, time, seg_to_indicate_dict=dict(), diam_factor=None,
-    #                         sec_to_change=None, ignore_sections=[], theta=0, scale=500, cmap=plt.cm.turbo,
-    #                         plot_color_bar=True, save_to='', clip_name='clip', fps=None, threads=4, preset = 'ultrafast', slow_down_factor=1, func_for_missing_frames=np.mean): # this is a good option of you have small number of segments
-    #
-    #     mpl.use('TkAgg')
-    #     import matplotlib.style as mplstyle
-    #     mplstyle.use('fast')
-    #     time /= 1000.0
-    #     time *= slow_down_factor
-    #     min_value = np.min([np.min(record_dict[sec][pos]) for sec in record_dict for pos in record_dict[sec]])
-    #     max_value = np.max([np.max(record_dict[sec][pos]) for sec in record_dict for pos in record_dict[sec]])
-    #     # max_value = min_value+10#################remove this part#################
-    #     ax = plt.gca()
-    #     fig = ax.get_figure()
-    #     value_dict = dict()
-    #     for sec in self.cell.all:
-    #         for seg in sec:
-    #             value_dict[seg] = record_dict[sec][seg.x][0]
-    #
-    #     ax, color_bar, points_dict, lines, segs = self.plot_morph_with_values(value_dict, ax=ax,
-    #                                                                           seg_to_indicate_dict=seg_to_indicate_dict,
-    #                                                                           diam_factor=diam_factor,
-    #                                                                           sec_to_change=sec_to_change,
-    #                                                                           ignore_sections=ignore_sections,
-    #                                                                           theta=theta, scale=scale, cmap=cmap,
-    #                                                                           plot_color_bar=plot_color_bar,
-    #                                                                           bounds=[min_value, max_value])
-    #     segs = np.array(segs)
-    #     lines = np.array(lines)
-    #     lim_x = ax.get_xlim()
-    #     lim_y = ax.get_ylim()
-    #     time_text = ax.text(lim_x[0], lim_y[0], 'time: 0.0 (ms)')
-    #     self.last_t = 0
-    #     xlim = ax.get_xlim()
-    #     ylim = ax.get_ylim()
-    #
-    #     norm = get_norm([min_value, max_value])
-    #     fig1, ax1 = plt.subplots()
-    #     cax = fig1.add_axes([0.90, 0.2, 0.02, 0.6])
-    #     cb = mpl.colorbar.ColorbarBase(cax, cmap=cmap, norm=norm, spacing='uniform')
-    #
-    #     if not scale == 0:
-    #         ax1.plot([xlim[0], xlim[0]], [ylim[0], ylim[0] + scale], color='k')
-    #
-    #     ax1.set_xlim(xlim)
-    #     ax1.set_ylim(ylim)
-    #     ax1.grid(False)
-    #     ax1.set_xticks([])
-    #     ax1.set_yticks([])
-    #     ax1.set_axis_off()
-    #     cb_fig = mplfig_to_npimage(fig1)
-    #     cb_mask = ~(cb_fig.sum(axis=2)==765)
-    #
-    #     lines_data = []
-    #     seg_list = np.unique(segs)
-    #     print(len(seg_list ), len(lines))
-    #     for seg in tqdm(seg_list, desc='optimizing lines'):
-    #         fig1, ax1 = plt.subplots()
-    #         cax = fig1.add_axes([0.90, 0.2, 0.02, 0.6])
-    #         for line in lines[segs==seg]:
-    #             ax1.plot(line.get_xdata(), line.get_ydata(), lw=line.get_linewidth())
-    #         ax1.set_xlim(xlim)
-    #         ax1.set_ylim(ylim)
-    #         for a in [ax1, cax]:
-    #             a.grid(False)
-    #             a.set_xticks([])
-    #             a.set_yticks([])
-    #             a.set_axis_off()
-    #         np_fig = mplfig_to_npimage(fig1)
-    #         mask = ~(np_fig.sum(axis=2)==765)
-    #         lines_data.append(dict(mask=mask, seg=seg))
-    #     np_shape = np_fig.shape
-    #     plt.close()
-    #
-    #     def make_frame(t):  # get the correct index
-    #         time_loc = np.where(time >= t)[0][0]
-    #         prev_time_loc = np.where(time >= self.last_t)[0][0]
-    #         self.last_t = t
-    #
-    #         base = np.zeros(np_shape)+255
-    #         for line_data in lines_data:
-    #             seg = line_data['seg']
-    #             mask = line_data['mask']
-    #             if prev_time_loc == time_loc:
-    #                 color = cmap(norm(record_dict[seg.sec][seg.x][time_loc]))[:3]
-    #             else:
-    #                 color = cmap(norm(func_for_missing_frames(record_dict[seg.sec][seg.x][prev_time_loc:time_loc])))[:3]
-    #             base[mask] = (np.array(color) * 255).astype(int)
-    #
-    #         base[cb_mask] = cb_fig[cb_mask]
-    #         return base
-    #
-    #     animation = VideoClip(make_frame, duration=time[-1])
-    #     animation.write_videofile(os.path.join(save_to, clip_name + '.mp4'),
-    #                               fps=int(1000.0 / h.dt) if fps is None else fps / slow_down_factor, threads=threads,
-    #                               audio=False, preset=preset)
-    #     mpl.use('Qt5Agg')
-    #     # self.last_t = 0
-    #     # animation.write_gif(os.path.join(save_to, clip_name + '.gif'), fps=int(1.0 / h.dt) if fps is None else fps/slow_down_factor)
+        if cut_start_ms is None:
+            cut_start_ms = delay - 50
+        records.extract(lambda x:np.array(x)[int(cut_start_ms / h.dt):])
+        return records
 
     def save_movie_from_rec(self, record_dict, time, seg_to_indicate_dict=dict(), diam_factor=None,
                               sec_to_change=None, ignore_sections=[], theta=0, scale=500, cmap=plt.cm.turbo,
@@ -442,17 +298,18 @@ class Analyzer():
                               audio=False, preset=preset)
 
 
-    def create_movie_from_rec(self, record_dict, time, seg_to_indicate_dict=dict(), diam_factor=None,
+    def create_movie_from_rec(self, records, seg_to_indicate_dict=dict(), diam_factor=None,
                             sec_to_change=None, ignore_sections=[], theta=0, scale=500, cmap=plt.cm.turbo,
-                            plot_color_bar=True, slow_down_factor=1, func_for_missing_frames=np.mean, bounds = None,
-                            show_records_from=dict(), voltage_window=50, ylabel='v (mV)', xlabel='time (ms)'):
+                            plot_color_bar=True, slow_down_factor=1, func_for_missing_frames=np.max, bounds = None,
+                            show_records_from=dict(), voltage_window=50, ylabel='v (mV)', xlabel='time (ms)', margin=0):
 
         import matplotlib.style as mplstyle
         mplstyle.use('fast')
+        time = records.time.copy()
         time /= 1000.0
         time *= slow_down_factor
-        min_value = np.min([np.min(record_dict[sec][pos]) for sec in record_dict for pos in record_dict[sec]])
-        max_value = np.max([np.max(record_dict[sec][pos]) for sec in record_dict for pos in record_dict[sec]])
+        min_value = records.get_min()-margin
+        max_value = records.get_max()+margin
         voltage_segs = list(show_records_from.keys())
         if len(show_records_from)==0:
             ax = plt.gca()
@@ -475,10 +332,11 @@ class Analyzer():
 
 
             color_bar_idx=[0.4, 0.2, 0.02, 0.6]
+        value_dict_by_sec = records.get_vals_at_t(t=0, default_res=0)
         value_dict = dict()
         for sec in self.cell.all:
             for seg in sec:
-                value_dict[seg] = record_dict[sec][seg.x][0]
+                value_dict[seg] = value_dict_by_sec[sec][seg]
         seg_to_indicate_dict.update(show_records_from)
         ax, color_bar, points_dict, lines, segs = self.plot_morph_with_values(value_dict, ax=ax,
                                                                               seg_to_indicate_dict = seg_to_indicate_dict,
@@ -495,28 +353,28 @@ class Analyzer():
         time_text = ax.text(lim_x[0], lim_y[0], 'time: 0.0 (ms)')
         self.last_t = 0
 
-        def make_frame(t):  # get the correct index
-            time_loc = np.where(time >= t)[0][0]
-            prev_time_loc = np.where(time >= self.last_t)[0][0]
-            self.last_t = t
+        def make_frame(t):
+            time_in_ms = t / slow_down_factor * 1000.0
+            if self.last_t >= time_in_ms:
+                value_dict_by_sec = records.get_vals_at_t(t=0, default_res=0)
+            else:
+                value_dict_by_sec = records.get_vals_at_dt(t1=self.last_t, t2=time_in_ms, default_res=0, dt_func = func_for_missing_frames)
+            self.last_t = time_in_ms
             if bounds:
                 norm = get_norm(bounds)
             else:
                 norm = get_norm([min_value, max_value])
             for line, seg in zip(lines, segs):
-                if prev_time_loc == time_loc:
-                    line.set_color(cmap(norm(record_dict[seg.sec][seg.x][time_loc])))
-                else:
-                    line.set_color(
-                        cmap(norm(func_for_missing_frames(record_dict[seg.sec][seg.x][prev_time_loc:time_loc]))))
-            time_in_ms = t / slow_down_factor * 1000
+                line.set_color(cmap(norm(value_dict_by_sec[seg.sec][seg])))
+
+
             time_text.set_text('time: ' + str(round(time_in_ms, 1)) + ' (ms)')
             if len(show_records_from) > 0:
                 try: start_idx = np.where(time >= t-(voltage_window)/1000*slow_down_factor/2)[0][0]
-                except: start_idx =0
+                except: start_idx = 0
                 try:end_idx = np.where(time >= t+voltage_window/1000*slow_down_factor/2)[0][0]
                 except: end_idx = -1
-                v1 = record_dict[voltage_segs[0].sec][voltage_segs[0].x][start_idx:end_idx]
+                v1 = records.get_record(voltage_segs[0])[start_idx:end_idx]
                 t1 = time[start_idx:end_idx]*1000.0/slow_down_factor
                 ax2.clear()
                 ax2.plot(t1,v1, color=show_records_from[voltage_segs[0]]['color'])
@@ -528,7 +386,7 @@ class Analyzer():
                 ax2.set_xlim(xmin=time_in_ms-voltage_window/2, xmax=time_in_ms+voltage_window/2)
                 if len(show_records_from) > 1:
                     ax3.clear()
-                    v2 = record_dict[voltage_segs[1].sec][voltage_segs[1].x][start_idx:end_idx]
+                    v2 = records.get_record(voltage_segs[1])[start_idx:end_idx]
                     ax3.plot(t1, v2, color=show_records_from[voltage_segs[1]]['color'])
                     ax3.set_ylim(color_bar.vmin, color_bar.vmax)
                     ax3.axvline(t*1000.0/slow_down_factor, color='r', ls='--')
@@ -539,8 +397,7 @@ class Analyzer():
 
             return mplfig_to_npimage(fig)
         animation = VideoClip(make_frame, duration=time[-1])
-        # for a in [ax, ax2, ax3]:
-        #     a.clear()
+        # animation.write_gif(os.path.join(save_to, clip_name + '.gif'), fps=int(1.0 / h.dt) if fps is None else fps/slow_down_factor)
         return animation
 
     def create_morph_movie(self, protocol=spike_protocol, cut_start_ms=0, record_name='v',
@@ -548,9 +405,9 @@ class Analyzer():
                             sec_to_change=None, ignore_sections=[], theta=0, scale=0, cmap=plt.cm.turbo,
                             plot_color_bar=True, save_to='', clip_name='clip', fps=None, threads=4, preset = 'ultrafast', slow_down_factor=1, func_for_missing_frames=np.mean):
 
-        record_dict, time = self.record_protocol(protocol=protocol, cut_start_ms=cut_start_ms, record_name=record_name)
+        records = self.record_protocol(protocol=protocol, cut_start_ms=cut_start_ms, record_name=record_name)
 
-        self.create_movie_from_rec(record_dict=record_dict, time=time, slow_down_factor=slow_down_factor, func_for_missing_frames=func_for_missing_frames, theta=theta,
+        self.create_movie_from_rec(record_dict=records, slow_down_factor=slow_down_factor, func_for_missing_frames=func_for_missing_frames, theta=theta,
                                    scale=scale, cmap=cmap, seg_to_indicate_dict=seg_to_indicate_dict, diam_factor=diam_factor,sec_to_change=sec_to_change, ignore_sections=ignore_sections,
                                    plot_color_bar=plot_color_bar)
 
@@ -559,19 +416,23 @@ class Analyzer():
     # def plot_morph_with_value_func_after_protocol(self, func=seg_Rin_func, run_time=0):
     #     pass
 
-    def plot_dendogram(self, start_seg = None ,ax=None, dots_loc_seg = [], plot_legend=True, ignore_sections=[], electrical=False):
-        if ax is None:
-            ax = plt.gca()
-        if start_seg is None:
-            start_seg = self.cell.soma[0](0.5)
-        dendogram = Dendogram(self.cell,
-                               seg_length_function=get_segment_length_lamda if electrical else get_segment_length_um,
-                               color_func=self.colors,
-                               dots_loc=[[seg.sec.name().split('.')[-1], seg.x] for seg in dots_loc_seg],
-                               more_conductances=self.more_conductances,
-                               diam_factor=None, s=10, fix_diam=1.)
-        dendogram.cumpute_distances(start_seg)
-        max_y, x_pos = dendogram.plot(ax=ax, plot_legend=plot_legend, ignore_sections=ignore_sections)
+    def plot_dendogram(self, start_seg = None ,ax=None, segs_to_indecate = dict(), plot_legend=True, ignore_sections=[], electrical=False, diam_factor=None):
+        max_y, x_pos = plot_dendogram(self.cell, start_seg, self.more_conductances,
+                       self.colors, ax=ax, plot_legend=plot_legend, ignore_sections=ignore_sections,
+                       segs_to_indecate=segs_to_indecate, electrical=electrical, diam_factor=diam_factor)
+
+        # if ax is None:
+        #     ax = plt.gca()
+        # if start_seg is None:
+        #     start_seg = self.cell.soma[0](0.5)
+        # dendogram = Dendogram(self.cell,
+        #                        seg_length_function=get_segment_length_lamda if electrical else get_segment_length_um,
+        #                        color_func=self.colors,
+        #                        dots_loc=[[seg.sec.name().split('.')[-1], seg.x] for seg in dots_loc_seg],
+        #                        more_conductances=self.more_conductances,
+        #                        diam_factor=None, s=10, fix_diam=1.)
+        # dendogram.cumpute_distances(start_seg)
+        # max_y, x_pos = dendogram.plot(ax=ax, plot_legend=plot_legend, ignore_sections=ignore_sections)
         return ax, x_pos
 
     def plot_cable(self, start_seg = None ,ax=None,
@@ -590,12 +451,11 @@ class Analyzer():
             seg_dist_dict[part][self.cell.soma[0](0.5)] = []
             for hh in dots_loc_seg:
                 seg_dist_dict[part][hh] = []
-        results, seg_dist, cross_dist_dict = get_cable( self.cell,
+        results, seg_dist, cross_dist_dict = get_cable(self.cell,
+                                                        start_seg=start_seg,
                                                         factor_e_space=factor_e_space,
                                                         factor_m_space=factor_m_space,
-                                                        start_section=start_seg.sec,
-                                                        x_start=start_seg.x,
-                                                        more_conductions=self.more_conductances,
+                                                        more_conductances=self.more_conductances,
                                                         seg_dist_dict=seg_dist_dict,
                                                         part_dict=self.parts_dict,
                                                         ignore_sections=ignore_sections)
@@ -648,20 +508,13 @@ class Analyzer():
             ax.legend([], [], loc='best')
         return ax
 
-    def plot_attanuation(self, protocol=long_pulse_protocol, ax=None, seg_to_indicate_dict=dict(), start_seg =None, record_to_value_func=None, norm=True, norm_by=1.0, **kwargs):
-        if ax is None:
-            ax = plt.gca()
-        if start_seg is None:
-            start_seg = self.cell.soma[0](0.5)
+    def plot_attanuation(self, protocol=long_pulse_protocol, ax=None, seg_to_indicate_dict=dict(), start_seg =None, record_to_value_func=None, norm=True, record_name='v', norm_by=None, electrical=True, **kwargs):
 
-        att = attenuation(self.cell, color_func=self.colors, seg_length_function=get_segment_length_lamda,
-                          more_conductances=self.more_conductances, param_to_record='v',
-                          record_to_value_func=record_to_value_func)
-        tstop, delay, dur, amp, extra = protocol(self.cell, start_seg)
-        ax, norm_by = att.plot(start_seg=start_seg, norm=norm, norm_by=norm_by, cut_start=int((delay - 1) / h.dt), seg_to_indicate=seg_to_indicate_dict, ax=ax, **kwargs)
+        ax, norm_by = plot_attenuation(cell=self.cell, start_seg=start_seg, protocol=protocol, more_conductances=self.more_conductances, color_func=self.colors, ax=ax, record_name=record_name,
+                         cut_start_ms=None, record_to_value=record_to_value, norm_by=norm_by, norm=norm, electrical=True,
+                         seg_to_indicate=seg_to_indicate_dict, **kwargs)
+
         ax.set_yscale('log')
-        # ax.get_yaxis().get_major_formatter().labelOnlyBase = True
-        # ax.yaxis.set_major_locator(plt.MaxNLocator(number_of_lacations))
         ax.set_xlabel('distance from origin (x / '+LAMDA+')')
         if norm or (not norm_by==1.0):
             ax.set_ylabel('V(x)/V(0)')
@@ -670,7 +523,7 @@ class Analyzer():
 
         return ax, norm_by
 
-    def create_card(self, start_seg=None, theta=0, scale=500, factor_e_space=25, cable_type='d3_2', diam_factor=None, plot_legend=False, start_color='green', start_dots_size=50, **kwargs):
+    def create_card(self, start_seg=None, theta=0, scale=500, factor_e_space=50, cable_type='d3_2', diam_factor=None, plot_legend=False, start_color='green', start_dots_size=50, **kwargs):
         fig, ax = plt.subplots(1, 4, figsize=(12, 3), gridspec_kw={'width_ratios': [0.5, 1.5, 1, 1]})
         plt.subplots_adjust(wspace=0.5)
         if start_seg is None:
@@ -679,7 +532,7 @@ class Analyzer():
             start_seg = start_seg[len(start_seg)//2]
         seg_to_indicate_dict = {start_seg: dict(size=start_dots_size, color=start_color, alpha=1)}
         self.plot_morph(ax=ax[0], theta=theta, seg_to_indicate_dict=seg_to_indicate_dict, scale=scale, diam_factor=diam_factor, ignore_soma=not self.type.startswith('Rall_tree'))
-        _, x_pos = self.plot_dendogram(start_seg=start_seg, ax=ax[1], electrical=True, plot_legend=False)
+        _, x_pos = self.plot_dendogram(start_seg=start_seg, ax=ax[1], electrical=True, plot_legend=False, segs_to_indecate=seg_to_indicate_dict)
         self.plot_cable(start_seg=start_seg, ax=ax[1], factor_e_space=factor_e_space, cable_type=cable_type, plot_legend=plot_legend, start_loc=x_pos+10, start_color=start_color, dots_size=start_dots_size)
         for a in ax[1:]:
             a.spines['top'].set_visible(False)

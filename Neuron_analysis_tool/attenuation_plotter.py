@@ -3,25 +3,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from Neuron_analysis_tool.more_conductances import more_conductances
 from Neuron_analysis_tool.utils import *
-# from dendogram_class import more_conductances, get_segment_length_lamda, get_segment_length_um
-# import os
-# from neuron import gui
-# from scipy.signal import find_peaks
-# from glob import glob
-# from tqdm import tqdm
-# import efel
-# import pickle
-# from scipy.stats import sem
-# from scipy import stats
-# import pandas as pd
-# import seaborn as sns
-# import math
-# from matplotlib.lines import Line2D
-# import matplotlib.colors as colors
-# import matplotlib.cm as cmx
+
 
 class attenuation:
-
     def __init__(self, cell, color_func, seg_length_function = get_segment_length_lamda, more_conductances = more_conductances, param_to_record = None, record_to_value_func=None):
         self.cell=cell
         self.record_dict = dict()
