@@ -1,4 +1,7 @@
-from Neuron_analysis_tool.load import Analyzer, long_pulse_protocol
+#testing script dont use this!!!!
+# for examples look on jupyter notebook
+
+from Neuron_analysis_tool.Analyzer import Analyzer, long_pulse_protocol
 from neuron import gui, h
 import numpy as np
 import os
@@ -31,19 +34,33 @@ colors_dict  = analyser.colors_dict
 colors_dict['soma']='r'
 colors_dict['basal']='pink'
 
-from Neuron_analysis_tool.attenuation import plot_attenuation, record_to_value
-s=list(analyser.cell.apic[20])[-1]
-s2=list(analyser.cell.apic[5])[-1]
-s3=list(analyser.cell.soma[0])[0]
-s4=list(analyser.cell.apic[10])[0]
-segs_to_indicate = {s:dict(color='green', alpha=0.5, size=50), s2:dict(color='b', alpha=0.75, size=20), s3:dict(color='r', alpha=0.3, size=20), s4:dict(color='k', alpha=0.25, size=20)}
-start_seg=list(analyser.cell.soma[0])[0]
-start_seg=list(analyser.cell.apic[29])[-1]
-ax, norm_by = plot_attenuation(analyser.cell, start_seg, protocol=long_pulse_protocol, more_conductances=analyser.more_conductances, color_func=analyser.colors, ax=None, record_name='v',
-                     cut_start_ms=None, record_to_value=record_to_value, norm_by = None, norm=True, electrical=True,
-                     seg_to_indicate=segs_to_indicate, ls='-')
-y_ticks = np.array([10**0, 10**-1])
-ax.set_yticks(y_ticks)
+
+def Rin_func(seg):
+    imp = h.Impedance(seg.x, sec=seg.sec)
+    imp.loc(seg.x, sec=seg.sec)
+    imp.compute(0, 1)
+    return imp.input(seg.x, sec=seg.sec)
+fig, ax = analyser.create_card(scale=500, start_seg=list(analyser.cell.soma[0])[0], diam_factor=1)
+
+# plt.title('Rin with color code')
+# ax, _,color_bar= analyser.plot_dendogram_with_value_func(func = Rin_func, diam_factor=1)
+# color_bar.set_ylabel('Rin (M ohm)')
+
+
+#
+# from Neuron_analysis_tool.attenuation import plot_attenuation, record_to_value
+# s=list(analyser.cell.apic[20])[-1]
+# s2=list(analyser.cell.apic[5])[-1]
+# s3=list(analyser.cell.soma[0])[0]
+# s4=list(analyser.cell.apic[10])[0]
+# segs_to_indicate = {s:dict(color='green', alpha=0.5, size=50), s2:dict(color='b', alpha=0.75, size=20), s3:dict(color='r', alpha=0.3, size=20), s4:dict(color='k', alpha=0.25, size=20)}
+# start_seg=list(analyser.cell.soma[0])[0]
+# start_seg=list(analyser.cell.apic[29])[-1]
+# ax, norm_by = plot_attenuation(analyser.cell, start_seg, protocol=long_pulse_protocol, more_conductances=analyser.more_conductances, color_func=analyser.colors, ax=None, record_name='v',
+#                      cut_start_ms=None, record_to_value=record_to_value, norm_by = None, norm=True, electrical=True,
+#                      seg_to_indicate=segs_to_indicate, ls='-')
+# y_ticks = np.array([10**0, 10**-1])
+# ax.set_yticks(y_ticks)
 # fig, ax = analyser.create_card(scale=500, start_seg=list(analyser.cell.apic[29])[-1], diam_factor=1, factor_e_space=100)
 # fig, ax = analyser.create_card(scale=500, start_seg=list(analyser.cell.soma[0])[0], diam_factor=1, factor_e_space=100)
 plt.show()

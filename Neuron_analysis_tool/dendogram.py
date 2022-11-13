@@ -3,6 +3,7 @@ from Neuron_analysis_tool.distance import Distance
 from neuron import h
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+from Neuron_analysis_tool.utils import LAMDA, MICRO
 
 FIX_DIAM=1
 BRANCH_SPACE=2
@@ -10,7 +11,7 @@ BRANCH_SPACE=2
 
 def plot_recursive(sec, distance, ax, color_func, x_pos, ignore_sections=[], segs_to_indecate=dict(), electrical=True, diam_factor=None):
     # start_end = distance.get_sec_start_end(sec, electrical=electrical)
-    [color, part_name]=color_func.get_seg_color(list())
+    [color, part_name]=color_func.get_seg_color(list(sec)[0])
     # colors, lengths = color_func(sec, distance.get_sec_parent(sec).sec) # change to seg colors!!!!!!!
     mid_points = [x_pos]
     mean_points=[]
@@ -46,7 +47,7 @@ def plot_recursive(sec, distance, ax, color_func, x_pos, ignore_sections=[], seg
 def plot_dendogram(cell, start_seg, more_conductances, color_func, ax=None, plot_legend=False, ignore_sections=[], segs_to_indecate=dict(), electrical=True, diam_factor=None, distance=None):
     if ax is None:
         ax = plt.gca()
-    if (distance is None) or (not distance.start_seg==start_seg):
+    if (distance is None) or (not distance.start_seg == start_seg):
         distance = Distance(cell, more_conductances)
         distance.compute(start_seg=start_seg)
     x_pos = 0.0
@@ -80,6 +81,13 @@ def plot_dendogram(cell, start_seg, more_conductances, color_func, ax=None, plot
         legend_elements = [Line2D([0], [0], color=color_func.color_dict[label], lw=2, label=label) for label in color_func.color_dict]
         ax.legend(handles=legend_elements, loc="best")
     max_y = ax.get_ylim()[1]
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    if electrical:
+        ax.set_ylabel('distance from origin ('+LAMDA+')')
+    else:
+        ax.set_ylabel('distance from origin ('+MICRO+'m)')
+
     return max_y, mid_points[-1]
 
 

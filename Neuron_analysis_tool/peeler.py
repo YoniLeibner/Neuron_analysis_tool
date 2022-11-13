@@ -5,11 +5,9 @@ import tkinter as Tkinter
 import tkinter.filedialog as tkFileDialog
 import os,pickle
 
-
-SHIFT_FACTOR = 0.05
+SHIFT_FACTOR = 0.05 # up down sift in mV
 
 class Peeler(object):
-
     def __init__(self):
         self.fig, self.ax = plt.subplots(1, 2)
         # self.fig, self.ax = plt.subplots(2, 2, gridspec_kw={'height_ratios': [14, 1]})

@@ -82,7 +82,7 @@ def cell_to_points(cell, color_func, rotation_matrix=np.eye(3), rotation_matrix_
     return all_points
 
 
-def plot(ax, all_points, norm, cmap, add_nums=False, seg_to_indicate={}, counter=None, diam_factor=None, ignore_soma=False):
+def plot(ax, all_points, add_nums=False, seg_to_indicate={}, counter=None, diam_factor=None, ignore_soma=False):
     lines=[]
     segs = []
     for sec in all_points:
@@ -99,10 +99,7 @@ def plot(ax, all_points, norm, cmap, add_nums=False, seg_to_indicate={}, counter
                 diam=1
             else:
                 diam*=diam_factor
-            if norm is None:
-                lines.append(ax.plot(x, y, color=c, linewidth=diam, zorder=1)[0])
-            else:
-                lines.append(ax.plot(x, y, color=cmap(norm(c)), linewidth=diam, zorder=1)[0])
+            lines.append(ax.plot(x, y, color=c, linewidth=diam, zorder=1)[0])
             segs.append(seg)
             # prev_point = cur_point
 
@@ -121,8 +118,8 @@ def get_norm(all_vals):
     return norm
 
 def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate={},
-               counter=None, cmap = plt.cm.coolwarm, norm_colors=True, fig=None,  ax=None, bounds=None,
-               sec_to_change =None, diam_factor=None, plot_color_bar=True, theta=0, ignore_sections=[], ignore_soma=False, color_bar_idx = [0.9, 0.2, 0.02, 0.6]):
+               counter=None, fig=None,  ax=None,
+               sec_to_change =None, diam_factor=None, plot_color_bar=True, theta=0, ignore_sections=[], ignore_soma=False, color_bar_idx = [0.9, 0.2, 0.02, 0.6]): #cmap = plt.cm.coolwarm, norm_colors=True,
 
 
     all_points_arr = []
@@ -159,18 +156,6 @@ def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate=
     if ax is None:
         fig = plt.figure(figsize=(20, 20))
         ax = plt.axes()
-
-    if norm_colors and bounds is None:
-        all_color_vals = []
-        for sec in all_points:
-            for i, d in enumerate(all_points[sec]):
-                all_color_vals.append(all_points[sec][i]['color'])
-        norm = get_norm(all_color_vals)
-    elif norm_colors:
-        norm = get_norm(bounds)
-    else:
-        norm=None
-
     all_points2 = dict()
     for sec in tqdm(all_points, desc='optimizing lines'):
         if sec in cell.soma:
@@ -201,12 +186,10 @@ def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate=
         soma_y = abs(all_points[sec][0]['y'][0] - all_points[sec][-1]['y'][-1])
         soma_angle = np.rad2deg(np.arctan(soma_y/soma_x))
     all_points=all_points2
-    ax, lines, segs = plot(ax, all_points, norm=norm, cmap=cmap, add_nums=add_nums, seg_to_indicate=seg_to_indicate,counter=counter, diam_factor=diam_factor, ignore_soma=ignore_soma)
+    ax, lines, segs = plot(ax, all_points, add_nums=add_nums, seg_to_indicate=seg_to_indicate,counter=counter, diam_factor=diam_factor, ignore_soma=ignore_soma)
     if ignore_soma:
         segs.append(list(cell.soma[0])[len(list(cell.soma[0]))//2])
         c, _ = color_func(segs[-1])
-        if norm is not None:
-            c = cmap(norm(c))
         lines.append(ax.add_patch(mpl.patches.Ellipse((0, 0), soma_length*2, soma_diam*2, soma_angle, color=c, clip_on=False, zorder=2)))
         for seg in seg_to_indicate.keys():
             if seg.sec == cell.soma[0]:
@@ -216,11 +199,4 @@ def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate=
     # todo change x, y values to electrical units
 
 
-    if norm_colors and plot_color_bar:
-        cax = fig.add_axes(color_bar_idx)
-        cb = mpl.colorbar.ColorbarBase(cax, cmap=cmap, norm=norm, spacing='uniform')
-        # cb.set_label('param')
-    else:
-        cb=None
-        cax=None
-    return fig, ax, cax, all_points, lines, segs
+    return fig, ax, all_points, lines, segs

@@ -37,7 +37,7 @@ def plot_attenuation(cell, start_seg, protocol, more_conductances, color_func=co
 
 
     for sec in attanuation_vals:
-        if sec in cell.axon: continue
+        if sec in cell.axonal: continue
         for seg in attanuation_vals[sec]:
             if seg == start_seg: continue
             parent_seg = distance.get_seg_parent(seg)

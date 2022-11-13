@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 
 class color_func:
     def __init__(self, parts_dict, color_dict, defult_name='else'):
@@ -39,3 +41,44 @@ class color_func:
         lengths = np.array(lengths)
         lengths /= lengths.sum()
         return colors, lengths
+
+
+
+class color_func_norm:
+    def __init__(self, value_dict, bounds=None, cmap=plt.cm.coolwarm):
+        self.value_dict=value_dict
+        if bounds is None:
+            bounds = []
+            for key in value_dict:
+                bounds+=list(value_dict[key].values())
+        self.cmap=cmap
+        self.norm = mpl.colors.Normalize(vmin=np.min(bounds), vmax=np.max(bounds))
+        self.color_dict = dict()
+        for key in value_dict:
+            self.color_dict[key] = dict()
+            for key2 in value_dict[key]:
+                self.color_dict[key][key2]= cmap(self.norm(value_dict[key][key2]))
+
+    def get_seg_color(self, seg):
+        return [self.color_dict[seg.sec][seg], '']
+
+    def __call__(self, sec, parent=None, *args, **kwargs):
+        return ['error'], ['error']
+
+
+class color_func_by_func:
+    def __init__(self, cell, func, bounds=None, cmap=plt.cm.coolwarm):
+        self.value_dict=dict()
+        for sec in cell.all:
+            self.value_dict[sec] = dict()
+            for seg in sec:
+                self.value_dict[sec][seg] = func(seg)
+        self.colors = color_func_norm(self.value_dict, bounds=bounds, cmap=cmap)
+        self.cmap=cmap
+        self.norm=self.colors.norm
+
+    def get_seg_color(self, seg):
+        return self.colors.get_seg_color(seg)
+
+    def __call__(self, sec, parent=None, *args, **kwargs):
+        return ['error'], ['error']
