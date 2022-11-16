@@ -1,3 +1,14 @@
+#########################################################
+#
+# author: Yoni Leibner
+# description: preset protocols for analyzer
+#                    somatic  long pulse
+#                    somatic short pulse
+#                    somatic simulated spikes (10 spikes)
+# date of modification: 16.11.2022
+#
+#########################################################
+
 from neuron import h
 import os
 import numpy as np

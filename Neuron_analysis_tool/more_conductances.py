@@ -1,3 +1,16 @@
+###########################################################
+#
+# author: Yoni Leibner
+# description: class to calc R_total currently seort only
+#              R_total at rest (after some run time)
+#              can be changed using the record class to
+#              record all conductances but its costy in
+#              memory to record all conductances, check to
+#              change the dt
+# date of modification: 16.11.2022
+#
+###########################################################
+
 from neuron import h
 import numpy as np
 

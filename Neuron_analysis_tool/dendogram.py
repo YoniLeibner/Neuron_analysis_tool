@@ -1,3 +1,12 @@
+#############################################################
+#
+# author: Yoni Leibner
+# description: plot the dendogram of the cell in micro-meters
+#              or electricl units
+# date of modification: 16.11.2022
+#
+#############################################################
+
 import numpy as np
 from Neuron_analysis_tool.distance import Distance
 from neuron import h
@@ -35,7 +44,7 @@ def plot_recursive(sec, distance, ax, color_func, x_pos, ignore_sections=[], seg
         [color, part_name]=color_func.get_seg_color(seg)
         ax.plot([m_point] * 2,  mul * np.array([start_end['start'], start_end['end']]), color=color, linewidth= FIX_DIAM if diam_factor is None else seg.diam * diam_factor, zorder=2)
         if seg in segs_to_indecate:
-            ax.scatter(m_point, mul * (start_end['start']+(start_end['end']-start_end['start'])/2.0), color=segs_to_indecate[seg]['color'], s=segs_to_indecate[seg]['size'], alpha=segs_to_indecate[seg]['alpha'], zorder=2)
+            ax.scatter(m_point, mul * (start_end['start']+(start_end['end']-start_end['start'])/2.0), color=segs_to_indecate[seg]['color'], s=segs_to_indecate[seg]['size'], alpha=segs_to_indecate[seg]['alpha'], zorder=3)
     if len(sons) > 1:
         sec_start_end = distance.get_sec_start_end(sec, electrical=electrical)
         ax.plot([mean_points[0], mean_points[-1]], [sec_start_end['end']* mul] * 2 , color=color, linewidth= FIX_DIAM if diam_factor is None else seg.diam * diam_factor, zorder=2)  # plot vertical at end
@@ -72,7 +81,7 @@ def plot_dendogram(cell, start_seg, more_conductances, color_func, ax=None, plot
                 start_end = distance.get_start_end(seg, electrical=electrical)
                 ax.plot([np.mean(mean_points)]*2, [start_end['start']*mul, start_end['end']*mul], color=color, linewidth= FIX_DIAM if diam_factor is None else start_seg.diam * diam_factor, zorder=2)  # plot vertical at end
                 if seg in segs_to_indecate:
-                    ax.scatter(np.mean(mean_points), mul * (start_end['start'] + (start_end['end'] - start_end['start']) / 2.0), color=segs_to_indecate[seg]['color'], s=segs_to_indecate[seg]['size'], alpha=segs_to_indecate[seg]['alpha'], zorder=2)
+                    ax.scatter(np.mean(mean_points), mul * (start_end['start'] + (start_end['end'] - start_end['start']) / 2.0), color=segs_to_indecate[seg]['color'], s=segs_to_indecate[seg]['size'], alpha=segs_to_indecate[seg]['alpha'], zorder=3)
         # ax.plot([np.mean(mean_points)]*2, [sec_start_end['start']*mul, sec_start_end['end']*mul], color=color, linewidth= FIX_DIAM if diam_factor is None else start_seg.diam * diam_factor, zorder=2)  # plot vertical at end
         total_means.append(np.mean(mean_points))
     if len(total_means) > 1:

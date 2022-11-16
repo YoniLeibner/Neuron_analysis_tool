@@ -1,3 +1,13 @@
+###########################################################
+#
+# author: Yoni Leibner
+# description: plot the morphology in 2d based on the
+#              samplaed points of the neuron and color each
+#              segment with the color func class
+# date of modification: 16.11.2022
+#
+###########################################################
+
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.patheffects as path_effects

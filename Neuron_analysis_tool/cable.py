@@ -1,3 +1,12 @@
+#############################################################
+#
+# author: Yoni Leibner
+# description: calculate the equvelant cable from a
+#              givin start seg
+# date of modification: 16.11.2022
+#
+#############################################################
+
 import numpy as np
 from Neuron_analysis_tool.distance import Distance
 

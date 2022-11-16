@@ -1,3 +1,14 @@
+##########################################################################################
+#
+# author: Yoni Leibner
+# description: color func based on each segment
+#                       color_func - by segment grouping
+#                       color_func_norm - by segment values
+#                       color_func_by_func - by segment values based on a function
+# date of modification: 16.11.2022
+#
+##########################################################################################
+
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt

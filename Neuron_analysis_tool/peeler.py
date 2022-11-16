@@ -1,3 +1,13 @@
+#########################################################
+#
+# author: Yoni Leibner
+# description: a Gui based on matplotlib and tkinter.
+#               this tool meant to help peeling exponential
+#               voltage responses
+# date of modification: 16.11.2022
+#
+#########################################################
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
@@ -5,12 +15,11 @@ import tkinter as Tkinter
 import tkinter.filedialog as tkFileDialog
 import os,pickle
 
-SHIFT_FACTOR = 0.05 # up down sift in mV
+SHIFT_FACTOR = 0.05 # up down shift in mV
 
 class Peeler(object):
     def __init__(self):
         self.fig, self.ax = plt.subplots(1, 2)
-        # self.fig, self.ax = plt.subplots(2, 2, gridspec_kw={'height_ratios': [14, 1]})
         plt.subplots_adjust(bottom=0.2, wspace=0.35)
         self.buttoms_ax = plt.axes([0, 0.005, 0.1, 0.075])
         self.start_buttons()
@@ -46,7 +55,7 @@ class Peeler(object):
         self.bdown = Button(b6, 'Down')
         self.bdown_id = self.bdown.on_clicked(self.down)
 
-        self.bfit = Button(b7, 'fit')
+        self.bfit = Button(b7, 'peel')
         self.bfit_id = self.bfit.on_clicked(self.fit_btn)
 
         self.bsave = Button(b8, 'Save')
@@ -66,7 +75,7 @@ class Peeler(object):
         self.bdown.on_clicked(self.up)
         self.bdown.label.set_text('Down')
         self.bdown.on_clicked(self.down)
-        self.bfit.label.set_text('fit')
+        self.bfit.label.set_text('peel')
         self.bsave.label.set_text('Save')
         self.breturn.label.set_text('return')
 
@@ -82,7 +91,7 @@ class Peeler(object):
         self.bup.on_clicked(self.pass_func)
         self.bdown.label.set_text('')
         self.bdown.on_clicked(self.pass_func)
-        self.bfit.label.set_text('fit')
+        self.bfit.label.set_text('peel')
         self.bsave.label.set_text('Save')
         self.breturn.label.set_text('return')
 
@@ -209,7 +218,7 @@ class Peeler(object):
             self.plot(current_num-1)
         else:
             self.plot(current_num)
-            self.bfit.label.set_text('fit')
+            self.bfit.label.set_text('peel')
             self.ready_to_fit=True
             self.C.pop(-1)
             self.tau.pop(-1)
@@ -274,7 +283,7 @@ class Peeler(object):
             V_start = np.log(self.V[current_num][self.T[current_num]>=start][0])
             V_end = np.log(self.V[current_num][self.T[current_num]>=end][0])
             self.bounds.append([start, end])
-            self.ax[1].scatter([start, end], [V_start, V_end], zorder=3)
+            self.ax[1].scatter([start, end], [V_start, V_end], zorder=3, color='r')
             X = self.T[current_num].copy()
             self.ax[1].plot(X, np.log(self.C[-1]) + -1.0/self.tau[-1]*X, zorder=2)
             self.fig.suptitle('tau '+str(len(self.tau))+' = '+str(round(tau, 3)))
@@ -298,7 +307,7 @@ class Peeler(object):
         self.V.append(V)
         self.plot(current_num + 1)
         self.fig.suptitle('')
-        self.bfit.label.set_text('fit')
+        self.bfit.label.set_text('peel')
         self.ready_to_fit = True
 
     def save(self, event):
@@ -321,17 +330,12 @@ class Peeler(object):
                 estimated_V  = c * np.exp(-X / tau)
             else:
                 estimated_V += c * np.exp(-X/ tau)
-        # for b in self.bounds:
-        #     V_start = np.log(self.V[base_idx][self.T[base_idx] >= b[0]][0])
-        #     V_end = np.log(self.V[base_idx][self.T[base_idx] >= b[1]][0])
-        #     self.ax[1].scatter(b, [V_start, V_end], zorder=3)
         self.ax[0].plot(X, estimated_V, color='r', ls='--')
         self.ax[1].set_ylim(ymin=y_lim[0], ymax=y_lim[1])
-        self.fig.suptitle(', '.join(['tau'+str(i)+'='+str(round(self.tau[i], 1)) for i in range(len(self.tau))])+' (ms)')
+        self.fig.suptitle('peeling results')
         self.fig.canvas.draw()
         f = tkFileDialog.asksaveasfile(mode='w', defaultextension=".png")
         if f:  # asksaveasfile return `None` if dialog closed with "cancel".
-            # self.
             name = f.name
             plt.savefig(name)
             f.close()
@@ -346,6 +350,7 @@ class Peeler(object):
                                 tau=self.tau,
                                 idx_fit_start=self.idx_fit_start,
                             ), open(data_save_name, 'wb'))
+        else:
+            self.fig.suptitle('didnt save, please try again')
 
 a=Peeler()
-b=1

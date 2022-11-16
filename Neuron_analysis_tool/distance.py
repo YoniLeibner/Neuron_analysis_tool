@@ -1,4 +1,13 @@
-import neuron
+#########################################################
+#
+# author: Yoni Leibner
+# description: class that calculate the distance of each
+#              segment from the start seg both in
+#              micro-meters and in electrical units
+# date of modification: 16.11.2022
+#
+#########################################################
+
 from neuron import h
 import numpy as np
 from Neuron_analysis_tool.utils import get_segment_length_lamda, get_segment_length_um
@@ -25,15 +34,12 @@ class Distance:
         if sec==cell.soma[0]:
             sons = list(cell.apical)
             parent = list(cell.basal)
-            soma_centered = True
         else:
             sons = sec.children()
             if sec.parentseg() is None:
                 parent = []
             else:
                 parent = [sec.parentseg().sec]
-            soma_centered = False
-
         h.distance(0, start_seg.x, sec=sec)
         segs = [seg for seg in sec]
         done = set()

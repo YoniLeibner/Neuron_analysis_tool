@@ -1,3 +1,11 @@
+#########################################################
+#
+# author: Yoni Leibner
+# description: Analyzer utils
+# date of modification: 16.11.2022
+#
+#########################################################
+
 import numpy as np
 from neuron import h
 

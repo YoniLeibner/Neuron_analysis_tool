@@ -1,3 +1,13 @@
+#############################################################
+#
+# author: Yoni Leibner
+# description: calculate and plot the attanuation in a cell
+#              following a givin protocol x axis can be shown
+#              in micro-meters or electricl units
+# date of modification: 16.11.2022
+#
+#############################################################
+
 import numpy as np
 from Neuron_analysis_tool.record import record_all
 from Neuron_analysis_tool.distance import Distance

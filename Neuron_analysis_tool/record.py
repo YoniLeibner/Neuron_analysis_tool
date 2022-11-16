@@ -1,3 +1,13 @@
+#########################################################
+#
+# author: Yoni Leibner
+# description: record class to record from a segment and
+#                           from all the neuron segments
+# date of modification: 16.11.2022
+#
+#########################################################
+
+
 import neuron
 from neuron import h
 import numpy as np
