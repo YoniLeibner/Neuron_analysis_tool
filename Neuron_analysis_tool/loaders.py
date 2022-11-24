@@ -73,7 +73,10 @@ def open_L5PC():
     h.load_file("data/L5PC/L5PCbiophys3.hoc")
     h.load_file("data/L5PC/L5PCtemplate.hoc")
     cell = h.L5PCtemplate(morphology_file)
+    return get_parts_and_colors(cell)
 
+
+def get_parts_and_colors(cell):
     parts_dict = {'soma': [], 'basal': [], 'apical': [], 'axon': [], 'else': []}
     colors_dict = {'soma': 'k', 'basal': 'r', 'apical': 'b', 'axon': 'green', 'else': 'cyan'}
     for sec in cell.all:

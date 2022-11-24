@@ -21,7 +21,7 @@ from Neuron_analysis_tool.record import record, record_all
 from Neuron_analysis_tool.distance import Distance
 from Neuron_analysis_tool.utils import seg_Rin_func, get_segment_length_lamda, get_segment_length_um, LAMDA, MICRO
 from Neuron_analysis_tool.protocols import *
-from Neuron_analysis_tool.loaders import open_morph, open_swc, open_L5PC, open_ASC, open_rall_tree
+from Neuron_analysis_tool.loaders import open_morph, open_swc, open_L5PC, open_ASC, open_rall_tree, get_parts_and_colors
 import matplotlib.pyplot as plt
 from moviepy.editor import VideoClip
 from moviepy.video.io.bindings import mplfig_to_npimage
@@ -42,8 +42,8 @@ class Analyzer():
             elif type == 'L5PC':
                 cell, parts_dict, colors_dict = open_L5PC()
 
-        assert parts_dict is not None
-        assert colors_dict is not None
+        if parts_dict is None:
+            cell, parts_dict, colors_dict = get_parts_and_colors(cell)
         self.type=type
         self.cell=cell
         self.parts_dict = parts_dict
