@@ -57,6 +57,11 @@ class record_all:
             for seg in sec:
                 self.record_dict[sec][seg].set_record(record_dict[sec][seg])
 
+    def push_records_seg(self, record_dict):
+        for sec in self.cell.all:
+            for seg in sec:
+                self.record_dict[sec][seg].set_record(record_dict[seg])
+
     def extract(self, extraction_func):
         for sec in self.record_dict:
             for seg in self.record_dict[sec]:

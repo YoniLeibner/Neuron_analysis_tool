@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="203c9854-7fa7-4948-a9c2-8a65a205a2b2" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/Analyzer.py" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/Analyzer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/__temp__.mp4" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/__temp__.mp4" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/example Rall model.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/example Rall model.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/example-L5pc.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/example-L5pc.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/example.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/example.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/record.py" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/record.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -72,8 +68,8 @@
       <file leaf-file-name="record.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/record.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="486">
-              <caret line="65" column="33" lean-forward="true" selection-start-line="65" selection-start-column="33" selection-end-line="65" selection-end-column="33" />
+            <state relative-caret-position="405">
+              <caret line="62" column="66" selection-start-line="62" selection-start-column="66" selection-end-line="62" selection-end-column="66" />
             </state>
           </provider>
         </entry>
@@ -897,8 +893,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/record.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="486">
-          <caret line="65" column="33" lean-forward="true" selection-start-line="65" selection-start-column="33" selection-end-line="65" selection-end-column="33" />
+        <state relative-caret-position="405">
+          <caret line="62" column="66" selection-start-line="62" selection-start-column="66" selection-end-line="62" selection-end-column="66" />
         </state>
       </provider>
     </entry>
