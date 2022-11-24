@@ -80,6 +80,7 @@ def get_parts_and_colors(cell):
     parts_dict = {'soma': [], 'basal': [], 'apical': [], 'axon': [], 'else': []}
     colors_dict = {'soma': 'k', 'basal': 'r', 'apical': 'b', 'axon': 'green', 'else': 'cyan'}
     for sec in cell.all:
+        if sec.nseg <=0: continue
         sec.nseg = int(sec.L / 20) + 1
         for seg in sec:
             if sec in cell.soma:
