@@ -52,15 +52,17 @@ class record_all:
         self.time = h.Vector()
         self.time.record(h._ref_t)
 
-    def push_records(self, record_dict):
+    def push_records(self, record_dict, time):
         for sec in self.cell.all:
             for seg in sec:
                 self.record_dict[sec][seg].set_record(record_dict[sec][seg])
+        self.time = time
 
-    def push_records_seg(self, record_dict):
+    def push_records_seg(self, record_dict, time):
         for sec in self.cell.all:
             for seg in sec:
                 self.record_dict[sec][seg].set_record(record_dict[seg])
+        self.time = time
 
     def extract(self, extraction_func):
         for sec in self.record_dict:
