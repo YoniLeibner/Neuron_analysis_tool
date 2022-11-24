@@ -209,7 +209,7 @@ class Analyzer():
                    factor_e_space=25, factor_m_space=10 ,
                    dots_loc_seg = [], ignore_sections=[],
                    cable_type='electric', start_loc=0, x_axis=True,
-                    factor=1, dots_size=10, start_color='k', plot_legend=True, distance=None): #'d3_2', 'dist'
+                    factor=1, dots_size=10, start_color='k', plot_legend=True, distance=None, extra=5): #'d3_2', 'dist'
         if ax is None:
             ax = plt.gca()
         if start_seg is None:
@@ -234,9 +234,9 @@ class Analyzer():
         shift = 0
         for part, direction in zip(results.keys(), [1, -1]):
             cable = results[part]['all'][cable_type].flatten()
-            if max_cable < cable.max() / 2:
-                max_cable = cable.max() / 2
-                shift = start_loc + cable.max() / factor / 2 + 5
+            if max_cable < cable.max() / 2.0:
+                max_cable = cable.max() / 2.0
+                shift = start_loc + cable.max() / factor / 2.0
         for part, direction in zip(results, [1, -1]):
             cable = results[part]['all'][cable_type].flatten()
             if cable_type == 'd3_2':
@@ -245,7 +245,7 @@ class Analyzer():
             y = np.arange(0, len(cable), 1) / factor_e_space
 
             start_pos = -cable / 2.0 + shift
-            for morph_part in self.parts_dict.keys():#'basal', 'tuft', 'trunk', 'oblique']:
+            for morph_part in self.parts_dict.keys():
                 remove_start_diam = False
                 part_cable = results[part][morph_part][cable_type].flatten() / factor
                 if cable_type == 'd3_2':
@@ -308,7 +308,7 @@ class Analyzer():
 
         self.plot_morph(ax=ax[0], theta=theta, seg_to_indicate_dict=seg_to_indicate_dict, scale=scale, diam_factor=diam_factor, ignore_soma=not self.type.startswith('Rall_tree'))
         _, x_pos = self.plot_dendogram(start_seg=start_seg, ax=ax[1], electrical=True, plot_legend=False, segs_to_indecate=seg_to_indicate_dict, distance=distance)
-        self.plot_cable(start_seg=start_seg, ax=ax[1], factor_e_space=factor_e_space, cable_type=cable_type, plot_legend=plot_legend, start_loc=x_pos+10, start_color=start_color, dots_size=start_dots_size, distance=distance)
+        self.plot_cable(start_seg=start_seg, ax=ax[1], factor_e_space=factor_e_space, cable_type=cable_type, plot_legend=plot_legend, start_loc=x_pos+15, start_color=start_color, dots_size=start_dots_size, distance=distance)
         for a in ax[1:]:
             a.spines['top'].set_visible(False)
             a.spines['right'].set_visible(False)
@@ -350,13 +350,57 @@ class Analyzer():
         return fig, ax
 
 
+    def create_small_card(self, start_seg=None, theta=0, scale=500, factor_e_space=50, cable_type='d3_2', diam_factor=None, plot_legend=False, start_color='green', start_dots_size=50, **kwargs):
+        fig, ax = plt.subplots(1, 3, figsize=(12, 3), gridspec_kw={'width_ratios': [0.5, 1.5, 1]})
+        plt.subplots_adjust(wspace=0.5)
+        if start_seg is None:
+            start_seg = self.cell.soma[0]
+            start_seg = list(start_seg)
+            start_seg = start_seg[len(start_seg)//2]
+        seg_to_indicate_dict = {start_seg: dict(size=start_dots_size, color=start_color, alpha=1)}
+        distance = Distance(self.cell, self.more_conductances)
+        distance.compute(start_seg=start_seg)
+
+        self.plot_morph(ax=ax[0], theta=theta, seg_to_indicate_dict=seg_to_indicate_dict, scale=scale, diam_factor=diam_factor, ignore_soma=not self.type.startswith('Rall_tree'))
+        _, x_pos = self.plot_dendogram(start_seg=start_seg, ax=ax[1], electrical=True, plot_legend=False, segs_to_indecate=seg_to_indicate_dict, distance=distance)
+        self.plot_cable(start_seg=start_seg, ax=ax[2], factor_e_space=factor_e_space, cable_type=cable_type, plot_legend=plot_legend, start_loc=0, start_color=start_color, dots_size=start_dots_size, distance=distance)
+        for a in ax[1:]:
+            a.spines['top'].set_visible(False)
+            a.spines['right'].set_visible(False)
+        ax[1].set_axis_off()
+        x_lim = ax[1].get_xlim()
+        y_lim = ax[1].get_ylim()
+
+        ax[1].plot([x_lim[0], x_lim[0]+10], [y_lim[0], y_lim[0]], color='k')
+        if cable_type=='d3_2':
+            ax[1].text(x_lim[0], y_lim[0]-0.25, '10 ('+MICRO+'m)')
+            ax[2].set_xlabel('diameter (' + MICRO + 'm)')
+        else:
+
+            ax[1].text(x_lim[0], y_lim[0]-0.25, '10 ('+MICRO+'$m^{2}$)')
+            ax[2].set_xlabel('diameter (' + MICRO + '$m^{2}$)')
+
+        ax[1].plot([x_lim[0], x_lim[0]], [y_lim[0], y_lim[0] + 0.5], color='k')
+        ax[1].text(x_lim[0]-15, y_lim[0], '0.5 ('+LAMDA+')', rotation=90)
+        ax[2].set_ylabel('distance ('+LAMDA+')')
+
+        ax[1].set_xlim([x_lim[0]-15, x_lim[1]])
+        ax[1].set_ylim([y_lim[0]-0.25, y_lim[1]])
+        ax[1].set_ylabel('')
+
+        ax[0].set_title('morphology')
+        ax[1].set_title('dendogram')
+        ax[2].set_title('$d^{3/2}$ equivalent cable' if cable_type=='d3_2' else cable_type)
+        return fig, ax
+
+
     def record_protocol(self, protocol=spike_protocol, cut_start_ms=None, record_name='v'):
         records = record_all(self.cell, record_name=record_name)
         tstop, delay, dur, amp, extra = protocol(self.cell, self.cell.soma[0](0.5))
         if cut_start_ms is None:
-            cut_start_ms = delay - 50
+            cut_start_ms = max(delay - 50, 0)
         records.extract(lambda x:np.array(x)[int(cut_start_ms / h.dt):])
-        return records
+        return records, extra['draw_funcs'] if 'draw_funcs' in extra else []
 
     def save_movie_from_rec(self, record_dict, time, seg_to_indicate_dict=dict(), diam_factor=None,
                               sec_to_change=None, ignore_sections=[], theta=0, scale=500, cmap=plt.cm.turbo,
@@ -376,7 +420,7 @@ class Analyzer():
     def create_movie_from_rec(self, records, seg_to_indicate_dict=dict(), diam_factor=None,
                             sec_to_change=None, ignore_sections=[], theta=0, scale=500, cmap=plt.cm.turbo,
                             plot_color_bar=True, slow_down_factor=1, func_for_missing_frames=np.max, bounds = None,
-                            show_records_from=dict(), voltage_window=50, ylabel='v (mV)', xlabel='time (ms)', margin=0):
+                            show_records_from=dict(), voltage_window=50, ylabel='v (mV)', xlabel='time (ms)', margin=0, draw_funcs=[]):
 
         import matplotlib.style as mplstyle
         mplstyle.use('fast')
@@ -423,13 +467,19 @@ class Analyzer():
         lim_y = ax.get_ylim()
         time_text = ax.text(lim_x[0], lim_y[0], 'time: 0.0 (ms)')
         self.last_t = 0
-
+        self.to_remove = []
         def make_frame(t):
+            for elements_to_remove in self.to_remove:
+                for element in elements_to_remove:
+                    element.remove()
+            self.to_remove = []
             time_in_ms = t / slow_down_factor * 1000.0
             if self.last_t >= time_in_ms:
                 value_dict_by_sec = records.get_vals_at_t(t=0, default_res=0)
             else:
                 value_dict_by_sec = records.get_vals_at_dt(t1=self.last_t, t2=time_in_ms, default_res=0, dt_func = func_for_missing_frames)
+            for draw_func in draw_funcs:
+                self.to_remove.append(draw_func(self.last_t, time_in_ms, segs, lines, ax, records))
             self.last_t = time_in_ms
             if bounds:
                 norm = get_norm(bounds)
@@ -476,8 +526,22 @@ class Analyzer():
                             sec_to_change=None, ignore_sections=[], theta=0, scale=0, cmap=plt.cm.turbo,
                             plot_color_bar=True, save_to='', clip_name='clip', fps=None, threads=4, preset = 'ultrafast', slow_down_factor=1, func_for_missing_frames=np.mean):
 
-        records = self.record_protocol(protocol=protocol, cut_start_ms=cut_start_ms, record_name=record_name)
+        records, draw_funcs = self.record_protocol(protocol=protocol, cut_start_ms=cut_start_ms, record_name=record_name)
 
         self.create_movie_from_rec(records=records, slow_down_factor=slow_down_factor, func_for_missing_frames=func_for_missing_frames, theta=theta,
                                    scale=scale, cmap=cmap, seg_to_indicate_dict=seg_to_indicate_dict, diam_factor=diam_factor,sec_to_change=sec_to_change, ignore_sections=ignore_sections,
-                                   plot_color_bar=plot_color_bar)
+                                   plot_color_bar=plot_color_bar, draw_funcs=[])
+
+def set_time_ax(ax, t, v, color='k', title='', vline=None, remove_xticks=False,  xlim=None, ylim=None, ylabel='v (mV)', xlabel='time (ms)'):
+    ax.clear()
+    ax.plot(t, v, color=color)
+    if not ylim is None:
+        ax.set_ylim(ylim[0], ylim[1])
+    if not xlim is None:
+        ax.set_xlim(xlim[0], xlim[1])
+    if not vline is None:
+        ax.axvline(vline, color='r', ls='--')
+    ax.set_title(title)
+    ax.set_ylabel(ylabel)
+    if remove_xticks:
+        ax.set_xticks([])

@@ -30,6 +30,9 @@ class record:
             self.extract(lambda x: np.array(x))
         return func(self._record)
 
+    def set_record(self, record_to_set):
+        self._record = record_to_set
+
 
 class record_all:
     def __init__(self, cell, record_name='v'):
@@ -48,6 +51,11 @@ class record_all:
                     self.record_dict[sec][seg] = 'non_exsisting'
         self.time = h.Vector()
         self.time.record(h._ref_t)
+
+    def push_records(self, record_dict):
+        for sec in self.cell.all:
+            for seg in sec:
+                self.record_dict[sec][seg].set_record(record_dict[sec][seg])
 
     def extract(self, extraction_func):
         for sec in self.record_dict:
@@ -84,7 +92,6 @@ class record_all:
         assert t1<t2, 'the time bins have no are not corect, t1='+str(t1)+', t2='+str(t2)
         if type(self.time) == neuron.hoc.HocObject:
             self.extract(lambda x: np.array(x))
-        res = dict()
         indexs1 = np.where(self.time >= t1)[0]
         indexs2 = np.where(self.time >= t2)[0]
         assert len(indexs1) > 0, 'the time bin (t1'+str(t1)+') dont exsists, make sure you got the correct time between 0 and ' + str(self.time[-1])
@@ -112,6 +119,25 @@ class record_all:
             return np.zeros(self.time.shape)
         return self.record_dict[seg.sec][seg]._record.copy()
 
+    def get_record_at_dt(self, seg, t1, t2, dt_func = lambda x: np.max(x)):
+        assert seg.sec in self.record_dict, 'seg not valid'
+        assert seg in self.record_dict[seg.sec], 'seg not valid'
+        assert t1<t2, 'the time bins have no are not corect, t1='+str(t1)+', t2='+str(t2)
+        if type(self.time) == neuron.hoc.HocObject:
+            self.extract(lambda x: np.array(x))
+        indexs1 = np.where(self.time >= t1)[0]
+        indexs2 = np.where(self.time >= t2)[0]
 
+        assert len(indexs1) > 0, 'the time bin (t1'+str(t1)+') dont exsists, make sure you got the correct time between 0 and ' + str(self.time[-1])
+        assert len(indexs2) > 0, 'the time bin (t2'+str(t2)+') dont exsists, make sure you got the correct time between 0 and ' + str(self.time[-1])
+        func = lambda x: dt_func(x[indexs1[0]:indexs2[0]])
+        return self.record_dict[seg.sec][seg].get_val(func)
+
+    def is_existing(self, seg):
+        if seg.sec in self.record_dict:
+            if seg in self.record_dict[seg.sec]:
+                if not self.record_dict[seg.sec][seg] == 'non_exsisting':
+                    return True
+        return False
 
 
