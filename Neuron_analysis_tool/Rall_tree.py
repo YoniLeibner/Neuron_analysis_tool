@@ -16,7 +16,7 @@ EPS = 1e-3
 depth = 5
 spread_factor = 30.0
 EQ_DIAM=10.0
-
+section_length = 0.25 # in lamda units
 
 def section(f, start, end, diam, num, prev_num, type=3, n_samples=10):
     assert n_samples > 0
@@ -42,7 +42,7 @@ def create_tree(max_depth=3, Rm=10000.0, Ra=100.0, E_length=0.25, n_samples=10):
     f.close()
 
 
-def get_length(Rm, Ra, diam, E_length=0.25):
+def get_length(Rm, Ra, diam, E_length=section_length):
     lamda = ((Rm / Ra) * (diam / 10000.0 / 4.0)) ** 0.5
     return lamda * E_length * 10000.0
 
@@ -50,7 +50,7 @@ def get_length(Rm, Ra, diam, E_length=0.25):
 def helping(f, depth, max_depth=3, start={'x': 0, 'y': 0, 'z': 0}, num_to_create=1, diam=1.0, Rm=10000.0, Ra=100.0,
             n_samples=10, E_length=0.25, num=0, prev_num=-1, types=[3, 4]):
     if depth >= max_depth: return num
-    l = get_length(Rm, Ra, diam, E_length=0.25)
+    l = get_length(Rm, Ra, diam, E_length=section_length)
     if num_to_create == 1:
         end = {'x': start['x'] + l, 'y': start['y'], 'z': start['z']}
         start['z'] += EPS
