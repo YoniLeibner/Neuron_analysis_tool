@@ -153,7 +153,7 @@ class Analyzer():
             colors = color_func_norm(value_dict=value_dict, bounds=bounds, cmap=cmap)
 
         return self.plot_morph_with_values({}, theta=theta, diam_factor=diam_factor, cmap=cmap, ax=ax, seg_to_indicate_dict=seg_to_indicate_dict,
-                                            sec_to_change=sec_to_change, ignore_sections=ignore_sections, scale=scale, plot_color_bar=plot_color_bar, bounds=bounds, colors=colors)[:3]
+                                            sec_to_change=sec_to_change, ignore_sections=ignore_sections, scale=scale, plot_color_bar=plot_color_bar, bounds=bounds, colors=colors)
 
     def plot_dendogram(self, start_seg = None ,ax=None, segs_to_indecate = dict(), plot_legend=True, ignore_sections=[], electrical=False, diam_factor=None, distance=None):
         if start_seg is None:
@@ -306,7 +306,7 @@ class Analyzer():
         distance = Distance(self.cell, self.more_conductances)
         distance.compute(start_seg=start_seg)
 
-        self.plot_morph(ax=ax[0], theta=theta, seg_to_indicate_dict=seg_to_indicate_dict, scale=scale, diam_factor=diam_factor, ignore_soma=not self.type.startswith('Rall_tree'))
+        _,_,_ = self.plot_morph(ax=ax[0], theta=theta, seg_to_indicate_dict=seg_to_indicate_dict, scale=scale, diam_factor=diam_factor, ignore_soma=not self.type.startswith('Rall_tree'))
         _, x_pos, _, _ = self.plot_dendogram(start_seg=start_seg, ax=ax[1], electrical=True, plot_legend=False, segs_to_indecate=seg_to_indicate_dict, distance=distance)
         self.plot_cable(start_seg=start_seg, ax=ax[1], factor_e_space=factor_e_space, cable_type=cable_type, plot_legend=plot_legend, start_loc=x_pos+15, start_color=start_color, dots_size=start_dots_size, distance=distance)
         for a in ax[1:]:
@@ -396,7 +396,7 @@ class Analyzer():
 
     def record_protocol(self, protocol=spike_protocol, cut_start_ms=None, record_name='v'):
         records = record_all(self.cell, record_name=record_name)
-        tstop, delay, dur, amp, extra = protocol(self.cell, self.cell.soma[0](0.5))
+        delay, extra = protocol(self.cell, self.cell.soma[0](0.5))
         if cut_start_ms is None:
             cut_start_ms = max(delay - 50, 0)
         records.extract(lambda x:np.array(x)[int(cut_start_ms / h.dt):])
@@ -421,7 +421,7 @@ class Analyzer():
                             sec_to_change=None, ignore_sections=[], theta=0, scale=500, cmap=plt.cm.turbo,
                             plot_color_bar=True, slow_down_factor=1, func_for_missing_frames=np.max, bounds = None,
                             show_records_from=dict(), voltage_window=50, ylabel='v (mV)', xlabel='time (ms)', margin=0, draw_funcs=[],
-                            base_plot_type='morph', start_seg = None, electrical=True):
+                            base_plot_type='morph', start_seg = None, electrical=True, figsize=(5,5)):
         import matplotlib.style as mplstyle
         if start_seg is None:
             start_seg = list(self.cell.soma[0])
@@ -434,12 +434,12 @@ class Analyzer():
         max_value = records.get_max()+margin
         voltage_segs = list(show_records_from.keys())
         if len(show_records_from)==0:
+            fig = plt.figure(figsize=figsize)
             ax = plt.gca()
-            fig = ax.get_figure()
             color_bar_idx = [0.8, 0.2, 0.02, 0.6]
         else:
             from matplotlib.gridspec import GridSpec
-            fig = plt.figure(constrained_layout=True)
+            fig = plt.figure(constrained_layout=True, figsize=figsize)
             plt.subplots_adjust(wspace=.75, hspace=0.35)
             gs = GridSpec(2, 2, figure=fig)
             ax = fig.add_subplot(gs[:, 0])

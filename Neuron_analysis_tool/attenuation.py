@@ -35,7 +35,7 @@ def plot_attenuation(cell, start_seg, protocol, more_conductances, color_func=co
         distance = Distance(cell, more_conductances)
         distance.compute(start_seg=start_seg)
     records = record_all(cell, record_name=record_name)
-    tstop, delay, dur, amp, extra = protocol(cell, start_seg)
+    delay, extra = protocol(cell, start_seg)
     if cut_start_ms is None:
         cut_start_ms = delay - 50
     records.extract(lambda x:np.array(x)[int(cut_start_ms / h.dt):])
