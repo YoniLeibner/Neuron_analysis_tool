@@ -26,6 +26,8 @@ def plot_attenuation(cell, start_seg, protocol, more_conductances, color_func=co
                      seg_to_indicate=dict(), distance=None, **kwargs):
     if ax is None:
         ax = plt.gca()
+    lines = []
+    segs=[]
     if start_seg is None:
         segs = list(cell.soma[0])
         start_seg = segs [len(segs)//2]
@@ -55,9 +57,10 @@ def plot_attenuation(cell, start_seg, protocol, more_conductances, color_func=co
             x = [start_end['start'], start_end['end']]
             y=[attanuation_vals[parent_seg.sec][parent_seg]/norm_by, attanuation_vals[seg.sec][seg]/norm_by]
             color, part_name = color_func.get_seg_color(seg)
-            ax.plot(x[-2:], y[-2:], color=color, zorder=1, **kwargs)
+            segs.append(seg)
+            lines.append(ax.plot(x[-2:], y[-2:], color=color, zorder=1, **kwargs)[0])
             if seg in seg_to_indicate.keys():
                 ax.scatter(x[-1], y[-1], color=seg_to_indicate[seg]['color'], s=seg_to_indicate[seg]['size'], alpha=seg_to_indicate[seg]['alpha'], zorder=3)
     if start_seg in seg_to_indicate.keys():
         ax.scatter(0, attanuation_vals[start_seg.sec][start_seg]/norm_by, color=seg_to_indicate[start_seg]['color'], s=seg_to_indicate[start_seg]['size'], alpha=seg_to_indicate[start_seg]['alpha'], zorder=3)
-    return ax, norm_by
+    return ax, norm_by, lines, segs

@@ -63,10 +63,9 @@ def get_cable(cell,
             total_res[direction][part]['dist'][m_idx] += seg.area()
             total_res[direction]['all']['electric'][e_idx]+=seg.area()
             total_res[direction][part]['electric'][e_idx]+=seg.area()
-            if not (sum(e_threshs<=start_end['start']) == sum(e_threshs<start_end['end'])): #we croosed a threshold
-                e_idx_start = np.where(e_threshs <= start_end['start'])[0][-1]
-                total_res[direction]['all']['d3_2'][e_idx_start] += seg.diam**1.5
-                total_res[direction][part]['d3_2'][e_idx_start] += seg.diam**1.5
+            total_res[direction]['all']['d3_2'][np.logical_and(e_threshs >= start_end['start'], e_threshs < start_end['end'])] += seg.diam ** 1.5
+            total_res[direction][part]['d3_2'][np.logical_and(e_threshs >= start_end['start'], e_threshs < start_end['end'])] += seg.diam ** 1.5
+
 
     for direction in total_res.keys():
         for part in total_res[direction].keys():

@@ -82,7 +82,7 @@ class Analyzer():
             ax = plt.gca()
         ax.set_aspect('equal', adjustable='box')
         fig = plt.gca().figure
-        fig, ax, points_dict, lines, segs = plot_morph(self.cell, color_func=self.colors.get_seg_color, scatter=False, add_nums=False,
+        ax, lines, segs = plot_morph(self.cell, color_func=self.colors.get_seg_color, scatter=False, add_nums=False,
                                                      seg_to_indicate=seg_to_indicate_dict,
                                                      fig=fig, ax=ax, diam_factor=diam_factor,
                                                      sec_to_change=sec_to_change,
@@ -99,7 +99,7 @@ class Analyzer():
             fontsize = (y_lim[1]-y_lim[0])*0.01
             ax.text(x_lim[0]-fontsize*6, y_lim[0], str(scale)+' ('+MICRO+'m)', rotation=90, fontsize=fontsize)
             ax.set_xlim([x_lim[0]-fontsize*6, x_lim[1]])
-        return ax
+        return ax, lines, segs
 
     def plot_morph_with_values(self, seg_val_dict, ax=None, seg_to_indicate_dict = {}, diam_factor=None,
                                sec_to_change=None, ignore_sections=[], theta=0, scale=0, cmap=plt.cm.turbo,
@@ -112,7 +112,7 @@ class Analyzer():
         ax.set_aspect('equal', adjustable='box')
         if colors is None:
             colors = color_func_norm(value_dict=seg_val_dict, bounds=bounds, cmap=cmap)
-        fig, ax, points_dict, lines, segs = plot_morph(self.cell, color_func=colors.get_seg_color, scatter=False, add_nums=False,
+        ax, lines, segs = plot_morph(self.cell, color_func=colors.get_seg_color, scatter=False, add_nums=False,
                                                      seg_to_indicate=seg_to_indicate_dict,
                                                      fig=fig, ax=ax, diam_factor=diam_factor,
                                                      sec_to_change=sec_to_change,
@@ -135,7 +135,7 @@ class Analyzer():
 
             ax.text(x_lim[0]-20, y_lim[0], str(scale)+' ('+MICRO+'m)', rotation=90, fontsize=(y_lim[1]-y_lim[0])*0.01)
             ax.set_xlim([x_lim[0] - 20, x_lim[1]])
-        return ax, cax, colors, points_dict, lines, segs
+        return ax, cax, colors, lines, segs
 
     def plot_morph_with_value_func(self, func=seg_Rin_func, run_time=0, theta=0.0, diam_factor=None, cmap=plt.cm.turbo,
                                    ax = None, seg_to_indicate_dict = {},
@@ -159,10 +159,10 @@ class Analyzer():
         if start_seg is None:
             start_sec = list(self.cell.soma[0])
             start_seg = start_sec[len(start_sec)//2]
-        max_y, x_pos = plot_dendogram(self.cell, start_seg, self.more_conductances,
+        max_y, x_pos, lines, segs = plot_dendogram(self.cell, start_seg, self.more_conductances,
                        self.colors, ax=ax, plot_legend=plot_legend, ignore_sections=ignore_sections,
                        segs_to_indecate=segs_to_indecate, electrical=electrical, diam_factor=diam_factor, distance=distance)
-        return ax, x_pos
+        return ax, x_pos, lines, segs
 
     def plot_dendogram_with_values(self, seg_val_dict, start_seg = None ,ax=None, segs_to_indecate = dict(), plot_legend=True,
                                    ignore_sections=[], electrical=False, diam_factor=None, distance=None, bounds=None, cmap=plt.cm.turbo,
@@ -174,7 +174,7 @@ class Analyzer():
             ax = plt.gca()
         if colors is None:
             colors = color_func_norm(value_dict=seg_val_dict, bounds=bounds, cmap=cmap)
-        max_y, x_pos = plot_dendogram(self.cell, start_seg, self.more_conductances, colors,
+        max_y, x_pos, lines, segs = plot_dendogram(self.cell, start_seg, self.more_conductances, colors,
                                       ax=ax, plot_legend=plot_legend, ignore_sections=ignore_sections,
                                       segs_to_indecate=segs_to_indecate, electrical=electrical, diam_factor=diam_factor,
                                       distance=distance)
@@ -184,7 +184,7 @@ class Analyzer():
         else:
             color_bar = None
             cax = None
-        return ax, x_pos, cax, colors
+        return ax, x_pos, cax, colors, lines, segs
 
 
     def plot_dendogram_with_value_func(self, func, start_seg = None ,ax=None, segs_to_indecate = dict(),
@@ -279,10 +279,10 @@ class Analyzer():
             ax.legend([], [], loc='best')
         return ax
 
-    def plot_attanuation(self, protocol=long_pulse_protocol, ax=None, seg_to_indicate_dict=dict(), start_seg =None,
+    def plot_attenuation(self, protocol=long_pulse_protocol, ax=None, seg_to_indicate_dict=dict(), start_seg =None,
                          record_to_value_func=record_to_value, norm=True, record_name='v', norm_by=None, electrical=True, distance=None, **kwargs):
 
-        ax, norm_by = plot_attenuation(cell=self.cell, start_seg=start_seg, protocol=protocol, more_conductances=self.more_conductances, color_func=self.colors, ax=ax, record_name=record_name,
+        ax, norm_by, lines, segs = plot_attenuation(cell=self.cell, start_seg=start_seg, protocol=protocol, more_conductances=self.more_conductances, color_func=self.colors, ax=ax, record_name=record_name,
                          cut_start_ms=None, record_to_value=record_to_value_func, norm_by=norm_by, norm=norm, electrical=electrical,
                          seg_to_indicate=seg_to_indicate_dict, distance=distance, **kwargs)
 
@@ -293,7 +293,7 @@ class Analyzer():
         else:
             ax.set_ylabel('attanuation (mV)')
 
-        return ax, norm_by
+        return ax, norm_by, lines, segs
 
     def create_card(self, start_seg=None, theta=0, scale=500, factor_e_space=50, cable_type='d3_2', diam_factor=None, plot_legend=False, start_color='green', start_dots_size=50, **kwargs):
         fig, ax = plt.subplots(1, 4, figsize=(12, 3), gridspec_kw={'width_ratios': [0.5, 1.5, 1, 1]})
@@ -307,7 +307,7 @@ class Analyzer():
         distance.compute(start_seg=start_seg)
 
         self.plot_morph(ax=ax[0], theta=theta, seg_to_indicate_dict=seg_to_indicate_dict, scale=scale, diam_factor=diam_factor, ignore_soma=not self.type.startswith('Rall_tree'))
-        _, x_pos = self.plot_dendogram(start_seg=start_seg, ax=ax[1], electrical=True, plot_legend=False, segs_to_indecate=seg_to_indicate_dict, distance=distance)
+        _, x_pos, _, _ = self.plot_dendogram(start_seg=start_seg, ax=ax[1], electrical=True, plot_legend=False, segs_to_indecate=seg_to_indicate_dict, distance=distance)
         self.plot_cable(start_seg=start_seg, ax=ax[1], factor_e_space=factor_e_space, cable_type=cable_type, plot_legend=plot_legend, start_loc=x_pos+15, start_color=start_color, dots_size=start_dots_size, distance=distance)
         for a in ax[1:]:
             a.spines['top'].set_visible(False)
@@ -329,8 +329,8 @@ class Analyzer():
         ax[1].set_ylim([y_lim[0]-0.25, y_lim[1]])
         ax[1].set_ylabel('')
 
-        self.plot_attanuation(start_seg=start_seg, ax=ax[2], protocol=long_pulse_protocol, seg_to_indicate_dict=seg_to_indicate_dict, distance=distance, ** kwargs)
-        self.plot_attanuation(start_seg=start_seg, ax=ax[3], protocol=short_pulse_protocol, seg_to_indicate_dict=seg_to_indicate_dict, distance=distance, ** kwargs)
+        self.plot_attenuation(start_seg=start_seg, ax=ax[2], protocol=long_pulse_protocol, seg_to_indicate_dict=seg_to_indicate_dict, distance=distance, ** kwargs)
+        self.plot_attenuation(start_seg=start_seg, ax=ax[3], protocol=short_pulse_protocol, seg_to_indicate_dict=seg_to_indicate_dict, distance=distance, ** kwargs)
         ylim = ax[2].get_ylim()
         ax[3].set_xlim(ax[2].get_xlim())
         ax[3].set_ylim(ylim)
@@ -362,7 +362,7 @@ class Analyzer():
         distance.compute(start_seg=start_seg)
 
         self.plot_morph(ax=ax[0], theta=theta, seg_to_indicate_dict=seg_to_indicate_dict, scale=scale, diam_factor=diam_factor, ignore_soma=not self.type.startswith('Rall_tree'))
-        _, x_pos = self.plot_dendogram(start_seg=start_seg, ax=ax[1], electrical=True, plot_legend=False, segs_to_indecate=seg_to_indicate_dict, distance=distance)
+        _, x_pos, _, _ = self.plot_dendogram(start_seg=start_seg, ax=ax[1], electrical=True, plot_legend=False, segs_to_indecate=seg_to_indicate_dict, distance=distance)
         self.plot_cable(start_seg=start_seg, ax=ax[2], factor_e_space=factor_e_space, cable_type=cable_type, plot_legend=plot_legend, start_loc=0, start_color=start_color, dots_size=start_dots_size, distance=distance)
         for a in ax[1:]:
             a.spines['top'].set_visible(False)
@@ -420,9 +420,12 @@ class Analyzer():
     def create_movie_from_rec(self, records, seg_to_indicate_dict=dict(), diam_factor=None,
                             sec_to_change=None, ignore_sections=[], theta=0, scale=500, cmap=plt.cm.turbo,
                             plot_color_bar=True, slow_down_factor=1, func_for_missing_frames=np.max, bounds = None,
-                            show_records_from=dict(), voltage_window=50, ylabel='v (mV)', xlabel='time (ms)', margin=0, draw_funcs=[]):
-
+                            show_records_from=dict(), voltage_window=50, ylabel='v (mV)', xlabel='time (ms)', margin=0, draw_funcs=[],
+                            base_plot_type='morph', start_seg = None, electrical=True):
         import matplotlib.style as mplstyle
+        if start_seg is None:
+            start_seg = list(self.cell.soma[0])
+            start_seg = start_seg [len(start_seg)//2]
         mplstyle.use('fast')
         time = records.time.copy()
         time /= 1000.0
@@ -452,15 +455,26 @@ class Analyzer():
             color_bar_idx=[0.4, 0.2, 0.02, 0.6]
         value_dict_by_sec = records.get_vals_at_t(t=0, default_res=0)
         seg_to_indicate_dict.update(show_records_from)
-        ax, cax, colors, points_dict, lines, segs = self.plot_morph_with_values(value_dict_by_sec, ax=ax,
-                                                                              seg_to_indicate_dict = seg_to_indicate_dict,
-                                                                              diam_factor=diam_factor,
-                                                                              sec_to_change=sec_to_change,
-                                                                              ignore_sections=ignore_sections,
-                                                                              theta=theta, scale=scale,
-                                                                              cmap=cmap,bounds=[min_value, max_value],
-                                                                              plot_color_bar=plot_color_bar,
-                                                                              color_bar_idx = color_bar_idx)
+        if base_plot_type == 'morph':
+            ax, cax, colors, lines, segs = self.plot_morph_with_values(value_dict_by_sec, ax=ax,
+                                                                                  seg_to_indicate_dict = seg_to_indicate_dict,
+                                                                                  diam_factor=diam_factor,
+                                                                                  sec_to_change=sec_to_change,
+                                                                                  ignore_sections=ignore_sections,
+                                                                                  theta=theta, scale=scale,
+                                                                                  cmap=cmap,bounds=[min_value, max_value],
+                                                                                  plot_color_bar=plot_color_bar,
+                                                                                  color_bar_idx = color_bar_idx)
+        elif base_plot_type == 'dendogram':
+            ax, x_pos, cax, colors, lines, segs = self.plot_dendogram_with_values(value_dict_by_sec, start_seg=start_seg, ax=ax, segs_to_indecate=seg_to_indicate_dict,
+                                       plot_legend=False,
+                                       ignore_sections=ignore_sections, electrical=electrical, diam_factor=diam_factor, distance=None,
+                                       bounds=[min_value, max_value], cmap=cmap,
+                                       plot_color_bar=plot_color_bar, color_bar_idx=color_bar_idx, colors=None)
+        # elif base_plot_type == 'attenuation':
+        #     pass
+
+        else: raise Exception('base plot_type:', +str(base_plot_type)+' not implementes')
         segs = np.array(segs)
         lines = np.array(lines)
         lim_x = ax.get_xlim()

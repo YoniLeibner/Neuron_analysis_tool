@@ -208,5 +208,4 @@ def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate=
         # ax.add_patch(lines[-1])
     # todo change x, y values to electrical units
 
-
-    return fig, ax, all_points, lines, segs
+    return ax, lines, segs

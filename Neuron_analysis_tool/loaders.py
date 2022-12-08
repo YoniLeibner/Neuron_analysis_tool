@@ -21,15 +21,11 @@ def open_morph(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, nl=None):
     h.load_file('allen_model.hoc')
 
     h.execute("cell = new " + hoc_file_name[:-4] + "()")  # replace?
-    # nl = h.Import3d_SWC_read()
     nl.input(morph_path)
     i3d = h.Import3d_GUI(nl, 0)
     i3d.instantiate(h.cell)
     cell = h.cell
     # parts_dict = dict(all=list())
-
-    parts_dict = {'soma': [], 'basal': [], 'apical': [], 'axon': [], 'else': []}
-    colors_dict = {'soma': 'k', 'basal': 'r', 'apical': 'b', 'axon': 'green', 'else': 'cyan'}
     for sec in cell.all:
         sec.insert('pas')
         sec.nseg = int(sec.L / 10) + 1
@@ -37,18 +33,7 @@ def open_morph(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, nl=None):
         sec.cm = Cm
         sec.Ra = Ra
         sec.g_pas = 1.0 / Rm
-        for seg in sec:
-            if sec in cell.soma:
-                parts_dict['soma'].append(seg)
-            elif sec in list(cell.basal):
-                parts_dict['basal'].append(seg)
-            elif sec in list(cell.apical):
-                parts_dict['apical'].append(seg)
-            elif sec in list(cell.axonal):
-                parts_dict['axon'].append(seg)
-            else:
-                parts_dict['else'].append(seg)
-    return cell, parts_dict, colors_dict
+    return get_parts_and_colors(cell)
 
 
 def open_ASC(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70):
@@ -80,16 +65,16 @@ def get_parts_and_colors(cell):
     parts_dict = {'soma': [], 'basal': [], 'apical': [], 'axon': [], 'else': []}
     colors_dict = {'soma': 'k', 'basal': 'r', 'apical': 'b', 'axon': 'green', 'else': 'cyan'}
     for sec in cell.all:
-        if sec.nseg <=0: continue
+        if sec.nseg <= 0: continue
         sec.nseg = int(sec.L / 20) + 1
         for seg in sec:
             if sec in cell.soma:
                 parts_dict['soma'].append(seg)
-            elif sec in cell.dend:
+            elif len(cell.dend)>1 and sec in cell.dend:
                 parts_dict['basal'].append(seg)
-            elif sec in cell.apic:
+            elif len(cell.apic)>1 and sec in cell.apic:
                 parts_dict['apical'].append(seg)
-            elif sec in cell.axon:
+            elif len(cell.axon)>1 and sec in cell.axon:
                 parts_dict['axon'].append(seg)
             else:
                 parts_dict['else'].append(seg)
