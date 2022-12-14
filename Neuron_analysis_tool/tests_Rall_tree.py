@@ -21,6 +21,14 @@ for sec in analyser.cell.all:
     lamda = ((1.0/sec.g_pas/sec.Ra) * (sec.diam/10000.0/4.0))**0.5 * 10000.0
     print('name:',sec, ', e_length:',round(sec.L/lamda, 3), ', diam:', sec.diam)
 #########################################################################################################################################################################
+_, _, _ = analyser.plot_morph(theta=0, seg_to_indicate_dict=dict(),
+                          scale=0.25, diam_factor=1,
+                          ignore_soma=not analyser.type.startswith('Rall_tree'),
+                              distance=None, electrical=True)
+plt.show()
+
+#########################################################################################################################################################################
+
 
 fig, ax = analyser.create_card(scale=500, start_seg=list(analyser.cell.soma[0])[0], diam_factor=1)
 plt.show()
@@ -39,7 +47,7 @@ def Rin_func(seg):
     return imp.input(seg.x, sec=seg.sec)
 
 plt.title('Rin with color code')
-ax, color_bar, colors = analyser.plot_morph_with_value_func(func = Rin_func, run_time=1000, theta=0, diam_factor=1, scale=500)
+ax, color_bar, colors, _, _ = analyser.plot_morph_with_value_func(func = Rin_func, run_time=1000, theta=0, diam_factor=1, scale=500)
 color_bar.set_ylabel('Rin (M ohm)')
 plt.show()
 #########################################################################################################################################################################

@@ -28,7 +28,7 @@ def open_morph(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, nl=None):
     # parts_dict = dict(all=list())
     for sec in cell.all:
         sec.insert('pas')
-        sec.nseg = int(sec.L / 10) + 1
+        sec.nseg = int(sec.L / 20) + 1
         sec.e_pas = e_pas
         sec.cm = Cm
         sec.Ra = Ra
@@ -49,8 +49,11 @@ def open_swc(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70):
 def open_rall_tree():
     morph_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data/Rall_tree5.swc')
     # cell, parts_dict, colors_dict = self.open_swc(morph_path)
-    return open_swc(morph_path)  # cell, dict(Rall_tree = parts_dict['all']), dict(Rall_tree =colors_dict['all'])
-
+    cell, parts_dict, colors_dict = open_swc(morph_path)  # cell, dict(Rall_tree = parts_dict['all']), dict(Rall_tree =colors_dict['all'])
+    for sec in cell.soma[0].children():
+        h.disconnect(sec=sec)
+        sec.connect(cell.soma[0](1))
+    return cell, parts_dict, colors_dict
 
 def open_L5PC():
     h.load_file("import3d.hoc")

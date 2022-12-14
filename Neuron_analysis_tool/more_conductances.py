@@ -13,6 +13,8 @@
 
 from neuron import h
 import numpy as np
+from Neuron_analysis_tool.record import record_all
+from Neuron_analysis_tool.protocols import resting_protocol
 
 #todo we need to generalize to all channels and allow to add protocol run and record all channels
 
@@ -22,43 +24,44 @@ def get_condactance(mechanisms):
     except:
         return 0
 
-
 class more_conductances():
-    def __init__(self, cell, run_time=3000, record_names=['gIhbar_Ih_human_linear'], is_resting=True):
+    def __init__(self, cell, is_resting=True, extraction_func=None, protocol = resting_protocol):
         self.name = 'Ih_check'
         self.cell=cell
-        self.run_time = run_time
         self.is_resting=is_resting
-        self.record_names = []
-        if not self.is_resting:
-            self.record_names = ['_ref_'+name for name in record_names]
-        self.run_resting()
-
-    def record_condactances(self):
-        record_dict = dict()
+        self.extraction_func=extraction_func
+        self.protocol = protocol
+        self.record_names=[]
         for sec in self.cell.all:
-            record_dict[sec] = dict()
             for i, seg in enumerate(sec):
-                record_dict[sec][seg] = dict()
-                for record_name in self.record_names:
-                    try:
-                        record_dict[sec][seg][record_name]=h.Vector()
-                        record_dict[sec][seg][record_name].record(getattr(sec(seg.x), record_name))
-                    except:
-                        record_dict[sec][seg]=0 # no Ih hare
-        return record_dict
+                for mechanisms in seg:
+                    if hasattr(seg, 'g'+str(mechanisms)):
+                        self.record_names.append('g' + str(mechanisms))# = get_condactance(mechanisms)
+                    if hasattr(seg, 'g_'+str(mechanisms)):
+                        self.record_names.append('g_' + str(mechanisms))# = get_condactance(mechanisms)
 
-    def run_resting(self):
+                    if hasattr(seg, 'g'+str(mechanisms)+'_'+str(mechanisms)):
+                        self.record_names.append('g' + str(mechanisms)+'_'+str(mechanisms))# = get_condactance(mechanisms)
+                    if hasattr(seg, 'g_'+str(mechanisms)+'_'+str(mechanisms)):
+                        self.record_names.append('g_' + str(mechanisms)+'_'+str(mechanisms))# = get_condactance(mechanisms)
+        self.record_names = list(set(self.record_names))
+        self.run()
+
+
+    def run(self):
+        self.record_dict = dict()
         if not self.is_resting:
-            self.record_dict = self.record_condactances()
-        h.tstop = self.run_time
-        h.run()
+            for record_name in self.record_names:
+                self.record_dict[record_name] = record_all(self.cell, record_name=record_name)
+
+        delay, _ = self.protocol(self.cell, None)
+        if self.extraction_func is None:
+            self.extraction_func = lambda x: np.array(x)[int(delay/h.dt):]
+        self.time = np.arange(0, h.tstop, h.dt)
         if not self.is_resting:
-            for sec in self.record_dict.keys():
-                for seg in self.record_dict[sec].keys():
-                    for record_name in self.record_dict[sec][seg].keys():
-                        if self.record_dict[sec][seg][record_name] == 0: continue
-                        self.record_dict[sec][seg][record_name] = np.array(self.record_dict[sec][seg][record_name])[-1] # stady state opening
+            for record_name in self.record_dict.keys():
+                self.record_dict[record_name].extract(self.extraction_func)
+                self.time = self.record_dict[record_name].time
         else:
             self.record_dict = dict()
             for sec in self.cell.all:
@@ -68,9 +71,19 @@ class more_conductances():
                     for mechanisms in seg:
                         self.record_dict[sec][seg]['g'+str(mechanisms)] = get_condactance(mechanisms)
 
-    def cumpute(self, seg):
+    def cumpute(self, seg, time=None, dt=1):
         sec= seg.sec
-        g_total = seg.g_pas + sum([self.record_dict[sec][seg][record_name] for record_name in self.record_dict[sec][seg]])
+        if self.is_resting:
+            g_total = seg.g_pas + sum([self.record_dict[sec][seg][record_name] for record_name in self.record_dict[sec][seg]])
+        else:
+            if time is None:
+                g_total = seg.g_pas + sum(
+                    [record.get_record_at_dt(seg, t1=record.time[-2], t2=record.time[-1], dt_func = lambda x: x[-1]) for
+                     record in self.record_dict.values()])
+            else:
+                g_total = seg.g_pas + sum(
+                    [record.get_record_at_dt(seg, t1=time-dt/2, t2=time+dt/2, dt_func=lambda x: x[-1]) for
+                     record in self.record_dict.values()])
         return 1.0/g_total
 
 

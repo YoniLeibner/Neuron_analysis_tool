@@ -13,6 +13,14 @@ from neuron import h
 import os
 import numpy as np
 
+
+def resting_protocol(cell, start_seg=None):
+    h.tstop = 500.0
+    h.v_init = cell.soma[0].e_pas
+    h.celsius = 37
+    h.run()
+    return 400, {}
+
 def long_pulse_protocol(cell, start_seg):
     delay=2000.0
     dur=1000.0

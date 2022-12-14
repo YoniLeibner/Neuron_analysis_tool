@@ -4,14 +4,8 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 
-analyser = Analyzer(type='L5PC')
-
-_,_,_ = analyser.plot_morph(scale=500, diam_factor=0.5, theta=-90, ignore_soma=True)
-plt.show()
-
-
-def Ca_spike_protocol(cell, start_seg):
-    delay = 400.0
+def Ca_spike_protocol(cell, start_seg=None):
+    delay = 200.0
     stim = h.IClamp(0.5, sec=cell.soma[0])
     stim.dur = 5
     stim.delay = delay
@@ -23,11 +17,37 @@ def Ca_spike_protocol(cell, start_seg):
     syn.imax = 0.5
     stim.amp = 1.9
 
-    h.tstop = 700
+    h.tstop = 400
     h.v_init = cell.soma[0].e_pas
     h.celsius = 37
     h.run()
-    return h.tstop, 400, 1400, 0, {}
+    return 200, {}
+
+def resting_protocol2(cell, start_seg=None):
+    h.tstop = 50.0
+    h.v_init = cell.soma[0].e_pas
+    h.celsius = 37
+    h.run()
+    return 0, {}
+
+analyser = Analyzer(type='L5PC', more_conductances_protocol=resting_protocol2)
+
+animation=analyser.dancing_morph(protocol=Ca_spike_protocol, seg_to_indicate_dict=dict(), diam_factor=1,
+                            sec_to_change=None, ignore_sections=[], theta=-90, scale=0.25,
+                            slow_down_factor=1, figsize=(5,5))
+animation.ipython_display(fps=10, loop=True, autoplay=True)
+
+
+#####################################################################################################
+_, _, _ = analyser.plot_morph(theta=-90, seg_to_indicate_dict=dict(),
+                          scale=0.25, diam_factor=1,
+                          ignore_soma=True, distance=None, electrical=True)
+# plt.show()
+plt.figure()
+#####################################################################################################
+_,_,_ = analyser.plot_morph(scale=500, diam_factor=0.5, theta=-90, ignore_soma=True)
+plt.show()
+#####################################################################################################
 
 show_records_from = dict()
 show_records_from[list(analyser.cell.soma[0])[0]] = dict(label='soma', alpha=0.75, color='lime', size=50)

@@ -13,6 +13,7 @@ import numpy as np
 import matplotlib.patheffects as path_effects
 import matplotlib as mpl
 from tqdm import tqdm
+from Neuron_analysis_tool.distance import Distance
 
 
 def rotation_matrix_from_vectors(vec1, vec2):
@@ -37,7 +38,7 @@ def get_rotation_matrix_2d(theta):
     return np.array([[np.cos(theta), -np.sin(theta)],[np.sin(theta), np.cos(theta)]])
 
 def split_point(prev_point, next_point, split_pos):
-    direction_vec = prev_point - next_point
+    direction_vec = next_point-prev_point
     return prev_point + direction_vec * split_pos
 
 def get_parts(sec, color_func, soma_loc, rotation_matrix = np.eye(3), rotation_matrix_2d = np.eye(2)):
@@ -45,35 +46,66 @@ def get_parts(sec, color_func, soma_loc, rotation_matrix = np.eye(3), rotation_m
     pos = rotation_matrix @ pos
     pos_2d = rotation_matrix_2d @ pos[:2]
     res = []
-    accumulative_len = 0
     seg_len = sec.L/sec.nseg
     segs = list(sec)
+    seg_lengths = [0] * len(segs)
+    current_seg_idx = 0
+    x = [pos_2d[0]]
+    y = [pos_2d[1]]
+    l=0
     for i in range(1, sec.n3d()):
         next_pos = rotation_matrix @ (np.array([sec.x3d(i), sec.y3d(i), sec.z3d(i)])-soma_loc)
         next_pos_2d = rotation_matrix_2d @ next_pos[:2]
         curent_len=np.linalg.norm(pos-next_pos)
+        l+=curent_len
+        if curent_len+seg_lengths[current_seg_idx]<=seg_len:
+            x.append(next_pos_2d[0])
+            y.append(next_pos_2d[1])
+            seg_lengths[current_seg_idx]+=curent_len
+            if seg_lengths[current_seg_idx]>=seg_len:
+                c, d = color_func(segs[current_seg_idx])
+                res.append(dict(x=np.array(x), y=np.array(y),seg=segs[current_seg_idx], color=c, diam=d))
+                x = x[-1]
+                y = y[-1]
+                current_seg_idx+=1
+        else:
+            # create_new pos in between
+            while current_seg_idx < len(seg_lengths) and curent_len+seg_lengths[current_seg_idx]>seg_len:
+                mid_points = split_point(pos, next_pos, (seg_len - seg_lengths[current_seg_idx]) / curent_len)
+                mid_points_2d = rotation_matrix_2d @ mid_points[:2]
+                seg_lengths[current_seg_idx] = seg_len
 
-        if accumulative_len//seg_len == (accumulative_len+curent_len)//seg_len: # this part is only on one segment
-            c, d = color_func(segs[int(accumulative_len//seg_len)])
-            res.append(dict(x=[pos_2d[0], next_pos_2d[0]], y=[pos_2d[1], next_pos_2d[1]], seg=segs[int(accumulative_len//seg_len)], color=c, diam=d))
-        else: # we need to split the points linearly
+                x.append(mid_points_2d[0])
+                y.append(mid_points_2d[1])
+                c, d = color_func(segs[current_seg_idx])
+                res.append(dict(x=np.array(x), y=np.array(y), seg=segs[current_seg_idx], color=c, diam=d))
+                curent_len = np.linalg.norm(mid_points-next_pos)
+                current_seg_idx+=1
+                pos=mid_points
 
-            missing_len = seg_len - accumulative_len % seg_len
-            split_pos = missing_len / curent_len
-            mid_points = split_point(pos, next_pos, split_pos)
-            mid_points_2d = rotation_matrix_2d @ mid_points[:2]
-            c1, d1 = color_func(segs[int(accumulative_len // seg_len)])
-            c2, d2 = color_func(segs[min(int((accumulative_len+curent_len) // seg_len), len(segs)-1)])
-            res.append(dict(x=[pos_2d[0], mid_points_2d[0]], y=[pos_2d[1], mid_points_2d[1]], seg=segs[int(accumulative_len // seg_len)], color=c1, diam=d1))
-            res.append(dict(x=[mid_points_2d[0], next_pos_2d[0]], y=[mid_points_2d[1], next_pos_2d[1]], seg=segs[min(int((accumulative_len+curent_len)//seg_len), len(segs)-1)], color=c2, diam=d2))
+            if current_seg_idx < len(seg_lengths):
+                seg_lengths[current_seg_idx] = curent_len
+            elif curent_len>10:
+                print('not using length of:', curent_len)
+            x = [x[-1]]
+            y = [y[-1]]
+            x.append(next_pos_2d[0])
+            y.append(next_pos_2d[1])
 
-        accumulative_len+=curent_len
+            # current_seg_idx+=1
         pos = next_pos
         pos_2d = next_pos_2d
+    last_seg_in = False
+    for data in res:
+        if data['seg'] == segs[-1]:
+            last_seg_in=True
+    if not last_seg_in :
+        c, d = color_func(segs[- 1])
+        res.append(dict(x=np.array(x), y=np.array(y), seg=segs[-1], color=c, diam=d))
     return res
 
 def get_point_segs(sec, soma_loc, color_func, rotation_matrix=np.eye(3), rotation_matrix_2d=np.eye(2)):
-    try:
+    try: # in case some sections are deleted
         parts = get_parts(sec, color_func, soma_loc, rotation_matrix=rotation_matrix, rotation_matrix_2d=rotation_matrix_2d)
     except:
         return []
@@ -118,7 +150,7 @@ def plot(ax, all_points, add_nums=False, seg_to_indicate={}, counter=None, diam_
 
         if counter and counter.do_count(sec) and add_nums:
             num, color = counter.get_num_and_color(seg)
-            txt = ax.text(x=x[1] + 1, y=y[1] + 1, z=z[1] + 1, s=str(num), color=color, fontsize=5)
+            txt = ax.text(x=x[1] + 1, y=y[1] + 1, s=str(num), color=color, fontsize=5)
             txt.set_path_effects([path_effects.withStroke(linewidth=1, foreground='k')])
 
     return ax, lines, segs
@@ -127,11 +159,46 @@ def get_norm(all_vals):
     norm = mpl.colors.Normalize(vmin=np.min(all_vals), vmax=np.max(all_vals))
     return norm
 
+def electrical_move_helper(all_points, sec, start_point, distance):
+    for seg in sec:
+        for idx, sec_data in enumerate(all_points[sec]):
+            if sec_data['seg'] == seg:
+                dx = sec_data['x'][:-1] - sec_data['x'][1:]
+                dy = sec_data['y'][:-1] - sec_data['y'][1:]
+                current_lens = (dx**2 + dy**2)**0.5
+                wanted_len = distance.get_length(seg, electrical=True)
+                f = wanted_len/sum(current_lens)
+                # fixing the shift
+                all_points[sec][idx]['x'] += start_point['x']-sec_data['x'][0]
+                all_points[sec][idx]['y'] += start_point['y']-sec_data['y'][0]
+
+                # fixing the length
+                for point_idx in range(1, len(sec_data['x']), 1):
+                    new_x  = sec_data['x'][point_idx-1] + (sec_data['x'][point_idx]-sec_data['x'][point_idx-1])*f
+                    new_y  = sec_data['y'][point_idx-1] + (sec_data['y'][point_idx]-sec_data['y'][point_idx-1])*f
+                    all_points[sec][idx]['x'][point_idx:] += (new_x-sec_data['x'][point_idx])
+                    all_points[sec][idx]['y'][point_idx:] += (new_y-sec_data['y'][point_idx])
+                start_point = dict(x=sec_data['x'][-1], y=sec_data['y'][-1])
+    for son in sec.children():
+        all_points = electrical_move_helper(all_points, son, start_point, distance)
+    return all_points
+
+
+def electrical_move(all_points, cell, distance):
+    all_points = electrical_move_helper(all_points, cell.soma[0], dict(x=0, y=0), distance)
+    return all_points
+
 def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate={},
                counter=None, fig=None,  ax=None,
-               sec_to_change =None, diam_factor=None, plot_color_bar=True, theta=0, ignore_sections=[], ignore_soma=False, color_bar_idx = [0.9, 0.2, 0.02, 0.6]): #cmap = plt.cm.coolwarm, norm_colors=True,
-
-
+               sec_to_change =None, diam_factor=None, plot_color_bar=True, theta=0,
+               ignore_sections=[], ignore_soma=False,
+               color_bar_idx = [0.9, 0.2, 0.02, 0.6],
+               electrical=False, distance=None, more_conductances=None, time=None, dt=1): #cmap = plt.cm.coolwarm, norm_colors=True,
+    if electrical and distance is None:
+        distance = Distance(cell, more_conductances)
+        distance.compute(time=time, dt=dt)
+    if electrical:
+        assert (more_conductances is not None) or (distance is not None)
     all_points_arr = []
     for sec in cell.all:
         for i in range(sec.n3d()):
@@ -166,28 +233,6 @@ def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate=
     if ax is None:
         fig = plt.figure(figsize=(20, 20))
         ax = plt.axes()
-    all_points2 = dict()
-    for sec in tqdm(all_points, desc='optimizing lines'):
-        if sec in cell.soma:
-            pass
-        all_points2[sec] = list()
-        if len(all_points[sec])>0:
-            x=all_points[sec][0]['x']
-            y=all_points[sec][0]['y']
-            color = all_points[sec][0]['color']
-            current_seg = all_points[sec][0]['seg']
-            for point in all_points[sec]:
-                if point['seg'] == current_seg:
-                    assert point['color'] == color
-                    x.append(point['x'][1])
-                    y.append(point['y'][1])
-                else:
-                    all_points2[sec].append(dict(x=x, y=y, seg=current_seg, color=color))
-                    x = point['x']
-                    y = point['y']
-                    color = point['color']
-                    current_seg = point['seg']
-            all_points2[sec].append(dict(x=x, y=y, seg=current_seg, color=color))
     if ignore_soma:
         sec=cell.soma[0]
         soma_diam = cell.soma[0].diam * (diam_factor if diam_factor else 1)
@@ -195,7 +240,10 @@ def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate=
         soma_x = abs(all_points[sec][0]['x'][0] - all_points[sec][-1]['x'][-1])
         soma_y = abs(all_points[sec][0]['y'][0] - all_points[sec][-1]['y'][-1])
         soma_angle = np.rad2deg(np.arctan(soma_y/soma_x))
-    all_points=all_points2
+
+    if electrical:
+        soma_diam = soma_length = sum([distance.get_length(seg, electrical=True) for seg in cell.soma[0]])*2*(diam_factor if diam_factor else 1)
+        all_points = electrical_move(all_points, cell, distance)
     ax, lines, segs = plot(ax, all_points, add_nums=add_nums, seg_to_indicate=seg_to_indicate,counter=counter, diam_factor=diam_factor, ignore_soma=ignore_soma)
     if ignore_soma:
         segs.append(list(cell.soma[0])[len(list(cell.soma[0]))//2])

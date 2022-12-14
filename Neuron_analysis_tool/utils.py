@@ -13,7 +13,7 @@ from neuron import h
 LAMDA = '\u03BB'
 MICRO = '\u03BC'
 
-def get_segment_length_lamda(seg, more_conductances):
+def get_segment_length_lamda(seg, more_conductances, time=None, dt=1):
     """
     return the segment  e_length
     :param seg_len:
@@ -24,11 +24,11 @@ def get_segment_length_lamda(seg, more_conductances):
     sec = seg.sec
     seg_len = sec.L/sec.nseg
     d = seg.diam
-    R_total = more_conductances.cumpute(seg)
+    R_total = more_conductances.cumpute(seg, time=time, dt=dt)
     lamda = np.sqrt((R_total / sec.Ra) * (d / 10000.0) / 4.0)
     return (float(seg_len) / 10000.0) / lamda
 
-def get_segment_length_um(seg, more_conductances):
+def get_segment_length_um(seg):
     """
     return the segment  e_length
     :param seg_len:

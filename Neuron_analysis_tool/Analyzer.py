@@ -31,7 +31,9 @@ from tqdm import tqdm
 
 
 class Analyzer():
-    def __init__(self, cell=None, parts_dict=None, colors_dict=None, type='input_cell', morph_path = None, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, conductances_list=[], run_time=500):
+    def __init__(self, cell=None, parts_dict=None, colors_dict=None, type='input_cell',
+                 morph_path = None, Rm=10000.0, Ra=100, Cm=1, e_pas=-70,
+                 more_conductances_protocol =resting_protocol):
         if cell is None:
             if type == 'Rall_tree':
                 cell, parts_dict, colors_dict = open_rall_tree()
@@ -47,7 +49,8 @@ class Analyzer():
         self.type=type
         self.cell=cell
         self.parts_dict = parts_dict
-        self.more_conductances = more_conductances(cell, run_time=run_time, record_names=conductances_list, is_resting=len(conductances_list)==0)
+        self.more_conductances = more_conductances(cell, is_resting=True,
+                                                   protocol=more_conductances_protocol)
         self.colors_dict = colors_dict
         self.colors = color_func(parts_dict=parts_dict, color_dict=colors_dict)
 
@@ -75,7 +78,10 @@ class Analyzer():
         self.colors = color_func(parts_dict=self.parts_dict, color_dict=colors_dict)
 
 
-    def plot_morph(self, ax=None, seg_to_indicate_dict = {}, diam_factor=None, sec_to_change=None, ignore_sections=[], theta=0, scale=0, ignore_soma=True):
+    def plot_morph(self, ax=None, seg_to_indicate_dict = {}, diam_factor=None, sec_to_change=None,
+                   ignore_sections=[],
+                   theta=0, scale=0, ignore_soma=True, distance=None, electrical=False,
+                   time=None, dt=1, more_conductances_=None):
         if self.type.startswith('Rall_tree'):
             ignore_soma=False
         if ax is None:
@@ -87,7 +93,13 @@ class Analyzer():
                                                      fig=fig, ax=ax, diam_factor=diam_factor,
                                                      sec_to_change=sec_to_change,
                                                      plot_color_bar=False,
-                                                     theta=theta, ignore_sections=ignore_sections, ignore_soma=ignore_soma)
+                                                     theta=theta, ignore_sections=ignore_sections,
+                                                     ignore_soma=ignore_soma,
+                                                     distance=distance,
+                                                     more_conductances=self.more_conductances if more_conductances_ is None else more_conductances_,
+                                                     electrical=electrical,
+                                                     time=time, dt=dt
+                                                     )
         ax.grid(False)
         ax.set_xticks([])
         ax.set_yticks([])
@@ -306,7 +318,9 @@ class Analyzer():
         distance = Distance(self.cell, self.more_conductances)
         distance.compute(start_seg=start_seg)
 
-        _,_,_ = self.plot_morph(ax=ax[0], theta=theta, seg_to_indicate_dict=seg_to_indicate_dict, scale=scale, diam_factor=diam_factor, ignore_soma=not self.type.startswith('Rall_tree'))
+        _,_,_ = self.plot_morph(ax=ax[0], theta=theta, seg_to_indicate_dict=seg_to_indicate_dict,
+                                scale=scale, diam_factor=diam_factor,
+                                ignore_soma=not self.type.startswith('Rall_tree'), distance=distance)
         _, x_pos, _, _ = self.plot_dendogram(start_seg=start_seg, ax=ax[1], electrical=True, plot_legend=False, segs_to_indecate=seg_to_indicate_dict, distance=distance)
         self.plot_cable(start_seg=start_seg, ax=ax[1], factor_e_space=factor_e_space, cable_type=cable_type, plot_legend=plot_legend, start_loc=x_pos+15, start_color=start_color, dots_size=start_dots_size, distance=distance)
         for a in ax[1:]:
@@ -361,7 +375,8 @@ class Analyzer():
         distance = Distance(self.cell, self.more_conductances)
         distance.compute(start_seg=start_seg)
 
-        self.plot_morph(ax=ax[0], theta=theta, seg_to_indicate_dict=seg_to_indicate_dict, scale=scale, diam_factor=diam_factor, ignore_soma=not self.type.startswith('Rall_tree'))
+        self.plot_morph(ax=ax[0], theta=theta, seg_to_indicate_dict=seg_to_indicate_dict,
+                        scale=scale, diam_factor=diam_factor, ignore_soma=not self.type.startswith('Rall_tree'), distance=distance)
         _, x_pos, _, _ = self.plot_dendogram(start_seg=start_seg, ax=ax[1], electrical=True, plot_legend=False, segs_to_indecate=seg_to_indicate_dict, distance=distance)
         self.plot_cable(start_seg=start_seg, ax=ax[2], factor_e_space=factor_e_space, cable_type=cable_type, plot_legend=plot_legend, start_loc=0, start_color=start_color, dots_size=start_dots_size, distance=distance)
         for a in ax[1:]:
@@ -545,6 +560,71 @@ class Analyzer():
         self.create_movie_from_rec(records=records, slow_down_factor=slow_down_factor, func_for_missing_frames=func_for_missing_frames, theta=theta,
                                    scale=scale, cmap=cmap, seg_to_indicate_dict=seg_to_indicate_dict, diam_factor=diam_factor,sec_to_change=sec_to_change, ignore_sections=ignore_sections,
                                    plot_color_bar=plot_color_bar, draw_funcs=[])
+
+    def dancing_morph(self, protocol, seg_to_indicate_dict=dict(), diam_factor=None,
+                            sec_to_change=None, ignore_sections=[], theta=0, scale=500,
+                            slow_down_factor=1,
+                             figsize=(5,5)):
+        import matplotlib.style as mplstyle
+        more_conductances_ = more_conductances(self.cell, is_resting=False, protocol=protocol)
+        mplstyle.use('fast')
+        time = more_conductances_.time.copy()
+        time /= 1000.0
+        time *= slow_down_factor
+
+        fig = plt.figure(figsize=figsize)
+        ax = plt.gca()
+        ax, lines, segs = self.plot_morph(ax=ax, seg_to_indicate_dict = seg_to_indicate_dict, diam_factor=diam_factor,
+                                  sec_to_change=sec_to_change,  ignore_sections=ignore_sections,
+                                  theta=theta, scale=scale, ignore_soma=True, distance=None,
+                                  electrical=True, time=0.5, dt=1, more_conductances_=more_conductances_)
+
+        segs = np.array(segs)
+        lines = np.array(lines)
+        lim_x = ax.get_xlim()
+        lim_y = ax.get_ylim()
+        time_text = ax.text(lim_x[0], lim_y[0], 'time: 0.0 (ms)')
+        self.last_t = 0
+        self.to_remove = []
+
+        def make_frame_r(distance, sec, start_point):
+            for seg in sec:
+                for idx, seg2 in enumerate(segs):
+                    if seg2 == seg:
+                        x, y = lines[idx].get_data()
+                        dx = x[:-1] - x[1:]
+                        dy = y[:-1] - y[1:]
+                        current_lens = (dx ** 2 + dy ** 2) ** 0.5
+                        wanted_len = distance.get_length(seg, electrical=True)
+                        f = wanted_len / sum(current_lens)
+                        # fixing the shift
+                        x += start_point['x'] - x[0]
+                        y += start_point['y'] - y[0]
+
+                        # fixing the length
+                        for point_idx in range(1, len(x), 1):
+                            new_x = x[point_idx - 1] + (x[point_idx] - x[point_idx - 1]) * f
+                            new_y = y[point_idx - 1] + (y[point_idx] - y[point_idx - 1]) * f
+                            x[point_idx:] += (new_x - x[point_idx])
+                            y[point_idx:] += (new_y - y[point_idx])
+                        lines[idx].set_data(x,y)
+                        start_point = dict(x=x[-1], y=y[-1])
+            for son in sec.children():
+                make_frame_r(distance, son, start_point)
+
+        def make_frame(t):
+            time_in_ms = t / slow_down_factor * 1000.0
+            distance = Distance(self.cell, more_conductances_)
+            distance.compute(time=time_in_ms, dt=1)
+            for son in self.cell.soma[0].children():
+                make_frame_r(distance, son, start_point=dict(x=0,y=0))
+            time_text.set_text('time: ' + str(round(time_in_ms, 1)) + ' (ms)')
+            return mplfig_to_npimage(fig)
+        animation = VideoClip(make_frame, duration=time[-1])
+        # animation.write_gif(os.path.join(save_to, clip_name + '.gif'), fps=int(1.0 / h.dt) if fps is None else fps/slow_down_factor)
+        return animation
+
+
 
 def set_time_ax(ax, t, v, color='k', title='', vline=None, remove_xticks=False,  xlim=None, ylim=None, ylabel='v (mV)', xlabel='time (ms)'):
     ax.clear()

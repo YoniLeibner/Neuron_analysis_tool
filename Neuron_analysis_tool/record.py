@@ -130,17 +130,23 @@ class record_all:
         return self.record_dict[seg.sec][seg]._record.copy()
 
     def get_record_at_dt(self, seg, t1, t2, dt_func = lambda x: np.max(x)):
-        assert seg.sec in self.record_dict, 'seg not valid'
-        assert seg in self.record_dict[seg.sec], 'seg not valid'
-        assert t1<t2, 'the time bins have no are not corect, t1='+str(t1)+', t2='+str(t2)
         if type(self.time) == neuron.hoc.HocObject:
             self.extract(lambda x: np.array(x))
+        assert seg.sec in self.record_dict, 'seg not valid'
+        assert seg in self.record_dict[seg.sec], 'seg not valid'
+        if t1>=self.time[-1] or t2>=self.time[-1]:
+            t1 = self.time[-2]
+            t2 = self.time[-1]
+        assert t1<t2, 'the time bins have no are not corect, t1='+str(t1)+', t2='+str(t2)
+
         indexs1 = np.where(self.time >= t1)[0]
         indexs2 = np.where(self.time >= t2)[0]
 
         assert len(indexs1) > 0, 'the time bin (t1'+str(t1)+') dont exsists, make sure you got the correct time between 0 and ' + str(self.time[-1])
         assert len(indexs2) > 0, 'the time bin (t2'+str(t2)+') dont exsists, make sure you got the correct time between 0 and ' + str(self.time[-1])
         func = lambda x: dt_func(x[indexs1[0]:indexs2[0]])
+        if self.record_dict[seg.sec][seg] == 'non_exsisting':
+            return 0
         return self.record_dict[seg.sec][seg].get_val(func)
 
     def is_existing(self, seg):
