@@ -39,6 +39,7 @@ class record_all:
         self.cell=cell
         self.record_name = record_name
         self.restart()
+        self.extraction_func = lambda x:x
 
     def restart(self):
         self.record_dict = dict()
@@ -65,11 +66,13 @@ class record_all:
         self.time = time
 
     def extract(self, extraction_func):
+        if type(self.time) == np.ndarray: return
         for sec in self.record_dict:
             for seg in self.record_dict[sec]:
                 if not self.record_dict[sec][seg] == 'non_exsisting':
                     self.record_dict[sec][seg].extract(extraction_func)
         self.time = extraction_func(self.time)
+        self.extraction_func=extraction_func
         self.time -= self.time[0]
 
     def get_vals(self, func=lambda x: np.mean(x), default_res=0):
