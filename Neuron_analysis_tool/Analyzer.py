@@ -409,9 +409,11 @@ class Analyzer():
         return fig, ax
 
 
-    def record_protocol(self, protocol=spike_protocol, cut_start_ms=None, record_name='v'):
+    def record_protocol(self, protocol=spike_protocol, cut_start_ms=None, record_name='v', start_seg=None):
+        if start_seg is None:
+            start_seg = self.cell.soma[0](0.5)
         records = record_all(self.cell, record_name=record_name)
-        delay, extra = protocol(self.cell, self.cell.soma[0](0.5))
+        delay, extra = protocol(self.cell, start_seg)
         if cut_start_ms is None:
             cut_start_ms = max(delay - 50, 0)
         records.extract(lambda x:np.array(x)[int(cut_start_ms / h.dt):])
@@ -447,6 +449,10 @@ class Analyzer():
         time *= slow_down_factor
         min_value = records.get_min()-margin
         max_value = records.get_max()+margin
+        # if bounds is not None:
+        #     min_value = bounds[0]
+        #     max_value = bounds[1]
+
         voltage_segs = list(show_records_from.keys())
         if len(show_records_from)==0:
             fig = plt.figure(figsize=figsize)
