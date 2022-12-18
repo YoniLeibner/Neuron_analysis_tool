@@ -30,12 +30,29 @@ def resting_protocol2(cell, start_seg=None):
     h.run()
     return 0, {}
 
-analyser = Analyzer(type='L5PC', more_conductances_protocol=resting_protocol2)
+analyser = Analyzer(type='L5PC')
 
-animation=analyser.dancing_morph(protocol=Ca_spike_protocol, seg_to_indicate_dict=dict(), diam_factor=1,
-                            sec_to_change=None, ignore_sections=[], theta=-90, scale=0.25,
-                            slow_down_factor=1, figsize=(5,5))
+# animation=analyser.dancing_morph(protocol=Ca_spike_protocol, seg_to_indicate_dict=dict(), diam_factor=1,
+#                             sec_to_change=None, ignore_sections=[], theta=-90, scale=0.25,
+#                             slow_down_factor=1, figsize=(5,5))
+# animation.ipython_display(fps=10, loop=True, autoplay=True)
+
+
+
+record_dict, extra = analyser.record_protocol(cut_start_ms=1000.0, record_name='v', compute_more_condunctances=True)
+
+animation = analyser.create_movie_from_rec(records=record_dict, slow_down_factor=1, scale=0.25,
+                                           func_for_missing_frames=np.max, theta=-90, diam_factor=0.5,
+                                           show_records_from=dict(), draw_funcs=extra['draw_funcs'],
+                                          electrical=True, dancing=True, more_conductances_=extra['more_conductances'],
+                                          base_plot_type='dendogram')
 animation.ipython_display(fps=10, loop=True, autoplay=True)
+# animation = analyser.create_movie_from_rec(records=record_dict, slow_down_factor=1, scale=0.25,
+#                                            func_for_missing_frames=np.max, theta=-90, diam_factor=0.5,
+#                                            show_records_from=dict(), draw_funcs=extra['draw_funcs'],
+#                                           electrical=True, dancing=True, more_conductances_=extra['more_conductances'])
+# animation.ipython_display(fps=10, loop=True, autoplay=True)
+
 
 
 #####################################################################################################

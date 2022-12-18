@@ -29,7 +29,10 @@ class more_conductances():
         self.name = 'Ih_check'
         self.cell=cell
         self.is_resting=is_resting
-        self.extraction_func=extraction_func
+        if extraction_func is None:
+            self.extraction_func = lambda x: np.array(x)
+        else:
+            self.extraction_func=extraction_func
         self.protocol = protocol
         self.record_names=[]
         for sec in self.cell.all:
@@ -45,22 +48,43 @@ class more_conductances():
                     if hasattr(seg, 'g_'+str(mechanisms)+'_'+str(mechanisms)):
                         self.record_names.append('g_' + str(mechanisms)+'_'+str(mechanisms))# = get_condactance(mechanisms)
         self.record_names = list(set(self.record_names))
-        self.run()
+        self.set()
+        if protocol is not None:
+            delay, _ = self.protocol(self.cell, None)
+            if extraction_func is None:
+                self.extraction_func = lambda x: np.array(x)[int(delay / h.dt):]
+            self.extract()
 
-
-    def run(self):
+    def set(self):
         self.record_dict = dict()
         if not self.is_resting:
             for record_name in self.record_names:
                 self.record_dict[record_name] = record_all(self.cell, record_name=record_name)
 
-        delay, _ = self.protocol(self.cell, None)
-        if self.extraction_func is None:
-            self.extraction_func = lambda x: np.array(x)[int(delay/h.dt):]
+        # delay, _ = self.protocol(self.cell, None)
+        # if self.extraction_func is None:
+        #     self.extraction_func = lambda x: np.array(x)[int(delay/h.dt):]
+        # self.time = np.arange(0, h.tstop, h.dt)
+        # if not self.is_resting:
+        #     for record_name in self.record_dict.keys():
+        #         self.record_dict[record_name].extract(self.extraction_func)
+        #         self.time = self.record_dict[record_name].time
+        # else:
+        #     self.record_dict = dict()
+        #     for sec in self.cell.all:
+        #         self.record_dict[sec] = dict()
+        #         for i, seg in enumerate(sec):
+        #             self.record_dict[sec][seg] = dict()
+        #             for mechanisms in seg:
+        #                 self.record_dict[sec][seg]['g'+str(mechanisms)] = get_condactance(mechanisms)
+
+    def extract(self, extraction_func=None):
+        if extraction_func is None:
+            extraction_func =  self.extraction_func
         self.time = np.arange(0, h.tstop, h.dt)
         if not self.is_resting:
             for record_name in self.record_dict.keys():
-                self.record_dict[record_name].extract(self.extraction_func)
+                self.record_dict[record_name].extract(extraction_func)
                 self.time = self.record_dict[record_name].time
         else:
             self.record_dict = dict()
@@ -70,6 +94,7 @@ class more_conductances():
                     self.record_dict[sec][seg] = dict()
                     for mechanisms in seg:
                         self.record_dict[sec][seg]['g'+str(mechanisms)] = get_condactance(mechanisms)
+
 
     def cumpute(self, seg, time=None, dt=1):
         sec= seg.sec
