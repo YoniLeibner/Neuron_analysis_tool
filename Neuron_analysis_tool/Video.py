@@ -31,7 +31,8 @@ def create_movie_from_rec(analyzer, records, seg_to_indicate_dict=dict(), diam_f
                           base_plot_type='morph', start_seg=None, electrical=True, figsize=(5, 5),
                           dancing=False,distance=None, dt=1, more_conductances_=None):
     assert dancing == False or more_conductances_ is not None
-    assert dancing == electrical
+    if base_plot_type='morph':
+        assert dancing == electrical
     import matplotlib.style as mplstyle
     if start_seg is None:
         start_seg = list(analyzer.cell.soma[0])
