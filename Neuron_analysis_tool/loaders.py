@@ -13,7 +13,7 @@ from neuron import h
 import os
 
 def open_morph(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, nl=None):
-    print('open_morph: ', morph_path)
+    # print('open_morph: ', morph_path)
     hoc_file_name = 'allen_model.hoc'
     h.celsius = 37
     h.load_file("nrngui.hoc")

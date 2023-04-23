@@ -4,6 +4,25 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 
+
+
+
+analyser = Analyzer(type='Rall_tree')
+colors_dict  = analyser.colors_dict
+colors_dict['soma']='r'
+colors_dict['basal']='pink'
+
+analyser.change_color_dict(colors_dict)
+
+record_dict, extra = analyser.record_protocol(cut_start_ms=1000.0, record_name='v')
+
+animation = analyser.create_movie_from_rec(records=record_dict, slow_down_factor=50,
+                                           func_for_missing_frames=np.max, theta=0, diam_factor=0.5,
+                                           show_records_from=dict(), electrical=False,
+                                           plot_all_records=True, distance_factor=10, plot_every=0.5)
+animation.ipython_display(fps=10, loop=True, autoplay=True)
+
+a=1
 def Ca_spike_protocol(cell, start_seg=None):
     delay = 200.0
     stim = h.IClamp(0.5, sec=cell.soma[0])
@@ -36,6 +55,20 @@ analyser = Analyzer(type='L5PC')
 #                             sec_to_change=None, ignore_sections=[], theta=-90, scale=0.25,
 #                             slow_down_factor=1, figsize=(5,5))
 # animation.ipython_display(fps=10, loop=True, autoplay=True)
+record_dict, extra = analyser.record_protocol(protocol=Ca_spike_protocol, cut_start_ms=None,
+                                              record_name='v', compute_more_condunctances=True)
+
+seg_to_indicate_dict={list(analyser.cell.dend[30])[-2]:dict(color='cyan', alpha=0.5, size=20),
+                     list(analyser.cell.apic[70])[-2]:dict(color='green', alpha=0.5, size=20)}
+
+animation = analyser.create_movie_from_rec(records=record_dict, slow_down_factor=20, scale=0.25,
+                                           func_for_missing_frames=np.max, theta=-90, diam_factor=None,
+                                           show_records_from=dict(), draw_funcs=extra['draw_funcs'],
+                                           electrical=True, dancing=True,
+                                           more_conductances_=extra['more_conductances'],
+                                          base_plot_type='dendogram',figsize=(7,7),
+                                           seg_to_indicate_dict=seg_to_indicate_dict)
+animation.ipython_display(fps=10, loop=True, autoplay=True)
 
 
 

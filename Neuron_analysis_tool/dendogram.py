@@ -18,7 +18,7 @@ FIX_DIAM=1
 BRANCH_SPACE=2
 
 
-def plot_recursive(sec, distance, ax, color_func, x_pos, lines, segs, ignore_sections=[], segs_to_indecate=dict(), electrical=True, diam_factor=None):
+def plot_recursive(sec, distance, ax, color_func, x_pos, lines, segs, ignore_sections=[], segs_to_indecate=dict(), electrical=True, diam_factor=None, BRANCH_SPACE_=BRANCH_SPACE):
     # start_end = distance.get_sec_start_end(sec, electrical=electrical)
     [color, part_name]=color_func.get_seg_color(list(sec)[0])
     # colors, lengths = color_func(sec, distance.get_sec_parent(sec).sec) # change to seg colors!!!!!!!
@@ -28,13 +28,15 @@ def plot_recursive(sec, distance, ax, color_func, x_pos, lines, segs, ignore_sec
     if not distance.is_terminal(sec):
         for son in sons:
             if son not in ignore_sections:
-                pos, mean_point, lines, segs = plot_recursive(son, distance, ax, color_func, mid_points[-1],lines, segs, ignore_sections=ignore_sections, segs_to_indecate=segs_to_indecate, electrical=electrical, diam_factor=diam_factor)
+                pos, mean_point, lines, segs = plot_recursive(son, distance, ax, color_func, mid_points[-1],lines, segs,
+                                                              ignore_sections=ignore_sections, segs_to_indecate=segs_to_indecate,
+                                                              electrical=electrical, diam_factor=diam_factor, BRANCH_SPACE_=BRANCH_SPACE_)
                 mid_points.append(pos)
                 mean_points.append(mean_point)
         if len(sons)>1:
-            m_point = (mid_points[0]+ mid_points[-1]-BRANCH_SPACE)/2.0
+            m_point = (mid_points[0]+ mid_points[-1]-BRANCH_SPACE_)/2.0
         else:
-            m_point = mid_points[-1] - BRANCH_SPACE # single cheldren
+            m_point = mid_points[-1] - BRANCH_SPACE_ # single cheldren
     else:
         m_point = x_pos # terminal
 
@@ -54,9 +56,11 @@ def plot_recursive(sec, distance, ax, color_func, x_pos, lines, segs, ignore_sec
 
     if not distance.is_terminal(sec):
         return mid_points[-1], m_point, lines, segs
-    return mid_points[-1] + BRANCH_SPACE, m_point, lines, segs
+    return mid_points[-1] + BRANCH_SPACE_, m_point, lines, segs
 
-def plot_dendogram(cell, start_seg, more_conductances, color_func, ax=None, plot_legend=False, ignore_sections=[], segs_to_indecate=dict(), electrical=True, diam_factor=None, distance=None):
+def plot_dendogram(cell, start_seg, more_conductances, color_func, ax=None, plot_legend=False, ignore_sections=[], segs_to_indecate=dict(), electrical=True, diam_factor=None, distance=None, BRANCH_SPACE_=None):
+    if BRANCH_SPACE_ is None:
+        BRANCH_SPACE_=BRANCH_SPACE
     if ax is None:
         ax = plt.gca()
     if (distance is None) or (not distance.start_seg == start_seg):
@@ -74,7 +78,9 @@ def plot_dendogram(cell, start_seg, more_conductances, color_func, ax=None, plot
         mid_points = [mid_points[-1]]
         for son in distance.get_sons(start_seg.sec):
             if (distance.get_part(list(son)[0])==part) and (son not in ignore_sections):
-                pos, mean_point, lines, segs = plot_recursive(son, distance, ax, color_func, mid_points[-1], lines, segs, ignore_sections=ignore_sections, segs_to_indecate=segs_to_indecate, electrical=electrical, diam_factor=diam_factor)
+                pos, mean_point, lines, segs = plot_recursive(son, distance, ax, color_func, mid_points[-1], lines, segs,
+                                                              ignore_sections=ignore_sections, segs_to_indecate=segs_to_indecate,
+                                                              electrical=electrical, diam_factor=diam_factor, BRANCH_SPACE_=BRANCH_SPACE_)
                 mid_points.append(pos)
                 mean_points.append(mean_point)
         sec_start_end = distance.get_sec_start_end_part(start_seg.sec, part=part, electrical=electrical)
@@ -86,7 +92,7 @@ def plot_dendogram(cell, start_seg, more_conductances, color_func, ax=None, plot
             lines.append(ax.plot([mean_points[0], mean_points[-1]], [sec_start_end['end']*mul] * 2, color=color, linewidth= FIX_DIAM if diam_factor is None else start_seg.diam * diam_factor, zorder=2)[0]) # plot horizental at end
         # change to segs and add scatter
         for seg in start_seg.sec:
-            if distance.get_part(seg) == part:
+            if distance.get_part(seg) == part or seg == start_seg:
                 start_end = distance.get_start_end(seg, electrical=electrical)
                 segs.append(seg)
                 lines.append(ax.plot([np.mean(mean_points)]*2, [start_end['start']*mul, start_end['end']*mul], color=color, linewidth= FIX_DIAM if diam_factor is None else start_seg.diam * diam_factor, zorder=2)[0])  # plot vertical at end

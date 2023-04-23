@@ -254,6 +254,6 @@ def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate=
                 ax.scatter(0, 0, s=seg_to_indicate[seg]['size'], color=seg_to_indicate[seg]['color'], zorder=3, alpha=seg_to_indicate[seg]['alpha'])
                 break
         # ax.add_patch(lines[-1])
-    # todo change x, y values to electrical units
+    # todo change x,  values to electrical units
 
     return ax, lines, segs

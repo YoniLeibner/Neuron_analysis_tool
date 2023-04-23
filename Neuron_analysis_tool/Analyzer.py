@@ -17,7 +17,7 @@ from Neuron_analysis_tool.morph_ploter import get_norm
 from Neuron_analysis_tool.dendogram import plot_dendogram
 from Neuron_analysis_tool.cable import get_cable
 from Neuron_analysis_tool.attenuation import plot_attenuation, record_to_value
-from Neuron_analysis_tool.record import record, record_all
+from Neuron_analysis_tool.record import record, record_all, sec_name, seg_name
 from Neuron_analysis_tool.distance import Distance
 from Neuron_analysis_tool.utils import seg_Rin_func, get_segment_length_lamda, get_segment_length_um, LAMDA, MICRO
 from Neuron_analysis_tool.protocols import *
@@ -81,7 +81,7 @@ class Analyzer():
 
     def plot_morph(self, ax=None, seg_to_indicate_dict = {}, diam_factor=None, sec_to_change=None,
                    ignore_sections=[],
-                   theta=0, scale=0, ignore_soma=True, distance=None, electrical=False,
+                   theta=0, scale=0, scale_text=True, ignore_soma=True, distance=None, electrical=False,
                    time=None, dt=1, more_conductances_=None, colors=None):
         if colors is None:
             colors = self.colors
@@ -111,13 +111,14 @@ class Analyzer():
             x_lim = ax.get_xlim()
             y_lim = ax.get_ylim()
             ax.plot([x_lim[0], x_lim[0]], [y_lim[0], y_lim[0] + scale], color='k')
-            fontsize = (y_lim[1]-y_lim[0])*0.01
-            ax.text(x_lim[0]-fontsize*6, y_lim[0], str(scale)+' ('+MICRO+'m)', rotation=90, fontsize=fontsize)
-            ax.set_xlim([x_lim[0]-fontsize*6, x_lim[1]])
+            if scale_text:
+                fontsize = (y_lim[1]-y_lim[0])*0.01
+                ax.text(x_lim[0]-fontsize*6, y_lim[0], str(scale)+' ('+MICRO+'m)', rotation=90, fontsize=fontsize)
+                ax.set_xlim([x_lim[0]-fontsize*6, x_lim[1]])
         return ax, lines, segs
 
     def plot_morph_with_values(self, seg_val_dict, ax=None, seg_to_indicate_dict = {}, diam_factor=None,
-                               sec_to_change=None, ignore_sections=[], theta=0, scale=0, cmap=plt.cm.turbo,
+                               sec_to_change=None, ignore_sections=[], theta=0, scale=0, scale_text=True, cmap=plt.cm.turbo,
                                plot_color_bar=True, bounds=None, ignore_soma=True, color_bar_idx = [0.9, 0.2, 0.02, 0.6],
                                colors=None, distance=None, electrical=False, time=None, dt=1, more_conductances_=None):
         if self.type.startswith('Rall_tree'):
@@ -130,7 +131,7 @@ class Analyzer():
             colors = color_func_norm(value_dict=seg_val_dict, bounds=bounds, cmap=cmap)
         ax, lines, segs =  self.plot_morph(ax=ax, seg_to_indicate_dict = seg_to_indicate_dict, diam_factor=diam_factor, sec_to_change=sec_to_change,
                    ignore_sections=ignore_sections,
-                   theta=theta, scale=scale, ignore_soma=ignore_soma, distance=distance, electrical=electrical,
+                   theta=theta, scale=scale, scale_text=scale_text, ignore_soma=ignore_soma, distance=distance, electrical=electrical,
                    time=time, dt=dt, more_conductances_=more_conductances_, colors=colors)
 
         if plot_color_bar:
@@ -143,7 +144,8 @@ class Analyzer():
 
     def plot_morph_with_value_func(self, func=seg_Rin_func, run_time=0, theta=0.0, diam_factor=None, cmap=plt.cm.turbo,
                                    ax = None, seg_to_indicate_dict = {},
-                                   sec_to_change = None, ignore_sections = [], scale = 0, plot_color_bar = True, bounds = None, colors=None):
+                                   sec_to_change = None, ignore_sections = [], scale = 0, scale_text=True, plot_color_bar = True, bounds = None, colors=None, ignore_soma=True,
+                                   color_bar_idx=[0.9, 0.2, 0.02, 0.6]):
         if colors is None:
             if run_time>0:
                 h.tstop=run_time
@@ -151,15 +153,16 @@ class Analyzer():
             value_dict = dict()
             for part in self.parts_dict:
                 for seg in tqdm(self.parts_dict[part], desc=part):
-                    if seg.sec not in value_dict:
-                        value_dict[seg.sec]=dict()
-                    value_dict[seg.sec][seg] = func(seg)
+                    if sec_name(seg.sec) not in value_dict:
+                        value_dict[sec_name(seg.sec)]=dict()
+                    value_dict[sec_name(seg.sec)][seg_name(seg)] = func(seg)
             colors = color_func_norm(value_dict=value_dict, bounds=bounds, cmap=cmap)
 
         return self.plot_morph_with_values({}, theta=theta, diam_factor=diam_factor, cmap=cmap, ax=ax, seg_to_indicate_dict=seg_to_indicate_dict,
-                                            sec_to_change=sec_to_change, ignore_sections=ignore_sections, scale=scale, plot_color_bar=plot_color_bar, bounds=bounds, colors=colors)
+                                            sec_to_change=sec_to_change, ignore_sections=ignore_sections, scale=scale, scale_text=scale_text, plot_color_bar=plot_color_bar,
+                                           bounds=bounds, colors=colors, ignore_soma=ignore_soma, color_bar_idx=color_bar_idx)
 
-    def plot_dendogram(self, start_seg = None ,ax=None, segs_to_indecate = dict(), plot_legend=True, ignore_sections=[], electrical=False, diam_factor=None, distance=None, colors=None):
+    def plot_dendogram(self, start_seg = None ,ax=None, segs_to_indecate = dict(), plot_legend=True, ignore_sections=[], electrical=False, diam_factor=None, distance=None, colors=None, BRANCH_SPACE_=None):
         if colors is None:
             colors = self.colors
         if start_seg is None:
@@ -167,12 +170,12 @@ class Analyzer():
             start_seg = start_sec[len(start_sec)//2]
         max_y, x_pos, lines, segs = plot_dendogram(self.cell, start_seg, self.more_conductances,
                        colors, ax=ax, plot_legend=plot_legend, ignore_sections=ignore_sections,
-                       segs_to_indecate=segs_to_indecate, electrical=electrical, diam_factor=diam_factor, distance=distance)
+                       segs_to_indecate=segs_to_indecate, electrical=electrical, diam_factor=diam_factor, distance=distance, BRANCH_SPACE_=BRANCH_SPACE_)
         return ax, x_pos, lines, segs
 
     def plot_dendogram_with_values(self, seg_val_dict, start_seg = None ,ax=None, segs_to_indecate = dict(), plot_legend=True,
                                    ignore_sections=[], electrical=False, diam_factor=None, distance=None, bounds=None, cmap=plt.cm.turbo,
-                                   plot_color_bar=True, color_bar_idx = [0.9, 0.2, 0.02, 0.6], colors=None):
+                                   plot_color_bar=True, color_bar_idx = [0.9, 0.2, 0.02, 0.6], colors=None, BRANCH_SPACE_=None):
         if start_seg is None:
             start_sec = list(self.cell.soma[0])
             start_seg = start_sec[len(start_sec)//2]
@@ -182,37 +185,40 @@ class Analyzer():
             colors = color_func_norm(value_dict=seg_val_dict, bounds=bounds, cmap=cmap)
 
         max_y, x_pos, lines, segs = self.plot_dendogram(start_seg = start_seg ,ax=ax, segs_to_indecate = segs_to_indecate, plot_legend=plot_legend,
-                            ignore_sections=ignore_sections, electrical=electrical, diam_factor=diam_factor, distance=distance, colors=colors)
+                            ignore_sections=ignore_sections, electrical=electrical, diam_factor=diam_factor, distance=distance, colors=colors, BRANCH_SPACE_=BRANCH_SPACE_)
         if plot_color_bar:
+            x_lim = ax.get_xlim()
+            ax.set_xlim([x_lim[0], x_lim[1]*1.4])
             cax = ax.get_figure().add_axes(color_bar_idx)
             color_bar = mpl.colorbar.ColorbarBase(cax, cmap=colors.cmap, norm=colors.norm, spacing='uniform')
         else:
             color_bar = None
             cax = None
+
         return ax, x_pos, cax, colors, lines, segs
 
 
     def plot_dendogram_with_value_func(self, func, start_seg = None ,ax=None, segs_to_indecate = dict(),
                                        ignore_sections=[], electrical=False, diam_factor=None, distance=None, bounds=None,
-                                       cmap=plt.cm.turbo, plot_color_bar=True, color_bar_idx = [0.9, 0.2, 0.02, 0.6], colors=None):
+                                       cmap=plt.cm.turbo, plot_color_bar=True, color_bar_idx = [0.9, 0.2, 0.02, 0.6], colors=None, BRANCH_SPACE_=None):
         if colors is None:
             value_dict = dict()
             for part in self.parts_dict:
                 for seg in tqdm(self.parts_dict[part], desc=part):
                     if seg.sec not in value_dict:
-                        value_dict[seg.sec]=dict()
-                    value_dict[seg.sec][seg] = func(seg)
+                        value_dict[sec_name(seg.sec)]=dict()
+                    value_dict[sec_name(seg.sec)][seg_name(seg)] = func(seg)
             colors = color_func_norm(value_dict=value_dict, bounds=bounds, cmap=cmap)
         return self.plot_dendogram_with_values({}, start_seg=start_seg, ax=ax, segs_to_indecate=segs_to_indecate,
                                                plot_legend=False, ignore_sections=ignore_sections, electrical=electrical,
                                                diam_factor=diam_factor, distance=distance, bounds=bounds, cmap=cmap,
-                                               plot_color_bar=plot_color_bar, color_bar_idx=color_bar_idx, colors=colors)
+                                               plot_color_bar=plot_color_bar, color_bar_idx=color_bar_idx, colors=colors, BRANCH_SPACE_=BRANCH_SPACE_)
 
     def plot_cable(self, start_seg = None ,ax=None,
                    factor_e_space=25, factor_m_space=10 ,
-                   dots_loc_seg = [], ignore_sections=[],
+                   segs_to_indecate= dict(), ignore_sections=[],
                    cable_type='electric', start_loc=0, x_axis=True,
-                    factor=1, dots_size=10, start_color='k', plot_legend=True, distance=None, extra=5): #'d3_2', 'dist'
+                    factor=1, dots_size=10, start_color='k', plot_legend=True, distance=None, extra=5, cable_factor=1, labal_start=None, return_shift=False): #'d3_2', 'dist'
         if ax is None:
             ax = plt.gca()
         if start_seg is None:
@@ -221,9 +227,9 @@ class Analyzer():
         seg_dist_dict = dict()
         for part in ['sons', 'parent']:
             seg_dist_dict[part] = dict()
-            seg_dist_dict[part][self.cell.soma[0](0.5)] = []
-            for hh in dots_loc_seg:
-                seg_dist_dict[part][hh] = []
+            # seg_dist_dict[part][self.cell.soma[0](0.5)] = []
+            for seg_ in segs_to_indecate.keys():
+                seg_dist_dict[part][seg_] = []
         results, seg_dist, cross_dist_dict = get_cable(self.cell,
                                                         start_seg=start_seg,
                                                         factor_e_space=factor_e_space,
@@ -235,6 +241,10 @@ class Analyzer():
                                                         distance=distance)
         max_cable = 0
         shift = 0
+        for direction in results:
+            for part in results[direction]:
+                for cable_type in results[direction][part]:
+                    results[direction][part][cable_type]*=cable_factor
         for part, direction in zip(results.keys(), [1, -1]):
             cable = results[part]['all'][cable_type].flatten()
             if max_cable < cable.max() / 2.0:
@@ -271,23 +281,43 @@ class Analyzer():
                     start_pos[0] = temp_
                 start_pos += part_cable
         if x_axis:
-            ax.scatter(shift, 0, s=dots_size, color=start_color, label='start')
+            for seg_ in segs_to_indecate:
+                if len(seg_dist_dict['parent'][seg_]) > 0:
+                    dist = -seg_dist_dict['parent'][seg_][0]['dist_e'] if cable_type in ['electric', 'd3_2'] else seg_dist_dict['parent'][seg_][0]['dist_m']
+                    ax.scatter(shift, dist, s=segs_to_indecate[seg_]['size'], color=segs_to_indecate[seg_]['color'])
+                else:
+                    dist = seg_dist_dict['sons'][seg_][0]['dist_e'] if cable_type in ['electric', 'd3_2'] else seg_dist_dict['sons'][seg_][0]['dist_m']
+                    ax.scatter(shift, dist, s=segs_to_indecate[seg_]['size'], color=segs_to_indecate[seg_]['color'])
+            if labal_start is None:
+                ax.scatter(shift, 0, s=dots_size, color=start_color)
+            else:
+                ax.scatter(shift, 0, s=dots_size, color=start_color, label=labal_start)
         else:
-            ax.scatter(0, shift, s=dots_size, color=start_color, label='start')
+            for seg_ in segs_to_indecate:
+                if len(seg_dist_dict['parent'][seg_]) > 0:
+                    dist = -seg_dist_dict['parent'][seg_][0]['dist_e'] if cable_type in ['electric', 'd3_2'] else seg_dist_dict['parent'][seg_][0]['dist_m']
+                    ax.scatter(dist, shift, s=segs_to_indecate[seg_]['size'], color=segs_to_indecate[seg_]['color'])
+                else:
+                    dist = seg_dist_dict['sons'][seg_][0]['dist_e'] if cable_type in ['electric', 'd3_2'] else seg_dist_dict['sons'][seg_][0]['dist_m']
+                    ax.scatter(dist, shift, s=segs_to_indecate[seg_]['size'], color=segs_to_indecate[seg_]['color'])
+            if labal_start is None:
+                ax.scatter(0, shift, s=dots_size, color=start_color)
+            else:
+                ax.scatter(0, shift, s=dots_size, color=start_color, label=labal_start)
         handles, labels = ax.get_legend_handles_labels()
         by_label = dict(zip(labels, handles))
         if plot_legend:
             ax.legend(by_label.values(), by_label.keys(), loc='best')
-        else:
-            ax.legend([], [], loc='best')
+        if return_shift:
+            return ax, shift
         return ax
 
     def plot_attenuation(self, protocol=long_pulse_protocol, ax=None, seg_to_indicate_dict=dict(), start_seg =None,
-                         record_to_value_func=record_to_value, norm=True, record_name='v', norm_by=None, electrical=True, distance=None, **kwargs):
+                         record_to_value_func=record_to_value, norm=True, record_name='v', norm_by=None, electrical=True, distance=None, records=None, ignore_sections=[], **kwargs):
 
-        ax, norm_by, lines, segs = plot_attenuation(cell=self.cell, start_seg=start_seg, protocol=protocol, more_conductances=self.more_conductances, color_func=self.colors, ax=ax, record_name=record_name,
+        ax, norm_by, lines, segs, records = plot_attenuation(cell=self.cell, start_seg=start_seg, protocol=protocol, more_conductances=self.more_conductances, color_func=self.colors, ax=ax, record_name=record_name,
                          cut_start_ms=None, record_to_value=record_to_value_func, norm_by=norm_by, norm=norm, electrical=electrical,
-                         seg_to_indicate=seg_to_indicate_dict, distance=distance, **kwargs)
+                         seg_to_indicate=seg_to_indicate_dict, distance=distance, records=records, ignore_sections=ignore_sections, **kwargs)
 
         ax.set_yscale('log')
         ax.set_xlabel('distance from origin (x / '+LAMDA+')')
@@ -296,7 +326,7 @@ class Analyzer():
         else:
             ax.set_ylabel('attanuation (mV)')
 
-        return ax, norm_by, lines, segs
+        return ax, norm_by, lines, segs, records
 
     def create_card(self, start_seg=None, theta=0, scale=500, factor_e_space=50, cable_type='d3_2', diam_factor=None, plot_legend=False, start_color='green', start_dots_size=50, **kwargs):
         fig, ax = plt.subplots(1, 4, figsize=(12, 3), gridspec_kw={'width_ratios': [0.5, 1.5, 1, 1]})
@@ -431,8 +461,8 @@ class Analyzer():
                             sec_to_change=None, ignore_sections=[], theta=0, scale=500, cmap=plt.cm.turbo,
                             plot_color_bar=True, slow_down_factor=1, func_for_missing_frames=np.max, bounds = None,
                             show_records_from=dict(), voltage_window=50, ylabel='v (mV)', xlabel='time (ms)', margin=0, draw_funcs=[],
-                            base_plot_type='morph', start_seg = None, electrical=True, figsize=(5,5),
-                            dancing=False, distance=None, dt=1, more_conductances_=None):
+                            base_plot_type='morph', start_seg = None, electrical=True, figsize=(8,5),
+                            dancing=False, distance=None, dt=1, more_conductances_=None, plot_all_records=False, distance_factor=1, plot_every=0.25, color_bar_idx=None):
 
         return create_movie_from_rec(self, records, seg_to_indicate_dict=seg_to_indicate_dict, diam_factor=diam_factor,
                           sec_to_change=sec_to_change, ignore_sections=ignore_sections, theta=theta, scale=scale, cmap=cmap,
@@ -440,7 +470,9 @@ class Analyzer():
                           show_records_from=show_records_from, voltage_window=voltage_window, ylabel=ylabel, xlabel=xlabel, margin=margin,
                           draw_funcs=draw_funcs,
                           base_plot_type=base_plot_type, start_seg=start_seg, electrical=electrical, figsize=figsize,
-                          dancing=dancing, distance=distance, dt=dt, more_conductances_=more_conductances_)
+                          dancing=dancing, distance=distance, dt=dt, more_conductances_=more_conductances_,
+                          plot_all_records=plot_all_records, distance_factor=distance_factor, plot_every=plot_every,
+                          color_bar_idx=color_bar_idx)
 
 
     def dancing_morph(self, protocol, seg_to_indicate_dict=dict(), diam_factor=None,

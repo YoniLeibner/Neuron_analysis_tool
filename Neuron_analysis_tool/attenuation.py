@@ -9,7 +9,7 @@
 #############################################################
 
 import numpy as np
-from Neuron_analysis_tool.record import record_all
+from Neuron_analysis_tool.record import record_all, sec_name, seg_name
 from Neuron_analysis_tool.distance import Distance
 from neuron import h
 import matplotlib.pyplot as plt
@@ -23,44 +23,45 @@ class color_func:
 
 def plot_attenuation(cell, start_seg, protocol, more_conductances, color_func=color_func, ax=None, record_name='v',
                      cut_start_ms=None, record_to_value=record_to_value, norm_by = None, norm=True, electrical=True,
-                     seg_to_indicate=dict(), distance=None, **kwargs):
+                     seg_to_indicate=dict(), distance=None, records=None, ignore_sections=[], **kwargs):
     if ax is None:
         ax = plt.gca()
-    lines = []
-    segs=[]
+
     if start_seg is None:
         segs = list(cell.soma[0])
         start_seg = segs [len(segs)//2]
     if (distance is None) or (not distance.start_seg==start_seg):
         distance = Distance(cell, more_conductances)
         distance.compute(start_seg=start_seg)
-    records = record_all(cell, record_name=record_name)
-    delay, extra = protocol(cell, start_seg)
-    if cut_start_ms is None:
-        cut_start_ms = delay - 50
-    records.extract(lambda x:np.array(x)[int(cut_start_ms / h.dt):])
+    if records is None:
+        records = record_all(cell, record_name=record_name)
+        delay, extra = protocol(cell, start_seg)
+        if cut_start_ms is None:
+            cut_start_ms = delay - 50
+        records.extract(lambda x:np.array(x)[int(cut_start_ms / h.dt):])
 
-    attanuation_vals = records.get_vals(func = record_to_value)
     if norm:
         if norm_by is None:
-            norm_by = attanuation_vals[start_seg.sec][start_seg]
+            norm_by = record_to_value(records.get_record(start_seg)) #attanuation_vals[sec_name(start_seg.sec)][seg_name(start_seg)]
     else:
         norm_by=1.0
 
-
-    for sec in attanuation_vals:
+    lines = []
+    segs=[]
+    for sec in cell.all:
         if sec in cell.axonal: continue
-        for seg in attanuation_vals[sec]:
+        if sec in ignore_sections: continue
+        for seg in sec:
             if seg == start_seg: continue
             parent_seg = distance.get_seg_parent(seg)
             start_end = distance.get_start_end(seg, electrical=electrical)
             x = [start_end['start'], start_end['end']]
-            y=[attanuation_vals[parent_seg.sec][parent_seg]/norm_by, attanuation_vals[seg.sec][seg]/norm_by]
+            y=[record_to_value(records.get_record(parent_seg))/norm_by, record_to_value(records.get_record(seg))/norm_by]
             color, part_name = color_func.get_seg_color(seg)
             segs.append(seg)
             lines.append(ax.plot(x[-2:], y[-2:], color=color, zorder=1, **kwargs)[0])
             if seg in seg_to_indicate.keys():
                 ax.scatter(x[-1], y[-1], color=seg_to_indicate[seg]['color'], s=seg_to_indicate[seg]['size'], alpha=seg_to_indicate[seg]['alpha'], zorder=3)
     if start_seg in seg_to_indicate.keys():
-        ax.scatter(0, attanuation_vals[start_seg.sec][start_seg]/norm_by, color=seg_to_indicate[start_seg]['color'], s=seg_to_indicate[start_seg]['size'], alpha=seg_to_indicate[start_seg]['alpha'], zorder=3)
-    return ax, norm_by, lines, segs
+        ax.scatter(0, record_to_value(records.get_record(start_seg))/norm_by, color=seg_to_indicate[start_seg]['color'], s=seg_to_indicate[start_seg]['size'], alpha=seg_to_indicate[start_seg]['alpha'], zorder=3)
+    return ax, norm_by, lines, segs, records

@@ -12,6 +12,7 @@
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from Neuron_analysis_tool.record import sec_name, seg_name
 
 class color_func:
     def __init__(self, parts_dict, color_dict, defult_name='else'):
@@ -64,6 +65,7 @@ class color_func_norm:
                 bounds+=list(value_dict[key].values())
         self.cmap=cmap
         self.norm = mpl.colors.Normalize(vmin=np.min(bounds), vmax=np.max(bounds))
+        self.value_dict=value_dict
         self.color_dict = dict()
         for key in value_dict:
             self.color_dict[key] = dict()
@@ -71,7 +73,22 @@ class color_func_norm:
                 self.color_dict[key][key2]= cmap(self.norm(value_dict[key][key2]))
 
     def get_seg_color(self, seg):
-        return [self.color_dict[seg.sec][seg], '']
+        # for part in self.parts_dict:
+        #     if seg in self.parts_dict[part]:
+        #         return [self.color_dict[part], part]
+        return [self.color_dict[sec_name(seg.sec)][seg_name(seg)], '']
+
+    def change_cmap(self, cmap):
+        self.cmap=cmap
+        self.color_dict = dict()
+        for key in self.value_dict:
+            self.color_dict[key] = dict()
+            for key2 in self.value_dict[key]:
+                self.color_dict[key][key2] = cmap(self.norm(self.value_dict[key][key2]))
+
+    def change_bounds(self, low_bound, high_bound):
+        self.norm = mpl.colors.Normalize(vmin=low_bound, vmax=high_bound)
+        self.change_cmap(self.cmap)
 
     def __call__(self, sec, parent=None, *args, **kwargs):
         return ['error'], ['error']
@@ -90,6 +107,12 @@ class color_func_by_func:
 
     def get_seg_color(self, seg):
         return self.colors.get_seg_color(seg)
+
+    def change_cmap(self, cmap):
+        self.colors.change_cmap(cmap)
+
+    def change_bounds(self, low_bound, high_bound):
+        self.colors.change_bounds(low_bound, high_bound)
 
     def __call__(self, sec, parent=None, *args, **kwargs):
         return ['error'], ['error']

@@ -11,12 +11,14 @@
 import neuron
 from neuron import h
 import numpy as np
+import pickle
 
 class record:
 
     def __init__(self, seg, record_name):
         assert hasattr(seg, '_ref_' + record_name), 'wrong recording name'
-        self.seg = seg
+        self.seg_name = seg_name(seg)
+        self.sec = sec_name(seg.sec)
         self.record_name = record_name
         self._record = h.Vector()
         self._record.record(getattr(seg, '_ref_' + record_name))
@@ -31,38 +33,47 @@ class record:
         return func(self._record)
 
     def set_record(self, record_to_set):
-        self._record = record_to_set
+        self._record = np.array(record_to_set)
 
+
+def sec_name(sec):
+    sec_full_name = sec.name()
+    return sec_full_name.split('.')[-1]
+
+def seg_name(seg):
+    return str(seg.x)
 
 class record_all:
     def __init__(self, cell, record_name='v'):
         self.cell=cell
         self.record_name = record_name
         self.restart()
-        self.extraction_func = lambda x:x
+        self.extraction_func = lambda x: x
 
     def restart(self):
         self.record_dict = dict()
         for sec in self.cell.all:
-            self.record_dict[sec] = dict()
+            self.record_dict[sec_name(sec)] = dict()
             for seg in sec:
                 if hasattr(seg, '_ref_' + self.record_name):
-                    self.record_dict[sec][seg] = record(seg, self.record_name)
+                    self.record_dict[sec_name(sec)][seg_name(seg)] = record(seg, self.record_name)
                 else:
-                    self.record_dict[sec][seg] = 'non_exsisting'
+                    self.record_dict[sec_name(sec)][seg_name(seg)] = 'non_exsisting'
         self.time = h.Vector()
         self.time.record(h._ref_t)
 
     def push_records(self, record_dict, time):
         for sec in self.cell.all:
             for seg in sec:
-                self.record_dict[sec][seg].set_record(record_dict[sec][seg])
+                if self.record_dict[sec_name(sec)][seg_name(seg)] == 'non_exsisting':
+                    continue
+                self.record_dict[sec_name(sec)][seg_name(seg)].set_record(record_dict[sec][seg])
         self.time = time
 
     def push_records_seg(self, record_dict, time):
         for sec in self.cell.all:
             for seg in sec:
-                self.record_dict[sec][seg].set_record(record_dict[seg])
+                self.record_dict[sec_name(sec)][seg_name(seg)].set_record(record_dict[seg])
         self.time = time
 
     def extract(self, extraction_func):
@@ -125,15 +136,15 @@ class record_all:
     def get_record(self, seg):
         if type(self.time) == neuron.hoc.HocObject:
             self.extract(lambda x: np.array(x))
-        if self.record_dict[seg.sec][seg]=='non_exsisting':
+        if self.record_dict[sec_name(seg.sec)][seg_name(seg)]=='non_exsisting':
             return np.zeros(self.time.shape)
-        return self.record_dict[seg.sec][seg]._record.copy()
+        return self.record_dict[sec_name(seg.sec)][seg_name(seg)]._record.copy()
 
     def get_record_at_dt(self, seg, t1, t2, dt_func = lambda x: np.max(x)):
         if type(self.time) == neuron.hoc.HocObject:
             self.extract(lambda x: np.array(x))
-        assert seg.sec in self.record_dict, 'seg not valid'
-        assert seg in self.record_dict[seg.sec], 'seg not valid'
+        assert sec_name(seg.sec) in self.record_dict, 'seg not valid'
+        assert seg_name(seg) in self.record_dict[sec_name(seg.sec)], 'seg not valid'
         if t1>=self.time[-1] or t2>=self.time[-1]:
             t1 = self.time[-2]
             t2 = self.time[-1]
@@ -145,15 +156,29 @@ class record_all:
         assert len(indexs1) > 0, 'the time bin (t1'+str(t1)+') dont exsists, make sure you got the correct time between 0 and ' + str(self.time[-1])
         assert len(indexs2) > 0, 'the time bin (t2'+str(t2)+') dont exsists, make sure you got the correct time between 0 and ' + str(self.time[-1])
         func = lambda x: dt_func(x[indexs1[0]:indexs2[0]])
-        if self.record_dict[seg.sec][seg] == 'non_exsisting':
+        if self.record_dict[sec_name(seg.sec)][seg_name(seg)] == 'non_exsisting':
             return 0
-        return self.record_dict[seg.sec][seg].get_val(func)
+        return self.record_dict[sec_name(seg.sec)][seg_name(seg)].get_val(func)
 
     def is_existing(self, seg):
-        if seg.sec in self.record_dict:
-            if seg in self.record_dict[seg.sec]:
-                if not self.record_dict[seg.sec][seg] == 'non_exsisting':
+        if sec_name(seg.sec) in self.record_dict:
+            if seg_name(seg) in self.record_dict[sec_name(seg.sec)]:
+                if not self.record_dict[sec_name(seg.sec)][seg_name(seg)] == 'non_exsisting':
                     return True
         return False
 
+    def save(self, save_dir='records'):
+        if type(self.time) == neuron.hoc.HocObject:
+            self.extract(lambda x: np.array(x))
+        pickle.dump(dict(
+            time = self.time,
+            record_name=self.record_name,
+            records=self.record_dict,
+        ), open(save_dir, 'wb'))
+
+    def load(self, save_dir='records'):
+        data = pickle.load(open(save_dir, 'rb'))
+        self.time = data['time']
+        self.record_name = data['record_name']
+        self.record_dict = data['records']
 

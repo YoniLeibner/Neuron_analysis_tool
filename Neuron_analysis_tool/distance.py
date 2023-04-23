@@ -155,6 +155,14 @@ class Distance:
             self.compute()
         return self.distance_dict[seg.sec]['segs'][seg]['part']
 
+    def get_max(self, electrical=True):
+        max_dict = dict(parent=0, sons=0)
+        for sec in self.distance_dict:
+            for seg in self.distance_dict[sec]['segs']:
+                if max_dict[self.get_part(seg)] < self.get_start_end(seg, electrical=electrical)['end']:
+                    max_dict[self.get_part(seg)] = self.get_start_end(seg, electrical=electrical)['end']
+        return max_dict
+
     def is_terminal(self, sec):
         return len(self.distance_dict[sec]['sec_sons'])==0
 
