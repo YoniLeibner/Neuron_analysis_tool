@@ -9,6 +9,9 @@ from moviepy.video.io.bindings import mplfig_to_npimage
 import os
 from Neuron_analysis_tool.record import sec_name, seg_name
 
+
+
+
 def plot_all_records_func(records, distance, ax, analyzer, distance_factor=1, slow_down_factor=1, plot_every=0.25):
     t1 = records.time.copy()
     for sec in analyzer.cell.all:
@@ -145,6 +148,34 @@ def create_movie_from_rec(analyzer, records, seg_to_indicate_dict=dict(), diam_f
                                                                               bounds=[min_value, max_value], cmap=cmap,
                                                                               plot_color_bar=plot_color_bar,
                                                                               color_bar_idx=color_bar_idx, colors=None)
+
+    elif base_plot_type == 'attenuation':
+        def record_to_value(rec):
+            return rec.max()
+        ax, norm_by, lines, segs, records = analyzer.plot_attenuation(protocol=None,
+                                                                      ax=ax,
+                                                                      seg_to_indicate_dict=seg_to_indicate_dict,
+                                                                      start_seg =start_seg,
+                                                                      record_to_value_func=record_to_value,
+                                                                      norm=False,
+                                                                      record_name=records.record_name,
+                                                                      norm_by=None,
+                                                                      electrical=electrical,
+                                                                      distance=None,
+                                                                      records=records,
+                                                                      ignore_sections=ignore_sections)
+        ax.set_yscale('linear')
+        ax.set_ylim([records.get_min()-0.5, records.get_max()+0.5])
+            # .plot_dendogram_with_values(value_dict_by_sec, start_seg=start_seg,
+            #                                                                   ax=ax,
+            #                                                                   segs_to_indecate=dict() if dancing else seg_to_indicate_dict,
+            #                                                                   plot_legend=False,
+            #                                                                   ignore_sections=ignore_sections,
+            #                                                                   electrical=electrical,
+            #                                                                   diam_factor=diam_factor, distance=None,
+            #                                                                   bounds=[min_value, max_value], cmap=cmap,
+            #                                                                   plot_color_bar=plot_color_bar,
+            #                                                                   color_bar_idx=color_bar_idx, colors=None)
     # elif base_plot_type == 'attenuation':
     #     pass
 
@@ -186,6 +217,21 @@ def create_movie_from_rec(analyzer, records, seg_to_indicate_dict=dict(), diam_f
                         analyzer.to_remove.append([ax.scatter(np.mean(line.get_xdata()), np.mean(line.get_ydata()),
                                color=seg_to_indicate_dict[seg]['color'], s=seg_to_indicate_dict[seg]['size'],
                                alpha=seg_to_indicate_dict[seg]['alpha'], zorder=3)])
+
+    def make_frame_attenuation_r(distance, start_time=0, end_time=1000):
+        if start_time == end_time: return
+        # norm_by = records.get_record_at_dt(start_seg, start_time, end_time, dt_func=record_to_value)
+        for seg, line in zip(segs, lines):
+            # start_end = distance.get_start_end(seg, electrical=electrical)
+            y_ = line.get_ydata()
+            if y_[0] == y_[1] == 0:
+                continue
+            else:
+                parent_seg = distance.get_seg_parent(seg)
+                y = [records.get_record_at_dt(parent_seg, start_time, end_time, dt_func=record_to_value) / norm_by,
+                     records.get_record_at_dt(seg, start_time, end_time, dt_func=record_to_value) / norm_by]
+
+                line.set_ydata(y)
 
 
     def make_frame_r(distance, sec, start_point, seg_to_indicate_dict=dict()):
@@ -232,23 +278,28 @@ def create_movie_from_rec(analyzer, records, seg_to_indicate_dict=dict(), diam_f
                                                        dt_func=func_for_missing_frames)
         for draw_func in draw_funcs:
             analyzer.to_remove.append(draw_func(analyzer.last_t, time_in_ms, segs, lines, ax, records))
-        analyzer.last_t = time_in_ms
+
         if bounds:
             norm = get_norm(bounds)
         else:
             norm = get_norm([min_value, max_value])
         for line, seg in zip(lines, segs):
             line.set_color(cmap(norm(value_dict_by_sec[sec_name(seg.sec)][seg_name(seg)])))
+        if base_plot_type == 'attenuation':
+            distance = Distance(analyzer.cell, analyzer.more_conductances)
+            distance.compute(start_seg=start_seg)
 
-        if dancing:
+            make_frame_attenuation_r(distance, start_time=analyzer.last_t, end_time=time_in_ms)
+        elif dancing:
             distance = Distance(analyzer.cell, more_conductances_)
             distance.compute(start_seg=start_seg, time=time_in_ms, dt=1)
             if base_plot_type == 'dendogram':
                 make_frame_dendorgam_r(distance, seg_to_indicate_dict=seg_to_indicate_dict)
+
             else:
                 for son in analyzer.cell.soma[0].children():
                     make_frame_r(distance, son, start_point=dict(x=0, y=0), seg_to_indicate_dict=seg_to_indicate_dict)
-
+        analyzer.last_t = time_in_ms
         time_text.set_text('time: ' + str(round(time_in_ms, 1)) + ' (ms)')
         if number_of_record_plots > 0:
             for i, t_line in enumerate(time_lines):

@@ -145,7 +145,7 @@ class record_all:
             self.extract(lambda x: np.array(x))
         assert sec_name(seg.sec) in self.record_dict, 'seg not valid'
         assert seg_name(seg) in self.record_dict[sec_name(seg.sec)], 'seg not valid'
-        if t1>=self.time[-1] or t2>=self.time[-1]:
+        if t1>=self.time[-1] or t2>self.time[-1]:
             t1 = self.time[-2]
             t2 = self.time[-1]
         assert t1<t2, 'the time bins have no are not corect, t1='+str(t1)+', t2='+str(t2)

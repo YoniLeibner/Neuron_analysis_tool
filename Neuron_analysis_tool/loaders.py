@@ -12,13 +12,13 @@
 from neuron import h
 import os
 
-def open_morph(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, nl=None):
+def open_morph(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, nl=None, seg_every=20):
     # print('open_morph: ', morph_path)
     hoc_file_name = 'allen_model.hoc'
     h.celsius = 37
     h.load_file("nrngui.hoc")
     h("objref cell, tobj")  # neuron object
-    h.load_file('allen_model.hoc')
+    h.load_file(os.path.realpath(__file__)[:-10]+'allen_model.hoc')
 
     h.execute("cell = new " + hoc_file_name[:-4] + "()")  # replace?
     nl.input(morph_path)
@@ -28,7 +28,7 @@ def open_morph(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, nl=None):
     # parts_dict = dict(all=list())
     for sec in cell.all:
         sec.insert('pas')
-        sec.nseg = int(sec.L / 20) + 1
+        sec.nseg = int(sec.L / seg_every) + 1
         sec.e_pas = e_pas
         sec.cm = Cm
         sec.Ra = Ra
@@ -36,14 +36,14 @@ def open_morph(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, nl=None):
     return get_parts_and_colors(cell)
 
 
-def open_ASC(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70):
+def open_ASC(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, seg_every=20):
     h.load_file("import3d.hoc")
-    return open_morph(morph_path, Rm=Rm, Ra=Ra, Cm=Cm, e_pas=e_pas, nl=h.Import3d_Neurolucida3())
+    return open_morph(morph_path, Rm=Rm, Ra=Ra, Cm=Cm, e_pas=e_pas, nl=h.Import3d_Neurolucida3(), seg_every=seg_every)
 
 
-def open_swc(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70):
+def open_swc(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, seg_every=20):
     h.load_file("import3d.hoc")
-    return open_morph(morph_path, Rm=Rm, Ra=Ra, Cm=Cm, e_pas=e_pas, nl=h.Import3d_SWC_read())
+    return open_morph(morph_path, Rm=Rm, Ra=Ra, Cm=Cm, e_pas=e_pas, nl=h.Import3d_SWC_read(), seg_every=seg_every)
 
 
 def open_rall_tree():

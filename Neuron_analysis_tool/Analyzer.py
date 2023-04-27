@@ -34,14 +34,14 @@ from tqdm import tqdm
 class Analyzer():
     def __init__(self, cell=None, parts_dict=None, colors_dict=None, type='input_cell',
                  morph_path = None, Rm=10000.0, Ra=100, Cm=1, e_pas=-70,
-                 more_conductances_protocol =resting_protocol):
+                 more_conductances_protocol =resting_protocol, seg_every=20):
         if cell is None:
             if type == 'Rall_tree':
                 cell, parts_dict, colors_dict = open_rall_tree()
             elif type == 'ASC' and morph_path:
-                cell, parts_dict, colors_dict = open_ASC(morph_path, Rm=Rm, Ra=Ra, Cm=Cm, e_pas=e_pas)
+                cell, parts_dict, colors_dict = open_ASC(morph_path, Rm=Rm, Ra=Ra, Cm=Cm, e_pas=e_pas, seg_every=seg_every)
             elif type == 'swc' and morph_path:
-                cell, parts_dict, colors_dict = open_swc(morph_path, Rm=Rm, Ra=Ra, Cm=Cm, e_pas=e_pas)
+                cell, parts_dict, colors_dict = open_swc(morph_path, Rm=Rm, Ra=Ra, Cm=Cm, e_pas=e_pas, seg_every=seg_every)
             elif type == 'L5PC':
                 cell, parts_dict, colors_dict = open_L5PC()
 

@@ -9,7 +9,7 @@
 
 import numpy as np
 from Neuron_analysis_tool.distance import Distance
-
+import matplotlib.pyplot as plt
 
 def get_part(part_dict, seg):
     for part in part_dict.keys():
@@ -71,3 +71,126 @@ def get_cable(cell,
         for part in total_res[direction].keys():
             total_res[direction][part]['d3_2'] = np.power(total_res[direction][part]['d3_2'], 2.0/3.0)
     return total_res, seg_dist_dict, dict()
+
+
+def plot_cable(cell,
+               start_seg,
+               ax=None,
+               cable_type='d3_2',
+               factor_e_space=25,
+               factor_m_space=10,
+               more_conductances=dict(),
+               seg_dist_dict=dict(),
+               part_dict=dict(),
+               colors_dict=dict(),
+               ignore_sections = [],
+               distance=None,
+
+               segs_to_indecate=dict(),
+               start_loc=0,
+               x_axis=True,
+               factor=1,
+               dots_size=10,
+               start_color='k',
+               plot_legend=True,
+               cable_factor=1,
+               labal_start=None,
+               return_shift=False
+               ):
+    if ax is None:
+        ax = plt.gca()
+    if start_seg is None:
+        start_seg = cell.soma[0](0.5)
+
+    seg_dist_dict = dict()
+    for part in ['sons', 'parent']:
+        seg_dist_dict[part] = dict()
+        for seg_ in segs_to_indecate.keys():
+            seg_dist_dict[part][seg_] = []
+    results, seg_dist, cross_dist_dict = get_cable(cell,
+                                                   start_seg=start_seg,
+                                                   factor_e_space=factor_e_space,
+                                                   factor_m_space=factor_m_space,
+                                                   more_conductances=more_conductances,
+                                                   seg_dist_dict=seg_dist_dict,
+                                                   part_dict=part_dict,
+                                                   ignore_sections=ignore_sections,
+                                                   distance=distance)
+    max_cable = 0
+    shift = 0
+    for direction in results:
+        for part in results[direction]:
+            for cable_type in results[direction][part]:
+                results[direction][part][cable_type] *= cable_factor
+    for part, direction in zip(results.keys(), [1, -1]):
+        cable = results[part]['all'][cable_type].flatten()
+        if max_cable < cable.max() / 2.0:
+            max_cable = cable.max() / 2.0
+            shift = start_loc + cable.max() / factor / 2.0
+    for part, direction in zip(results, [1, -1]):
+        cable = results[part]['all'][cable_type].flatten()
+        if cable_type == 'd3_2':
+            befor_d_3_2 = np.power(cable, 3.0 / 2.0)
+        cable /= factor
+        y = np.arange(0, len(cable), 1) / factor_e_space
+
+        start_pos = -cable / 2.0 + shift
+        for morph_part in part_dict.keys():
+            remove_start_diam = False
+            part_cable = results[part][morph_part][cable_type].flatten() / factor
+            if cable_type == 'd3_2':
+                part_cable = results[part][morph_part][cable_type].flatten()
+                part_cable_befor_d_3_2 = np.power(part_cable, 3.0 / 2.0)
+                part_cable = cable * (part_cable_befor_d_3_2 / befor_d_3_2)
+            if part_cable[1] > 0 and part_cable[0] == 0:
+                part_cable[0] = (results[part]['all'][cable_type].flatten() / factor)[0]
+                remove_start_diam = True
+                temp_ = start_pos[0]
+                start_pos[0] = -cable[0] / 2.0 + shift
+            plot_cable = part_cable[part_cable > 0]
+            start_pos_temp = start_pos[part_cable > 0]
+            if x_axis:
+                ax.fill_betweenx(direction * y[part_cable > 0], start_pos_temp, start_pos_temp + plot_cable,
+                                 label=morph_part, color=colors_dict[morph_part])
+            else:
+                ax.fill_between(direction * y[part_cable > 0], start_pos_temp, start_pos_temp + plot_cable,
+                                label=morph_part, color=colors_dict[morph_part])
+            if remove_start_diam:
+                part_cable[0] = 0
+                start_pos[0] = temp_
+            start_pos += part_cable
+    if x_axis:
+        for seg_ in segs_to_indecate:
+            if len(seg_dist_dict['parent'][seg_]) > 0:
+                dist = -seg_dist_dict['parent'][seg_][0]['dist_e'] if cable_type in ['electric', 'd3_2'] else \
+                seg_dist_dict['parent'][seg_][0]['dist_m']
+                ax.scatter(shift, dist, s=segs_to_indecate[seg_]['size'], color=segs_to_indecate[seg_]['color'])
+            else:
+                dist = seg_dist_dict['sons'][seg_][0]['dist_e'] if cable_type in ['electric', 'd3_2'] else \
+                seg_dist_dict['sons'][seg_][0]['dist_m']
+                ax.scatter(shift, dist, s=segs_to_indecate[seg_]['size'], color=segs_to_indecate[seg_]['color'])
+        if labal_start is None:
+            ax.scatter(shift, 0, s=dots_size, color=start_color)
+        else:
+            ax.scatter(shift, 0, s=dots_size, color=start_color, label=labal_start)
+    else:
+        for seg_ in segs_to_indecate:
+            if len(seg_dist_dict['parent'][seg_]) > 0:
+                dist = -seg_dist_dict['parent'][seg_][0]['dist_e'] if cable_type in ['electric', 'd3_2'] else \
+                seg_dist_dict['parent'][seg_][0]['dist_m']
+                ax.scatter(dist, shift, s=segs_to_indecate[seg_]['size'], color=segs_to_indecate[seg_]['color'])
+            else:
+                dist = seg_dist_dict['sons'][seg_][0]['dist_e'] if cable_type in ['electric', 'd3_2'] else \
+                seg_dist_dict['sons'][seg_][0]['dist_m']
+                ax.scatter(dist, shift, s=segs_to_indecate[seg_]['size'], color=segs_to_indecate[seg_]['color'])
+        if labal_start is None:
+            ax.scatter(0, shift, s=dots_size, color=start_color)
+        else:
+            ax.scatter(0, shift, s=dots_size, color=start_color, label=labal_start)
+    handles, labels = ax.get_legend_handles_labels()
+    by_label = dict(zip(labels, handles))
+    if plot_legend:
+        ax.legend(by_label.values(), by_label.keys(), loc='best')
+    if return_shift:
+        return ax, shift
+    return ax
