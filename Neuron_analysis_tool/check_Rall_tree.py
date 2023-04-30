@@ -230,14 +230,15 @@ analyser = Analyzer(type='L5PC')
 # animation.write_videofile('./check_Rall2.mp4',fps=10, threads=4,audio=False)
 
 
-record_dict, extra = analyser.record_protocol(protocol=Ca_spike_protocol,cut_start_ms=970.0, record_name='v')
-animation = analyser.create_movie_from_rec(records=record_dict, slow_down_factor=500,
+records, extra = analyser.record_protocol(protocol=Ca_spike_protocol,cut_start_ms=970.0, record_names=['v'])
+animation = analyser.create_movie_from_rec(records=records.all_records['v'], slow_down_factor=500,
                                            func_for_missing_frames=np.max, theta=0, diam_factor=0.5,
                                            show_records_from=dict(), electrical=True,
                                            base_plot_type='attenuation')
 # animation.ipython_display(fps=10, loop=True, autoplay=True)
 # animation.write_videofile('./check_Rall_spikes4.mp4',fps=10, threads=4,audio=False)
-animation.write_videofile('./Ca_spike_protocol.mp4',fps=10, threads=4,audio=False)
+animation.write_videofile('./Ca_spike_protocol2.mp4',fps=10, threads=4,audio=False)
+exit(0)
 #########################################################################################################################################################################
 def legend_without_duplicate_labels(ax):
     handles, labels = ax.get_legend_handles_labels()

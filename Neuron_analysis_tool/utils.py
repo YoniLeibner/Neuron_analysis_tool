@@ -13,6 +13,14 @@ from neuron import h
 LAMDA = '\u03BB'
 MICRO = '\u03BC'
 
+
+def sec_name(sec):
+    sec_full_name = sec.name()
+    return sec_full_name.split('.')[-1]
+
+def seg_name(seg):
+    return str(seg.x)
+
 def get_segment_length_lamda(seg, more_conductances, time=None, dt=1):
     """
     return the segment  e_length

@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from moviepy.editor import VideoClip
 from moviepy.video.io.bindings import mplfig_to_npimage
 import os
-from Neuron_analysis_tool.record import sec_name, seg_name
+from Neuron_analysis_tool.utils import sec_name, seg_name
 
 
 
@@ -32,7 +32,7 @@ def save_movie_from_rec(analyzer, record_dict, time, seg_to_indicate_dict=dict()
                         sec_to_change=None, ignore_sections=[], theta=0, scale=500, cmap=plt.cm.turbo,
                         plot_color_bar=True, save_to='', clip_name='clip', fps=None, threads=4,
                         preset='ultrafast', slow_down_factor=1, func_for_missing_frames=np.mean):
-    animation = create_movie_from_rec(analyzer, record_dict, time, seg_to_indicate_dict, diam_factor,
+    animation = create_movie_from_rec2(analyzer, record_dict, time, seg_to_indicate_dict, diam_factor,
                                            sec_to_change, ignore_sections, theta, scale, cmap,
                                            plot_color_bar, clip_name, fps, threads,
                                            preset, slow_down_factor, func_for_missing_frames)
@@ -42,7 +42,7 @@ def save_movie_from_rec(analyzer, record_dict, time, seg_to_indicate_dict=dict()
                               audio=False, preset=preset)
 
 
-def create_movie_from_rec(analyzer, records, seg_to_indicate_dict=dict(), diam_factor=None,
+def create_movie_from_rec2(analyzer, records, seg_to_indicate_dict=dict(), diam_factor=None,
                           sec_to_change=None, ignore_sections=[], theta=0, scale=500, cmap=plt.cm.turbo,
                           plot_color_bar=True, slow_down_factor=1, func_for_missing_frames=np.max, bounds=None,
                           show_records_from=dict(), voltage_window=50, ylabel='v (mV)', xlabel='time (ms)', margin=0,
@@ -309,6 +309,369 @@ def create_movie_from_rec(analyzer, records, seg_to_indicate_dict=dict(), diam_f
         return mplfig_to_npimage(fig)
 
     animation = VideoClip(make_frame, duration=time[-1])
+    return animation
+
+def initiate_ax_voltage(ax, analyzer, seg, records, time, slow_down_factor, color, voltage_window=50, xlabel='time (ms)', ylabel=None, title=None):
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    if ylabel is None:
+        ylabel = records.record_name
+    v1 = records.get_record(seg)
+    t1 = time * 1000.0 / slow_down_factor
+    ax.plot(t1, v1, color=color)
+    ax.set_ylabel(ylabel)
+    ax.set_xlabel(xlabel)
+    time_lines = ax.axvline(0, color='r', ls='--')
+
+    if title is not None:
+        ax.set_title(title)
+    else:
+        ax.set_title(str(seg.sec.name()))
+    ax.set_xlim(xmin=-voltage_window / 2, xmax=voltage_window / 2)
+
+    def update(time_in_ms):
+
+        ax.set_xlim(xmin=time_in_ms - voltage_window / 2, xmax=time_in_ms + voltage_window / 2)
+        time_lines.set_xdata([time_in_ms] * 2)
+
+    return update
+
+def initiate_ax_voltage_all(ax, analyzer, records, start_seg, distance=None, distance_factor=0, plot_every = 0.25,
+                            slow_down_factor=1, voltage_window=50, xlabel='time (ms)', ylabel=None):
+
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    if ylabel is None:
+        ylabel = records.record_name
+    if distance is None:
+        distance = Distance(analyzer.cell, analyzer.more_conductances)
+        distance.compute(start_seg=start_seg)
+    plot_all_records_func(records, distance, ax, analyzer, distance_factor=distance_factor,
+                          slow_down_factor=slow_down_factor, plot_every=plot_every)
+    ax.set_ylabel(ylabel)
+    ax.set_xlabel(xlabel)
+    ax.set_title('all records')
+    ax.set_xlim(xmin=-voltage_window / 2, xmax=voltage_window / 2)
+    time_lines=ax.axvline(0, color='r', ls='--')
+
+    def update(time_in_ms):
+        ax.set_xlim(xmin=time_in_ms - voltage_window / 2, xmax=time_in_ms + voltage_window / 2)
+        time_lines.set_xdata([time_in_ms] * 2)
+
+    return update
+
+def initiate_ax_morph(ax, analyzer, records, bounds=None, margin=0, dancing=False, seg_to_indicate_dict=dict(), diam_factor=None, sec_to_change=None,
+                      ignore_sections=[], theta=0, scale=500, cmap=plt.cm.turbo, plot_color_bar=True, color_bar_idx = [0.8, 0.2, 0.02, 0.6], distance=None,
+                      electrical=False, more_conductances_=None, draw_funcs=[], func_for_missing_frames=np.max):
+    assert dancing == False or more_conductances_ is not None
+    value_dict_by_sec = records.get_vals_at_t(t=0, default_res=0)
+    min_value = records.get_min() - margin
+    max_value = records.get_max() + margin
+    if bounds is not None:
+        min_value = bounds[0]
+        max_value = bounds[1]
+    ax, cax, colors, lines, segs = analyzer.plot_morph_with_values(value_dict_by_sec, ax=ax,
+                                                                   seg_to_indicate_dict=dict() if dancing else seg_to_indicate_dict,
+                                                                   diam_factor=diam_factor,
+                                                                   sec_to_change=sec_to_change,
+                                                                   ignore_sections=ignore_sections,
+                                                                   theta=theta, scale=scale,
+                                                                   cmap=cmap, bounds=[min_value, max_value],
+                                                                   plot_color_bar=plot_color_bar,
+                                                                   color_bar_idx=color_bar_idx,
+                                                                   distance=distance,
+                                                                   electrical=electrical,
+                                                                   time=0.5,
+                                                                   dt=0,
+                                                                   more_conductances_=more_conductances_
+                                                                   )
+    if bounds:
+        norm = get_norm(bounds)
+    else:
+        norm = get_norm([min_value, max_value])
+
+    lim_x = ax.get_xlim()
+    lim_y = ax.get_ylim()
+    if dancing:
+
+        x_range = abs(lim_x[1] - lim_x[0]) * 0.4
+        y_range = abs(lim_y[1] - lim_y[0]) * 0.4
+        lim_y = [lim_y[0] - y_range, lim_y[1] + y_range]
+        lim_x = [lim_x[0] - x_range, lim_x[1] + x_range]
+        ax.set_xlim(lim_x)
+        ax.set_ylim(lim_y)
+
+
+    time_text = ax.text(lim_x[1], lim_y[1], 'time: 0.0 (ms)')
+
+
+    def dancing_morph_r(distance, sec, start_point, seg_to_indicate_dict=dict()):
+        for seg in sec:
+            for idx, seg2 in enumerate(segs):
+                if seg2 == seg:
+                    x, y = lines[idx].get_data()
+                    # check if line is horizental
+                    dx = x[:-1] - x[1:]
+                    dy = y[:-1] - y[1:]
+                    current_lens = (dx ** 2 + dy ** 2) ** 0.5
+                    wanted_len = distance.get_length(seg, electrical=True)
+                    f = wanted_len / sum(current_lens)
+                    # fixing the shift
+                    x += start_point['x'] - x[0]
+                    y += start_point['y'] - y[0]
+
+                    # fixing the length
+                    for point_idx in range(1, len(x), 1):
+                        new_x = x[point_idx - 1] + (x[point_idx] - x[point_idx - 1]) * f
+                        new_y = y[point_idx - 1] + (y[point_idx] - y[point_idx - 1]) * f
+                        x[point_idx:] += (new_x - x[point_idx])
+                        y[point_idx:] += (new_y - y[point_idx])
+                    lines[idx].set_data(x, y)
+                    if seg in seg_to_indicate_dict.keys():
+                        analyzer.to_remove.append([ax.scatter(x[len(x)//2], y[len(y)//2],
+                               color=seg_to_indicate_dict[seg]['color'], s=seg_to_indicate_dict[seg]['size'],
+                               alpha=seg_to_indicate_dict[seg]['alpha'], zorder=3)])
+                    start_point = dict(x=x[-1], y=y[-1])
+        for son in sec.children():
+            dancing_morph_r(distance, son, start_point, seg_to_indicate_dict=seg_to_indicate_dict)
+
+    def update(time_in_ms):
+
+        if analyzer.last_t >= time_in_ms:
+            value_dict_by_sec = records.get_vals_at_t(t=0, default_res=0)
+        else:
+            value_dict_by_sec = records.get_vals_at_dt(t1=analyzer.last_t, t2=time_in_ms, default_res=0,
+                                                       dt_func=func_for_missing_frames)
+        for draw_func in draw_funcs:
+            analyzer.to_remove.append(draw_func(analyzer.last_t, time_in_ms, segs, lines, ax, records))
+
+        for line, seg in zip(lines, segs):
+            line.set_color(cmap(norm(value_dict_by_sec[sec_name(seg.sec)][seg_name(seg)])))
+
+        if dancing:
+            distance = Distance(analyzer.cell, more_conductances_)
+            distance.compute(start_seg=None, time=time_in_ms, dt=1)
+            for son in analyzer.cell.soma[0].children():
+                dancing_morph_r(distance, son, start_point=dict(x=0, y=0), seg_to_indicate_dict=seg_to_indicate_dict)
+
+        time_text.set_text('time: ' + str(round(time_in_ms, 1)) + ' (ms)')
+
+    return update
+
+
+
+def initiate_ax_dendogram(ax, analyzer, records, start_seg=None, seg_to_indicate_dict=dict(), ignore_sections=[], electrical=True,
+                          diam_factor=None, margin=0, bounds=None, cmap=plt.cm.turbo, plot_color_bar=True, color_bar_idx = [0.8, 0.2, 0.02, 0.6],
+                          dancing=False, more_conductances_=None, draw_funcs=[], func_for_missing_frames=np.max):
+    assert dancing == False or more_conductances_ is not None
+    value_dict_by_sec = records.get_vals_at_t(t=0, default_res=0)
+    min_value = records.get_min() - margin
+    max_value = records.get_max() + margin
+    if bounds is not None:
+        min_value = bounds[0]
+        max_value = bounds[1]
+    ax, x_pos, cax, colors, lines, segs = analyzer.plot_dendogram_with_values(value_dict_by_sec, start_seg=start_seg,
+                                                                              ax=ax,
+                                                                              segs_to_indecate=dict() if dancing else seg_to_indicate_dict,
+                                                                              plot_legend=False,
+                                                                              ignore_sections=ignore_sections,
+                                                                              electrical=electrical,
+                                                                              diam_factor=diam_factor, distance=None,
+                                                                              bounds=[min_value, max_value], cmap=cmap,
+                                                                              plot_color_bar=plot_color_bar,
+                                                                              color_bar_idx=color_bar_idx, colors=None)
+
+    if bounds:
+        norm = get_norm(bounds)
+    else:
+        norm = get_norm([min_value, max_value])
+
+    lim_x = ax.get_xlim()
+    lim_y = ax.get_ylim()
+    if dancing:
+        x_range = abs(lim_x[1] - lim_x[0]) * 0.4
+        y_range = abs(lim_y[1] - lim_y[0]) * 0.4
+        lim_y = [lim_y[0] - y_range, lim_y[1] + y_range]
+        lim_x = [lim_x[0] - x_range, lim_x[1] + x_range]
+        ax.set_xlim(lim_x)
+        ax.set_ylim(lim_y)
+    time_text = ax.text(lim_x[1], lim_y[1], 'time: 0.0 (ms)')
+
+
+    def dancing_dendogram_r(distance):
+        for seg, line in zip(segs, lines):
+            start_end = distance.get_start_end(seg, electrical=True)
+            y = line.get_ydata()
+            if y[0] == y[1] == 0:
+                continue
+            else:
+                if y[0]<0 or y[1]<0:
+                    mul=-1
+                else: mul=1
+                if y[0] == y[1]: #horizontal_line
+                    line.set_ydata([start_end['end']*mul]*2)
+                else:
+                    line.set_ydata([start_end['start']*mul, start_end['end']*mul])
+                    if seg in seg_to_indicate_dict.keys():
+                        analyzer.to_remove.append([ax.scatter(np.mean(line.get_xdata()), np.mean(line.get_ydata()),
+                               color=seg_to_indicate_dict[seg]['color'], s=seg_to_indicate_dict[seg]['size'],
+                               alpha=seg_to_indicate_dict[seg]['alpha'], zorder=3)])
+
+    def update(time_in_ms):
+
+        if analyzer.last_t >= time_in_ms:
+            value_dict_by_sec = records.get_vals_at_t(t=0, default_res=0)
+        else:
+            value_dict_by_sec = records.get_vals_at_dt(t1=analyzer.last_t, t2=time_in_ms, default_res=0,
+                                                       dt_func=func_for_missing_frames)
+        for draw_func in draw_funcs:
+            analyzer.to_remove.append(draw_func(analyzer.last_t, time_in_ms, segs, lines, ax, records))
+
+        for line, seg in zip(lines, segs):
+            line.set_color(cmap(norm(value_dict_by_sec[sec_name(seg.sec)][seg_name(seg)])))
+
+        if dancing:
+            distance = Distance(analyzer.cell, more_conductances_)
+            distance.compute(start_seg=None, time=time_in_ms, dt=1)
+            dancing_dendogram_r(distance)
+
+        time_text.set_text('time: ' + str(round(time_in_ms, 1)) + ' (ms)')
+    return update
+
+def initiate_ax_attenuation(ax, analyzer, records, electrical=True, start_seg=None, seg_to_indicate_dict=dict(), ignore_sections=[],
+                            draw_funcs=[], cmap=plt.cm.turbo, func_for_missing_frames=np.max, bounds=None, margin=0.5):
+    def record_to_value(rec):
+        return rec.max()
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    min_value = records.get_min()
+    max_value = records.get_max()
+    if bounds is not None:
+        min_value = bounds[0]
+        max_value = bounds[1]
+    ax, norm_by, lines, segs, records = analyzer.plot_attenuation(protocol=None,
+                                                                  ax=ax,
+                                                                  seg_to_indicate_dict=seg_to_indicate_dict,
+                                                                  start_seg=start_seg,
+                                                                  record_to_value_func=record_to_value,
+                                                                  norm=False,
+                                                                  record_name=records.record_name,
+                                                                  norm_by=None,
+                                                                  electrical=electrical,
+                                                                  distance=None,
+                                                                  records=records,
+                                                                  ignore_sections=ignore_sections)
+    ax.set_yscale('linear')
+    ax.set_ylim([records.get_min() - margin, records.get_max() + margin])
+
+    lim_x = ax.get_xlim()
+    lim_y = ax.get_ylim()
+    time_text = ax.text(lim_x[1], lim_y[1], 'time: 0.0 (ms)')
+    if bounds:
+        norm = get_norm(bounds)
+    else:
+        norm = get_norm([min_value, max_value])
+
+
+    def make_frame_attenuation_r(distance, start_time=0, end_time=1000):
+        if start_time == end_time: return
+        # norm_by = records.get_record_at_dt(start_seg, start_time, end_time, dt_func=record_to_value)
+        for seg, line in zip(segs, lines):
+            # start_end = distance.get_start_end(seg, electrical=electrical)
+            y_ = line.get_ydata()
+            if y_[0] == y_[1] == 0:
+                continue
+            else:
+                parent_seg = distance.get_seg_parent(seg)
+                y = [records.get_record_at_dt(parent_seg, start_time, end_time, dt_func=record_to_value) / norm_by,
+                     records.get_record_at_dt(seg, start_time, end_time, dt_func=record_to_value) / norm_by]
+
+                line.set_ydata(y)
+
+    def update(time_in_ms):
+
+        if analyzer.last_t >= time_in_ms:
+            value_dict_by_sec = records.get_vals_at_t(t=0, default_res=0)
+        else:
+            value_dict_by_sec = records.get_vals_at_dt(t1=analyzer.last_t, t2=time_in_ms, default_res=0,
+                                                       dt_func=func_for_missing_frames)
+        for draw_func in draw_funcs:
+            analyzer.to_remove.append(draw_func(analyzer.last_t, time_in_ms, segs, lines, ax, records))
+
+        for line, seg in zip(lines, segs):
+            line.set_color(cmap(norm(value_dict_by_sec[sec_name(seg.sec)][seg_name(seg)])))
+
+        time_text.set_text('time: ' + str(round(time_in_ms, 1)) + ' (ms)')
+        distance = Distance(analyzer.cell, analyzer.more_conductances)
+        distance.compute(start_seg=start_seg)
+        make_frame_attenuation_r(distance, start_time=analyzer.last_t, end_time=time_in_ms)
+
+    return update
+
+
+def initiate_ax(ax, analyzer, records, plot_type, slow_down_factor=1,  electrical=False, seg=None, dancing=False, more_conductances_=None,
+                color='k', voltage_window=50, xlabel='', ylabel='', title=None, # for voltage
+                distance_factor=1, plot_every=0.25, # for voltage_all
+                seg_to_indicate_dict=dict(), ignore_sections=[], draw_funcs=[], cmap=plt.cm.turbo, func_for_missing_frames=np.max, bounds=None, # for attenuation
+                margin=0, diam_factor=None, sec_to_change=None, theta=0, scale=500, plot_color_bar=True, color_bar_idx = [0.8, 0.2, 0.02, 0.6],# for morph
+                ):
+
+    if seg is None:
+        seg = list(analyzer.cell.soma[0])
+        seg = seg[len(seg) // 2]
+
+    time = records.time.copy()
+    time /= 1000.0
+    time *= slow_down_factor
+
+    if plot_type  == 'voltage':
+        return initiate_ax_voltage(ax, analyzer, seg, records, time, slow_down_factor, color, voltage_window=voltage_window, xlabel=xlabel, ylabel=ylabel, title=None)
+    elif plot_type  == 'voltage_all':
+        return initiate_ax_voltage_all(ax, analyzer, records, seg, distance=None, distance_factor=distance_factor, plot_every = plot_every,
+                            slow_down_factor=slow_down_factor, voltage_window=voltage_window, xlabel=xlabel, ylabel=ylabel)
+    elif plot_type == 'attenuation':
+        return initiate_ax_attenuation(ax, analyzer, records, electrical=electrical, start_seg=seg, seg_to_indicate_dict=seg_to_indicate_dict, ignore_sections=ignore_sections,
+                            draw_funcs=draw_funcs, cmap=cmap, func_for_missing_frames=func_for_missing_frames, bounds=bounds)
+
+    if dancing:
+        assert dancing == electrical, 'only electrical plot can dance!!!, got electrical=' + str(
+            electrical) + ', and dancing=' + str(dancing)
+        assert more_conductances_ is not None
+
+    if plot_type  == 'morph':
+        return initiate_ax_morph(ax, analyzer, records, bounds=bounds, margin=margin, dancing=dancing, seg_to_indicate_dict=seg_to_indicate_dict, diam_factor=diam_factor,
+                                 sec_to_change=sec_to_change, ignore_sections=ignore_sections, theta=theta, scale=scale, cmap=cmap, plot_color_bar=plot_color_bar, color_bar_idx = color_bar_idx ,
+                                 distance=None, electrical=electrical, more_conductances_=more_conductances_, draw_funcs=draw_funcs, func_for_missing_frames=func_for_missing_frames)
+    elif plot_type  == 'dendogram':
+        return initiate_ax_dendogram(ax, analyzer, records, start_seg=seg, seg_to_indicate_dict=seg_to_indicate_dict, ignore_sections=ignore_sections, electrical=electrical,
+                          diam_factor=diam_factor, margin=margin, bounds=bounds, cmap=cmap, plot_color_bar=plot_color_bar, color_bar_idx = color_bar_idx ,
+                          dancing=dancing, more_conductances_=more_conductances_, draw_funcs=draw_funcs, func_for_missing_frames=func_for_missing_frames)
+    else:
+        raise Exception('not a valid plot_type'+plot_type)
+
+
+def create_movie_from_rec(analyzer, fig, slow_down_factor=1, plot_kwargs=[]):
+    analyzer.last_t = 0
+    analyzer.to_remove = []
+    update_funcs = []
+    for kwargs in plot_kwargs:
+        update_funcs.append(initiate_ax(analyzer=analyzer, slow_down_factor=slow_down_factor, **kwargs))
+    plt.tight_layout()
+    def make_frame(t):
+        for elements_to_remove in analyzer.to_remove:
+            for element in elements_to_remove:
+                element.remove()
+        analyzer.to_remove = []
+        time_in_ms = t / slow_down_factor * 1000.0
+        if time_in_ms  == 0.0:
+            analyzer.last_t = 0
+        for update_fun in update_funcs:
+            update_fun(time_in_ms)
+        analyzer.last_t = time_in_ms
+
+        return mplfig_to_npimage(fig)
+    print('duration=', plot_kwargs[0]['records'].time[-1]*slow_down_factor/1000.0)
+    animation = VideoClip(make_frame, duration=plot_kwargs[0]['records'].time[-1]*slow_down_factor/1000.0)
     return animation
 
 

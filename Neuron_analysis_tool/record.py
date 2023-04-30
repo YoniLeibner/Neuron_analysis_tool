@@ -12,6 +12,8 @@ import neuron
 from neuron import h
 import numpy as np
 import pickle
+import os
+from .utils import seg_name, sec_name
 
 class record:
 
@@ -35,13 +37,6 @@ class record:
     def set_record(self, record_to_set):
         self._record = np.array(record_to_set)
 
-
-def sec_name(sec):
-    sec_full_name = sec.name()
-    return sec_full_name.split('.')[-1]
-
-def seg_name(seg):
-    return str(seg.x)
 
 class record_all:
     def __init__(self, cell, record_name='v'):
@@ -168,6 +163,7 @@ class record_all:
         return False
 
     def save(self, save_dir='records'):
+        os.makedirs(os.path.basename(save_dir), exist_ok=True)
         if type(self.time) == neuron.hoc.HocObject:
             self.extract(lambda x: np.array(x))
         pickle.dump(dict(
@@ -182,3 +178,103 @@ class record_all:
         self.record_name = data['record_name']
         self.record_dict = data['records']
 
+class multi_record_all:
+    def __init__(self, cell, record_names=['v']):
+        self.cell=cell
+        self.record_names = record_names
+        self.all_records = dict()
+        for record_name in record_names:
+            self.all_records[record_name] = record_all(cell, record_name=record_name)
+        self.extraction_func = lambda x: x
+
+        self.restart()
+
+    def restart(self):
+        for record_name in self.record_names:
+            self.all_records[record_name].restart()
+
+    def push_records(self, record_dict, time, record_name):
+        assert record_name in self.all_records
+        self.all_records[record_name].push_records(record_dict, time)
+
+    def push_records_seg(self, record_dict, time, record_name):
+        assert record_name in self.all_records
+        self.all_records[record_name].push_records_seg(record_dict, time)
+
+    def extract(self, extraction_func):
+        for record_name in self.record_names:
+            self.all_records[record_name].extract(extraction_func)
+
+    def get_vals(self, func=lambda x: np.mean(x), default_res=0):
+        res = dict()
+        if not type(func) == list:
+            func = [func]*len(self.record_names)
+        for i, record_name in enumerate(self.record_names):
+            res[record_name]=self.all_records[record_name].get_vals(func=func[i], default_res=default_res)
+        return res
+
+    def get_vals_at_t(self, t, default_res=0):
+        res = dict()
+        for record_name in self.record_names:
+            res[record_name] = self.all_records[record_name].get_vals_at_t(t=t, default_res=default_res)
+        return res
+
+    def get_vals_at_dt(self, t1, t2, default_res=0, dt_func = lambda x: np.max(x)):
+        res = dict()
+        if not type(dt_func) == list:
+            dt_func = [dt_func]*len(self.record_names)
+        for i, record_name in enumerate(self.record_names):
+            res[record_name] = self.all_records[record_name].get_vals_at_dt(t1=t1, t2=t2, default_res=default_res, dt_func = dt_func[i])
+        return res
+
+    def get_max(self):
+        res = dict()
+        for record_name in self.record_names:
+            res[record_name] = self.all_records[record_name].get_max()
+        return res
+
+    def get_min(self):
+        res = dict()
+        for record_name in self.record_names:
+            res[record_name] = self.all_records[record_name].get_min()
+        return res
+
+    def get_bounds(self):
+        res = dict()
+        for record_name in self.record_names:
+            res[record_name] = self.all_records[record_name].get_bounds()
+        return res
+
+    def get_records(self, seg):
+        res = dict()
+        for record_name in self.record_names:
+            res[record_name] = self.all_records[record_name].get_record(seg=seg)
+        return res
+
+    def get_record(self, seg, record_name):
+        assert record_name in self.record_names
+        return self.all_records[record_name].get_record(seg=seg)
+
+    def get_record_at_dt(self, seg, t1, t2, dt_func = lambda x: np.max(x)):
+        res = dict()
+        if not type(dt_func) == list:
+            dt_func = [dt_func] * len(self.record_names)
+        for i, record_name in enumerate(self.record_names):
+            res[record_name] = self.all_records[record_name].get_record_at_dt(seg=seg, t1=t1, t2=t2, dt_func=dt_func[i])
+        return res
+
+    def is_existing(self, seg):
+        for record_name in self.record_names:
+            if not self.all_records[record_name].is_existing(seg=seg):
+                return False
+        return True
+
+    def save(self, save_dir='records'):
+        os.makedirs(os.path.basename(save_dir), exist_ok=True)
+        for record_name in self.record_names:
+            self.all_records[record_name].save(save_dir=os.path.join(save_dir, record_name, 'records.p'))
+
+    def load(self, save_dir='records', record_names=[]):
+        self.record_names=record_names
+        for record_name in self.record_names:
+            self.all_records[record_name].load(save_dir=os.path.join(save_dir, record_name, 'records.p'))

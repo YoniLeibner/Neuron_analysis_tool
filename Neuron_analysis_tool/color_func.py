@@ -12,7 +12,7 @@
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from Neuron_analysis_tool.record import sec_name, seg_name
+from Neuron_analysis_tool.utils import sec_name, seg_name
 
 class color_func:
     def __init__(self, parts_dict, color_dict, defult_name='else'):

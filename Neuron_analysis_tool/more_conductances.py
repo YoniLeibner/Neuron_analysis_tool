@@ -13,7 +13,8 @@
 
 from neuron import h
 import numpy as np
-from Neuron_analysis_tool.record import record_all, sec_name, seg_name
+from Neuron_analysis_tool.record import record_all
+from Neuron_analysis_tool.utils import sec_name, seg_name
 from Neuron_analysis_tool.protocols import resting_protocol
 import pickle
 

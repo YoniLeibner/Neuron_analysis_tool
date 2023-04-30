@@ -17,9 +17,9 @@ from Neuron_analysis_tool.morph_ploter import get_norm
 from Neuron_analysis_tool.dendogram import plot_dendogram
 from Neuron_analysis_tool.cable import get_cable
 from Neuron_analysis_tool.attenuation import plot_attenuation, record_to_value
-from Neuron_analysis_tool.record import record, record_all, sec_name, seg_name
+from Neuron_analysis_tool.record import record, record_all, multi_record_all
 from Neuron_analysis_tool.distance import Distance
-from Neuron_analysis_tool.utils import seg_Rin_func, get_segment_length_lamda, get_segment_length_um, LAMDA, MICRO
+from Neuron_analysis_tool.utils import seg_Rin_func, get_segment_length_lamda, get_segment_length_um, LAMDA, MICRO, sec_name, seg_name
 from Neuron_analysis_tool.protocols import *
 from Neuron_analysis_tool.loaders import open_morph, open_swc, open_L5PC, open_ASC, open_rall_tree, get_parts_and_colors
 import matplotlib.pyplot as plt
@@ -430,10 +430,11 @@ class Analyzer():
         return fig, ax
 
 
-    def record_protocol(self, protocol=spike_protocol, cut_start_ms=None, record_name='v', start_seg=None, compute_more_condunctances = False):
+    def record_protocol(self, protocol=spike_protocol, cut_start_ms=None, record_names=['v'], start_seg=None, compute_more_condunctances = False):
         if start_seg is None:
             start_seg = self.cell.soma[0](0.5)
-        records = record_all(self.cell, record_name=record_name)
+        # records = record_all(self.cell, record_name=record_name)
+        records = multi_record_all(self.cell, record_names=record_names)
         if compute_more_condunctances:
             more_conductances_ = more_conductances(self.cell, is_resting=False, protocol=None)
         delay, extra = protocol(self.cell, start_seg)
