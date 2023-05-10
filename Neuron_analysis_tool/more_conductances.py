@@ -115,7 +115,7 @@ class more_conductances():
             #         for mechanisms in seg:
             #             self.record_dict[sec][seg]['g'+str(mechanisms)] = get_condactance(mechanisms)
 
-    def cumpute(self, seg, time=None, dt=1):
+    def cumpute(self, seg, time=None, dt=1, dt_func = lambda x: np.mean(x)): #  lambda x: x[-1]
         sec= seg.sec
         if self.is_resting:
             # g_total = seg.g_pas + sum([self.record_dict[sec_name(sec)][seg_name(seg)][record_name] for record_name in self.record_dict[sec_name(sec)][seg_name(seg)]])
@@ -124,11 +124,11 @@ class more_conductances():
         else:
             if time is None:
                 g_total = seg.g_pas + sum(
-                    [record.get_record_at_dt(seg, t1=record.time[-2], t2=record.time[-1], dt_func = lambda x: x[-1]) for
+                    [record.get_record_at_dt(seg, t1=record.time[-2], t2=record.time[-1], dt_func = dt_func) for
                      record in self.record_dict.values()])
             else:
                 g_total = seg.g_pas + sum(
-                    [record.get_record_at_dt(seg, t1=time-dt/2, t2=time+dt/2, dt_func=lambda x: x[-1]) for
+                    [record.get_record_at_dt(seg, t1=time-dt/2, t2=time+dt/2, dt_func=dt_func) for
                      record in self.record_dict.values()])
         return 1.0/g_total
 

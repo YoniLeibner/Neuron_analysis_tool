@@ -190,12 +190,12 @@ def electrical_move(all_points, cell, distance):
 
 def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate={},
                counter=None, fig=None,  ax=None,
-               sec_to_change =None, diam_factor=None, plot_color_bar=True, theta=0,
+               sec_to_change =None, diam_factor=None, theta=0,
                ignore_sections=[], ignore_soma=False,
                color_bar_idx = [0.9, 0.2, 0.02, 0.6],
-               electrical=False, distance=None, more_conductances=None, time=None, dt=1): #cmap = plt.cm.coolwarm, norm_colors=True,
+               electrical=False, distance=None, more_conductances=None, time=None, dt=1, dt_func= lambda x: np.mean(x)): #cmap = plt.cm.coolwarm, norm_colors=True,
     if electrical and distance is None:
-        distance = Distance(cell, more_conductances)
+        distance = Distance(cell, more_conductances, dt_func=dt_func)
         distance.compute(time=time, dt=dt)
     if electrical:
         assert (more_conductances is not None) or (distance is not None)
@@ -232,7 +232,7 @@ def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate=
 
     if ax is None:
         fig = plt.figure(figsize=(20, 20))
-        ax = plt.axes()
+        ax = plt.gca()
     if ignore_soma:
         sec=cell.soma[0]
         soma_diam = cell.soma[0].diam * (diam_factor if diam_factor else 1)

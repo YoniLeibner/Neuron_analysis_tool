@@ -23,14 +23,15 @@ class color_func:
 
 def plot_attenuation(cell, start_seg, protocol, more_conductances, color_func=color_func, ax=None, record_name='v',
                      cut_start_ms=None, record_to_value=record_to_value, norm_by = None, norm=True, electrical=True,
-                     seg_to_indicate=dict(), distance=None, records=None, ignore_sections=[], start_time=0.0, end_time=None, **kwargs):
+                     seg_to_indicate=dict(), distance=None, records=None, ignore_sections=[], start_time=0.0, end_time=None,
+                     dt_func=lambda x: np.mean(x), **kwargs):
     if ax is None:
         ax = plt.gca()
     if start_seg is None:
         segs = list(cell.soma[0])
         start_seg = segs [len(segs)//2]
     if (distance is None) or (not distance.start_seg==start_seg):
-        distance = Distance(cell, more_conductances)
+        distance = Distance(cell, more_conductances, dt_func=dt_func)
         distance.compute(start_seg=start_seg)
     if records is None:
         records = record_all(cell, record_name=record_name)

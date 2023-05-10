@@ -57,9 +57,10 @@ def open_rall_tree():
 
 def open_L5PC():
     h.load_file("import3d.hoc")
-    morphology_file = "data/L5PC/cell1.asc"
-    h.load_file("data/L5PC/L5PCbiophys3.hoc")
-    h.load_file("data/L5PC/L5PCtemplate.hoc")
+    f = os.path.dirname(os.path.realpath(__file__))
+    morphology_file = os.path.join(f,"data/L5PC/cell1.asc")
+    h.load_file(os.path.join(f,"data/L5PC/L5PCbiophys3.hoc"))
+    h.load_file(os.path.join(f,"data/L5PC/L5PCtemplate.hoc"))
     cell = h.L5PCtemplate(morphology_file)
     return get_parts_and_colors(cell)
 

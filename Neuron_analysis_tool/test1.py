@@ -3,109 +3,134 @@ from neuron import gui, h
 import numpy as np
 import os
 import matplotlib.pyplot as plt
-
-
-
-
-analyser = Analyzer(type='Rall_tree')
-colors_dict  = analyser.colors_dict
-colors_dict['soma']='r'
-colors_dict['basal']='pink'
-
-analyser.change_color_dict(colors_dict)
-
-record_dict, extra = analyser.record_protocol(cut_start_ms=1000.0, record_name='v')
-
-animation = analyser.create_movie_from_rec(records=record_dict, slow_down_factor=50,
-                                           func_for_missing_frames=np.max, theta=0, diam_factor=0.5,
-                                           show_records_from=dict(), electrical=False,
-                                           plot_all_records=True, distance_factor=10, plot_every=0.5)
-animation.ipython_display(fps=10, loop=True, autoplay=True)
-
-a=1
-def Ca_spike_protocol(cell, start_seg=None):
-    delay = 200.0
-    stim = h.IClamp(0.5, sec=cell.soma[0])
-    stim.dur = 5
-    stim.delay = delay
-
-    syn = h.epsp(cell.apic[36](0.9))
-    syn.tau0 = 0.5
-    syn.tau1 = 5
-    syn.onset = stim.delay + 5
-    syn.imax = 0.5
-    stim.amp = 1.9
-
-    h.tstop = 400
-    h.v_init = cell.soma[0].e_pas
-    h.celsius = 37
-    h.run()
-    return 200, {}
-
-def resting_protocol2(cell, start_seg=None):
-    h.tstop = 50.0
-    h.v_init = cell.soma[0].e_pas
-    h.celsius = 37
-    h.run()
-    return 0, {}
+from matplotlib.gridspec import GridSpec
+from Neuron_analysis_tool.utils import LAMDA, MICRO, plot_shring_axes
 
 analyser = Analyzer(type='L5PC')
 
-# animation=analyser.dancing_morph(protocol=Ca_spike_protocol, seg_to_indicate_dict=dict(), diam_factor=1,
-#                             sec_to_change=None, ignore_sections=[], theta=-90, scale=0.25,
-#                             slow_down_factor=1, figsize=(5,5))
-# animation.ipython_display(fps=10, loop=True, autoplay=True)
-record_dict, extra = analyser.record_protocol(protocol=Ca_spike_protocol, cut_start_ms=None,
-                                              record_name='v', compute_more_condunctances=True)
+def single_spike_protocol(cell, start_seg):
+    spike_data = np.loadtxt(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data/spike.txt'))
+    dt = spike_data.T[0][1] - spike_data.T[0][0]
+    v = spike_data.T[1][800:2400]# the recorded spike voltage is for 40 ms
+    v = v[:800] #crope only 20 ms
+    start_time = 400
+    extra_end = 0
 
-seg_to_indicate_dict={list(analyser.cell.dend[30])[-2]:dict(color='cyan', alpha=0.5, size=20),
-                     list(analyser.cell.apic[70])[-2]:dict(color='green', alpha=0.5, size=20)}
+    V = np.concatenate([np.zeros(int(start_time / dt)) + v[0]] + [v] + [np.zeros(int(extra_end / dt)) + v[-1]])
+    T = np.arange(0, len(V), 1) * dt
+    spike_vec = h.Vector(V)
+    h.dt=dt
+    h.steps_per_ms = 1.0 / h.dt
+    clamp = h.SEClamp(start_seg.x, sec=start_seg.sec)
+    clamp.rs = 1e-3
+    clamp.dur1 = 1e9
+    spike_vec.play(clamp._ref_amp1, spike_data.T[0][1]-spike_data.T[0][0])
+    h.tstop = T[-1]
+    h.v_init = cell.soma[0].e_pas
+    h.celsius = 37
+    h.run()
+    return start_time-1, {}
 
-animation = analyser.create_movie_from_rec(records=record_dict, slow_down_factor=20, scale=0.25,
-                                           func_for_missing_frames=np.max, theta=-90, diam_factor=None,
-                                           show_records_from=dict(), draw_funcs=extra['draw_funcs'],
-                                           electrical=True, dancing=True,
-                                           more_conductances_=extra['more_conductances'],
-                                          base_plot_type='dendogram',figsize=(7,7),
-                                           seg_to_indicate_dict=seg_to_indicate_dict)
-animation.ipython_display(fps=10, loop=True, autoplay=True)
+records2, extra2 = analyser.record_protocol(protocol=single_spike_protocol, record_names=['v', 'gCa_LVAst_Ca_LVAst'], compute_more_condunctances=True)
 
+more_conductances_ = extra2['more_conductances']
 
+fig, ax = plt.subplots(2, 5, figsize=(16, 8), gridspec_kw={'width_ratios': [1, 0.5, 0.5, 0.5, 0.5]})
+f = lambda: plt.tight_layout()
+ax_morph = ax[0,0]
+ax_dendogram = ax[1,0]
+ax_v = ax[0,1]
+ax_soma_cable = ax[0,2]
+ax_oblique1_cable = ax[0,3]
+ax_oblique2_cable = ax[0,4]
+ax_basal1_cable = ax[1,1]
+ax_basal2_cable = ax[1,2]
+ax_tuft1_cable = ax[1,3]
+ax_tuft2_cable = ax[1,4]
 
-record_dict, extra = analyser.record_protocol(cut_start_ms=1000.0, record_name='v', compute_more_condunctances=True)
+# fig = plt.figure(constrained_layout=True, figsize=(16, 8))
+# gs = GridSpec(2, 5, figure=fig, width_ratios=[1, 0.5, 0.5, 0.5, 0.5])
+# ax_morph = fig.add_subplot(gs[0, 0])
+# ax_dendogram = fig.add_subplot(gs[1, 0])
+#
+# ax_v = fig.add_subplot(gs[0, 1])
+#
+# ax_soma_cable = fig.add_subplot(gs[0, 2])
+# ax_oblique1_cable = fig.add_subplot(gs[0, 3])
+# ax_oblique2_cable = fig.add_subplot(gs[0, 4])
+# ax_basal1_cable = fig.add_subplot(gs[1, 1])
+# ax_basal2_cable = fig.add_subplot(gs[1, 2])
+# ax_tuft1_cable = fig.add_subplot(gs[1, 3])
+# ax_tuft2_cable = fig.add_subplot(gs[1, 4])
+# f = lambda: plt.subplots_adjust(wspace=0.6)
+# f()
 
-animation = analyser.create_movie_from_rec(records=record_dict, slow_down_factor=1, scale=0.25,
-                                           func_for_missing_frames=np.max, theta=-90, diam_factor=0.5,
-                                           show_records_from=dict(), draw_funcs=extra['draw_funcs'],
-                                          electrical=True, dancing=True, more_conductances_=extra['more_conductances'],
-                                          base_plot_type='dendogram')
-animation.ipython_display(fps=10, loop=True, autoplay=True)
-# animation = analyser.create_movie_from_rec(records=record_dict, slow_down_factor=1, scale=0.25,
-#                                            func_for_missing_frames=np.max, theta=-90, diam_factor=0.5,
-#                                            show_records_from=dict(), draw_funcs=extra['draw_funcs'],
-#                                           electrical=True, dancing=True, more_conductances_=extra['more_conductances'])
-# animation.ipython_display(fps=10, loop=True, autoplay=True)
+soma_seg = list(analyser.cell.soma[0])[0]
+basal_tip1 = list(analyser.cell.dend[28])[-1]
+basal_tip2 = list(analyser.cell.dend[62])[-1]
 
+oblique_tip1 = list(analyser.cell.apic[102])[-1]
+oblique_tip2 = list(analyser.cell.apic[19])[-1]
+tuft_tip1 = list(analyser.cell.apic[67])[-1]
+tuft_tip2 = list(analyser.cell.apic[52])[-1]
 
+seg_to_indicate_dict = dict()
+dot_size = 20
+seg_to_indicate_dict[soma_seg] = dict(label='soma', alpha=0.75, color='k', size=dot_size)
+seg_to_indicate_dict[basal_tip1] = dict(label='basal', alpha=0.75, color='r', size=dot_size)
+seg_to_indicate_dict[basal_tip2] = dict(label='basal', alpha=0.75, color='r', size=dot_size)
 
-#####################################################################################################
-_, _, _ = analyser.plot_morph(theta=-90, seg_to_indicate_dict=dict(),
-                          scale=0.25, diam_factor=1,
-                          ignore_soma=True, distance=None, electrical=True)
-# plt.show()
-plt.figure()
-#####################################################################################################
-_,_,_ = analyser.plot_morph(scale=500, diam_factor=0.5, theta=-90, ignore_soma=True)
-plt.show()
-#####################################################################################################
+seg_to_indicate_dict[oblique_tip1] = dict(label='oblique', alpha=0.75, color='cyan', size=dot_size)
+seg_to_indicate_dict[oblique_tip2] = dict(label='oblique', alpha=0.75, color='cyan', size=dot_size)
+seg_to_indicate_dict[tuft_tip1] = dict(label='tuft', alpha=0.75, color='b', size=dot_size)
+seg_to_indicate_dict[tuft_tip2] = dict(label='tuft', alpha=0.75, color='b', size=dot_size)
 
-show_records_from = dict()
-show_records_from[list(analyser.cell.soma[0])[0]] = dict(label='soma', alpha=0.75, color='lime', size=50)
-show_records_from[list(analyser.cell.apic[36])[0]] = dict(label='dend1', alpha=0.75, color='grey', size=40)
+plot_kwargs = [
+    dict(ax=ax_morph, seg=soma_seg, records=records2.all_records['v'], electrical=True, plot_type='morph',
+         plot_color_bar=True, theta=270, dancing=True, more_conductances_=more_conductances_,
+         seg_to_indicate_dict=seg_to_indicate_dict, ),
+    dict(ax=ax_dendogram, seg=soma_seg, records=records2.all_records['v'], electrical=True, plot_type='dendogram',
+         plot_color_bar=False, dancing=True, more_conductances_=more_conductances_,
+         seg_to_indicate_dict=seg_to_indicate_dict, ),
+    dict(ax=ax_v, seg=soma_seg, records=records2.all_records['v'], plot_type='single_record', color='grey',
+         title='soma voltage', ylabel='V (mV)'),
 
-record_dict, _ = analyser.record_protocol(protocol=Ca_spike_protocol, cut_start_ms=None, record_name='v')
-animation = analyser.create_movie_from_rec(records=record_dict, slow_down_factor=50,
-                                           func_for_missing_frames=np.max, theta=-90, diam_factor=0.5,
-                                           show_records_from=show_records_from, seg_to_indicate_dict=dict(),
-                                           base_plot_type='dendogram')
-animation.ipython_display(fps=10, loop=True, autoplay=True)
+    dict(ax=ax_soma_cable, seg=soma_seg, plot_type='cable', cable_type='d3_2', shift=0,
+         factor_e_space=25, more_conductances_=more_conductances_,
+         scales=None, plot_legend=False, title='soma cable', start_color='k', dots_size=dot_size),
+
+    dict(ax=ax_basal1_cable, seg=basal_tip1, plot_type='cable', cable_type='d3_2', shift=0,
+         factor_e_space=25, more_conductances_=more_conductances_,
+         scales=None, plot_legend=False, title='basal cable 1', start_color='r', dots_size=dot_size),
+
+    dict(ax=ax_basal2_cable, seg=basal_tip2, plot_type='cable', cable_type='d3_2', shift=0,
+         factor_e_space=25, more_conductances_=more_conductances_,
+         scales=None, plot_legend=False, title='basal cable 2', start_color='r', dots_size=dot_size),
+
+    dict(ax=ax_oblique1_cable, seg=oblique_tip1, plot_type='cable', cable_type='d3_2', shift=0,
+         factor_e_space=25, more_conductances_=more_conductances_,
+         scales=None, plot_legend=False, title='oblique cable 1', start_color='cyan', dots_size=dot_size),
+
+    dict(ax=ax_oblique2_cable, seg=oblique_tip2, plot_type='cable', cable_type='d3_2', shift=0,
+         factor_e_space=25, more_conductances_=more_conductances_,
+         scales=None, plot_legend=False, title='oblique cable 2', start_color='cyan', dots_size=dot_size),
+
+    dict(ax=ax_tuft1_cable, seg=tuft_tip1, plot_type='cable', cable_type='d3_2', shift=0,
+         factor_e_space=25, more_conductances_=more_conductances_,
+         scales=None, plot_legend=False, title='tuft cable 1', start_color='b', dots_size=dot_size),
+
+    dict(ax=ax_tuft2_cable, seg=tuft_tip2, plot_type='cable', cable_type='d3_2', shift=0,
+         factor_e_space=25, more_conductances_=more_conductances_,
+         scales=None, plot_legend=False, title='tuft cable 2', start_color='b', dots_size=dot_size),
+
+]
+slow_down_factor = 10
+videos_folder = 'videos/L5PC/'
+video_name = 'bAP_cables1.mp4'
+os.makedirs(videos_folder, exist_ok=True)
+
+cable_limets_func = plot_shring_axes(plot_kwargs, [3, 4, 5, 6, 7, 8, 9])
+analyser.save_movie_from_rec(fig=fig, slow_down_factor=slow_down_factor, plot_kwargs=plot_kwargs, func_before_run=[f], func_during_run=[cable_limets_func],
+                             save_to=videos_folder, clip_name=video_name, fps=10,
+                             threads=16, preset='ultrafast')
+

@@ -25,10 +25,11 @@ def get_cable(cell,
               seg_dist_dict={},
               part_dict=dict(),
               ignore_sections = [],
-              distance=None):
+              distance=None,
+              dt_func=lambda x: np.mean(x)):
 
     if (distance is None) or (not distance.start_seg == start_seg):
-        distance = Distance(cell, more_conductances)
+        distance = Distance(cell, more_conductances, dt_func=dt_func)
         distance.compute(start_seg=start_seg)
 
     cross_dist_dict = dict(sons=[], parent=[])
@@ -95,7 +96,8 @@ def plot_cable(cell,
                plot_legend=True,
                cable_factor=1,
                labal_start=None,
-               return_shift=False
+               return_shift=False,
+               dt_func=lambda x: np.mean(x)
                ):
     if ax is None:
         ax = plt.gca()
@@ -115,7 +117,8 @@ def plot_cable(cell,
                                                    seg_dist_dict=seg_dist_dict,
                                                    part_dict=part_dict,
                                                    ignore_sections=ignore_sections,
-                                                   distance=distance)
+                                                   distance=distance,
+                                                   dt_func=dt_func)
     max_cable = 0
     shift = 0
     for direction in results:
@@ -170,9 +173,9 @@ def plot_cable(cell,
                 seg_dist_dict['sons'][seg_][0]['dist_m']
                 ax.scatter(shift, dist, s=segs_to_indecate[seg_]['size'], color=segs_to_indecate[seg_]['color'])
         if labal_start is None:
-            ax.scatter(shift, 0, s=dots_size, color=start_color)
+            ax.scatter(shift, 0, s=dots_size, color=start_color, edgecolor='k', linewidths=2)
         else:
-            ax.scatter(shift, 0, s=dots_size, color=start_color, label=labal_start)
+            ax.scatter(shift, 0, s=dots_size, color=start_color, label=labal_start, edgecolor='k', linewidths=2)
     else:
         for seg_ in segs_to_indecate:
             if len(seg_dist_dict['parent'][seg_]) > 0:
@@ -184,9 +187,9 @@ def plot_cable(cell,
                 seg_dist_dict['sons'][seg_][0]['dist_m']
                 ax.scatter(dist, shift, s=segs_to_indecate[seg_]['size'], color=segs_to_indecate[seg_]['color'])
         if labal_start is None:
-            ax.scatter(0, shift, s=dots_size, color=start_color)
+            ax.scatter(0, shift, s=dots_size, color=start_color, edgecolor='k', linewidths=2)
         else:
-            ax.scatter(0, shift, s=dots_size, color=start_color, label=labal_start)
+            ax.scatter(0, shift, s=dots_size, color=start_color, label=labal_start, edgecolor='k', linewidths=2)
     handles, labels = ax.get_legend_handles_labels()
     by_label = dict(zip(labels, handles))
     if plot_legend:

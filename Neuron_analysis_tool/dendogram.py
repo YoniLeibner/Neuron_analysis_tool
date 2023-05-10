@@ -58,13 +58,14 @@ def plot_recursive(sec, distance, ax, color_func, x_pos, lines, segs, ignore_sec
         return mid_points[-1], m_point, lines, segs
     return mid_points[-1] + BRANCH_SPACE_, m_point, lines, segs
 
-def plot_dendogram(cell, start_seg, more_conductances, color_func, ax=None, plot_legend=False, ignore_sections=[], segs_to_indecate=dict(), electrical=True, diam_factor=None, distance=None, BRANCH_SPACE_=None):
+def plot_dendogram(cell, start_seg, more_conductances, color_func, ax=None, plot_legend=False, ignore_sections=[],
+                   segs_to_indecate=dict(), electrical=True, diam_factor=None, distance=None, BRANCH_SPACE_=None, dt_func= lambda x: np.mean(x)):
     if BRANCH_SPACE_ is None:
         BRANCH_SPACE_=BRANCH_SPACE
     if ax is None:
         ax = plt.gca()
     if (distance is None) or (not distance.start_seg == start_seg):
-        distance = Distance(cell, more_conductances)
+        distance = Distance(cell, more_conductances, dt_func=dt_func)
         distance.compute(start_seg=start_seg)
     x_pos = 0.0
     [color, _] = color_func.get_seg_color(start_seg)

@@ -14,13 +14,18 @@ from Neuron_analysis_tool.utils import get_segment_length_lamda, get_segment_len
 
 
 class Distance:
-    def __init__(self, cell, more_conductances):
+    def __init__(self, cell, more_conductances, dt_func= lambda x: np.mean(x)):
         self.cell=cell
         self.distance_dict=dict()
         self.start_seg = None
         self.more_conductances=more_conductances
+        self.dt_func=dt_func
 
-    def compute(self, start_seg=None, time=None, dt=1):
+    def compute(self, start_seg=None, time=None, dt=1, dt_func= None):
+        if dt_func is None:
+            dt_func=self.dt_func
+        else:
+            self.dt_func=dt_func
         if start_seg == None:
             start_seg = list(self.cell.soma[0])
             start_seg = start_seg[len(start_seg)//2]
@@ -48,7 +53,7 @@ class Distance:
         self.distance_dict[sec] = dict(segs=dict(), parent_seg=None, sec_sons=[])
         self.distance_dict[sec]['segs'][start_seg] = dict(
                                         length=dict(start=0, end=get_segment_length_um(start_seg)),
-                                        electrical_length=dict(start=0, end=get_segment_length_lamda(start_seg, self.more_conductances, time=time, dt=dt)),
+                                        electrical_length=dict(start=0, end=get_segment_length_lamda(start_seg, self.more_conductances, time=time, dt=dt, dt_func=dt_func)),
                                         parent=parent_seg, part='sons')
         for seg in segs:
             if seg.x > start_seg.x:
@@ -56,7 +61,7 @@ class Distance:
                     length=dict(start = self.distance_dict[sec]['segs'][parent_seg]['length']['end'],
                                 end = get_segment_length_um(seg) + self.distance_dict[sec]['segs'][parent_seg]['length']['end']),
                     electrical_length=dict(start = self.distance_dict[sec]['segs'][parent_seg]['electrical_length']['end'],
-                                           end=get_segment_length_lamda(seg, self.more_conductances, time=time, dt=dt) + self.distance_dict[sec]['segs'][parent_seg]['electrical_length']['end']),
+                                           end=get_segment_length_lamda(seg, self.more_conductances, time=time, dt=dt, dt_func=dt_func) + self.distance_dict[sec]['segs'][parent_seg]['electrical_length']['end']),
                     parent=parent_seg,part='sons')
                 parent_seg = seg
         # now we go to the sones and
@@ -70,7 +75,7 @@ class Distance:
                     length=dict(start=self.distance_dict[sec]['segs'][parent_seg]['length']['end'],
                                 end=get_segment_length_um(seg) + self.distance_dict[sec]['segs'][parent_seg]['length']['end']),
                     electrical_length=dict(start=self.distance_dict[sec]['segs'][parent_seg]['electrical_length']['end'],
-                                           end=get_segment_length_lamda(seg, self.more_conductances, time=time, dt=dt) + self.distance_dict[sec]['segs'][parent_seg]['electrical_length']['end']),
+                                           end=get_segment_length_lamda(seg, self.more_conductances, time=time, dt=dt, dt_func=dt_func) + self.distance_dict[sec]['segs'][parent_seg]['electrical_length']['end']),
                     parent=parent_seg, part='parent')
                 parent_seg = seg
         if len(parent)>0:
@@ -95,7 +100,7 @@ class Distance:
                 length=dict(start=self.distance_dict[parent_seg.sec]['segs'][parent_seg]['length']['end'],
                             end=get_segment_length_um(seg) + self.distance_dict[parent_seg.sec]['segs'][parent_seg]['length']['end']),
                 electrical_length=dict(start=self.distance_dict[parent_seg.sec]['segs'][parent_seg]['electrical_length']['end'],
-                                       end=get_segment_length_lamda(seg, self.more_conductances, time=time, dt=dt) + self.distance_dict[parent_seg.sec]['segs'][parent_seg]['electrical_length']['end']),
+                                       end=get_segment_length_lamda(seg, self.more_conductances, time=time, dt=dt, dt_func=self.dt_func) + self.distance_dict[parent_seg.sec]['segs'][parent_seg]['electrical_length']['end']),
                 parent=parent_seg, part=part)
             parent_seg = seg
 
@@ -111,6 +116,8 @@ class Distance:
         if self.start_seg is None:
             print('you forgot to compute')
             self.compute()
+        if (seg.sec not in self.distance_dict) or (seg not in self.distance_dict[seg.sec]['segs']):
+            return dict(start=0, end=0)
         if electrical:
             return self.distance_dict[seg.sec]['segs'][seg]['electrical_length']
         return self.distance_dict[seg.sec]['segs'][seg]['length']
