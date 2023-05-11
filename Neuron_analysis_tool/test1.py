@@ -6,6 +6,50 @@ import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 from Neuron_analysis_tool.utils import LAMDA, MICRO, plot_shring_axes
 
+
+
+
+
+
+
+
+
+
+
+analyser = Analyzer(type='Rall_tree')
+colors_dict  = analyser.colors_dict
+colors_dict['soma']='r'
+colors_dict['basal']='pink'
+
+analyser.change_color_dict(colors_dict)
+
+
+
+def Rin_func(seg):
+    imp = h.Impedance(seg.x, sec=seg.sec)
+    imp.loc(seg.x, sec=seg.sec)
+    imp.compute(0, 1)
+    return imp.input(seg.x, sec=seg.sec)
+
+plt.title('Rin with color code')
+ax, color_bar, colors, lines, segs = analyser.plot_morph_with_value_func(func = Rin_func, run_time=1000, theta=0, diam_factor=1, scale=500)
+color_bar.set_ylabel('Rin (M\u03A9)')
+
+plt.figure()
+ax, x_pos, cax, colors, lines, segs = analyser.plot_dendogram_with_value_func(func = None, diam_factor=1,
+                                                                              colors=colors)
+cax.set_ylabel('Rin (M\u03A9)')
+ax.set_title('Rin with color code')
+plt.show()
+exit(0)
+
+
+
+
+
+
+
+
 analyser = Analyzer(type='L5PC')
 
 def single_spike_protocol(cell, start_seg):

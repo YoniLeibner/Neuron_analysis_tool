@@ -24,7 +24,7 @@ def plot_all_records_func(records, distance, ax, analyzer, distance_factor=1, pl
                 if (start_end['start']//plot_every == start_end['end']//plot_every) and (not seg == soma_seg): # show the soma in all cases!!
                     continue
                 d = distance.get_mid_point(seg) * distance_factor
-                if distance.get_part(seg) == 'parent':
+                if distance.get_direction(seg) == 'parent':
                     d=-d
                 color, _ = analyzer.colors.get_seg_color(seg)
                 ax.plot(t1, v1+d, color=color)
@@ -540,9 +540,9 @@ def create_movie_from_rec(analyzer, fig, slow_down_factor=1, plot_kwargs=[], fun
     animation = VideoClip(make_frame, duration=plot_kwargs[0]['records'].time[-1]*slow_down_factor/1000.0)
     return animation
 
-def save_movie_from_rec(analyzer, fig, slow_down_factor=1, plot_kwargs=[], func_before_run=[], f2=[], save_to='', clip_name='clip', fps=None, threads=4, preset='medium'): #ultrafast
+def save_movie_from_rec(analyzer, fig, slow_down_factor=1, plot_kwargs=[], func_before_run=[], func_during_run=[], save_to='', clip_name='clip', fps=None, threads=4, preset='medium'): #ultrafast
     
-    animation = create_movie_from_rec(analyzer=analyzer, fig=fig, slow_down_factor=slow_down_factor, plot_kwargs=plot_kwargs, func_before_run=func_before_run, f2=f2)
+    animation = create_movie_from_rec(analyzer=analyzer, fig=fig, slow_down_factor=slow_down_factor, plot_kwargs=plot_kwargs, func_before_run=func_before_run, func_during_run=func_during_run)
     if not clip_name.endswith('.mp4'):
         clip_name+='.mp4'
     animation.write_videofile(os.path.join(save_to, clip_name),
