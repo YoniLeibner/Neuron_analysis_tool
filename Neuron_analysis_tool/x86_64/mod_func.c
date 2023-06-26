@@ -3,10 +3,14 @@
 extern int nrnmpi_myid;
 extern int nrn_nobanner_;
 
+extern void _beforestep_py_reg(void);
 extern void _CaDynamics_E2_reg(void);
 extern void _Ca_HVA_reg(void);
 extern void _Ca_LVAst_reg(void);
 extern void _epsp_reg(void);
+extern void _g_total_reg(void);
+extern void _Ih_human_linear_reg(void);
+extern void _Ih_human_shifts_mul_add_reg(void);
 extern void _Ih_reg(void);
 extern void _Im_reg(void);
 extern void _K_Pst_reg(void);
@@ -32,10 +36,14 @@ void modl_reg(){
   if (!nrn_nobanner_) if (nrnmpi_myid < 1) {
     fprintf(stderr, "Additional mechanisms from files\n");
 
+    fprintf(stderr," \"mods/beforestep_py.mod\"");
     fprintf(stderr," \"mods/CaDynamics_E2.mod\"");
     fprintf(stderr," \"mods/Ca_HVA.mod\"");
     fprintf(stderr," \"mods/Ca_LVAst.mod\"");
     fprintf(stderr," \"mods/epsp.mod\"");
+    fprintf(stderr," \"mods/g_total.mod\"");
+    fprintf(stderr," \"mods/Ih_human_linear.mod\"");
+    fprintf(stderr," \"mods/Ih_human_shifts_mul_add.mod\"");
     fprintf(stderr," \"mods/Ih.mod\"");
     fprintf(stderr," \"mods/Im.mod\"");
     fprintf(stderr," \"mods/K_Pst.mod\"");
@@ -58,10 +66,14 @@ void modl_reg(){
     fprintf(stderr," \"mods/SKv3_1.mod\"");
     fprintf(stderr, "\n");
   }
+  _beforestep_py_reg();
   _CaDynamics_E2_reg();
   _Ca_HVA_reg();
   _Ca_LVAst_reg();
   _epsp_reg();
+  _g_total_reg();
+  _Ih_human_linear_reg();
+  _Ih_human_shifts_mul_add_reg();
   _Ih_reg();
   _Im_reg();
   _K_Pst_reg();

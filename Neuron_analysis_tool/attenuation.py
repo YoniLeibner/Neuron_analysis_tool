@@ -35,7 +35,7 @@ class color_func:
 def plot_attenuation(cell, start_seg, protocol, more_conductances, color_func=color_func, ax=None, record_name='v',
                      cut_start_ms=None, record_to_value=record_to_value, norm_by = None, norm=True, electrical=True,
                      seg_to_indicate=dict(), distance=None, records=None, ignore_sections=[], start_time=0.0,
-                     end_time=None, dt_func=lambda x: np.mean(x), **kwargs):
+                     end_time=None, dt_func=lambda x: np.mean(x), direction_dist_factors=dict(sons=1, parent=1), **kwargs):
     """
     ploting the attentuation along distance
     :param cell: the cell model
@@ -92,7 +92,9 @@ def plot_attenuation(cell, start_seg, protocol, more_conductances, color_func=co
             if seg == start_seg: continue
             parent_seg = distance.get_seg_parent(seg)
             start_end = distance.get_start_end(seg, electrical=electrical)
-            x = [start_end['start'], start_end['end']]
+            factor = direction_dist_factors[distance.get_direction(seg)]
+            x = [factor*start_end['start'], factor*start_end['end']]
+
             y=[records.get_record_at_dt(parent_seg, start_time, end_time, dt_func = record_to_value)/norm_by,
                records.get_record_at_dt(seg, start_time, end_time, dt_func = record_to_value)/norm_by]
             color, part_name = color_func.get_seg_color(seg)

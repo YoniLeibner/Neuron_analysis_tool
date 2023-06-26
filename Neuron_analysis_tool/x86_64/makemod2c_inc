@@ -1,4 +1,12 @@
 
+./beforestep_py.c: ../mods/beforestep_py.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) beforestep_py.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+
+./beforestep_py.o: ./beforestep_py.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
+
 ./CaDynamics_E2.c: ../mods/CaDynamics_E2.mod
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
 	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) CaDynamics_E2.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
@@ -28,6 +36,30 @@
 	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) epsp.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./epsp.o: ./epsp.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
+
+./g_total.c: ../mods/g_total.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) g_total.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+
+./g_total.o: ./g_total.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
+
+./Ih_human_linear.c: ../mods/Ih_human_linear.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) Ih_human_linear.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+
+./Ih_human_linear.o: ./Ih_human_linear.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
+
+./Ih_human_shifts_mul_add.c: ../mods/Ih_human_shifts_mul_add.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) Ih_human_shifts_mul_add.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+
+./Ih_human_shifts_mul_add.o: ./Ih_human_shifts_mul_add.c
 	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 

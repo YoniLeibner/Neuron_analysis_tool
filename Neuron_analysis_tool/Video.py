@@ -208,7 +208,6 @@ def initiate_ax_dendogram(ax, analyzer, records, start_seg=None, seg_to_indicate
     ax, x_pos, cax, colors, lines, segs = analyzer.plot_dendogram_with_values(value_dict_by_sec, start_seg=start_seg,
                                                                               ax=ax,
                                                                               segs_to_indecate=dict() if dancing else seg_to_indicate_dict,
-                                                                              plot_legend=False,
                                                                               ignore_sections=ignore_sections,
                                                                               electrical=electrical,
                                                                               diam_factor=diam_factor, distance=None,
@@ -281,7 +280,7 @@ def initiate_ax_dendogram(ax, analyzer, records, start_seg=None, seg_to_indicate
     return update
 
 def initiate_ax_attenuation(ax, analyzer, records, electrical=True, start_seg=None, seg_to_indicate_dict=dict(), ignore_sections=[],
-                            draw_funcs=[], cmap=plt.cm.turbo, func_for_missing_frames=np.max, bounds=None, margin=0.5, dt_func= lambda x: np.mean(x)):
+                            draw_funcs=[], cmap=plt.cm.turbo, func_for_missing_frames=np.max, bounds=None, margin=0.5, dt_func= lambda x: np.mean(x), direction_dist_factors=dict(sons=1, parent=1)):
     def record_to_value(rec):
         return rec.max()
     ax.spines['top'].set_visible(False)
@@ -303,7 +302,8 @@ def initiate_ax_attenuation(ax, analyzer, records, electrical=True, start_seg=No
                                                                   distance=None,
                                                                   records=records,
                                                                   ignore_sections=ignore_sections,
-                                                                  dt_func=dt_func)
+                                                                  dt_func=dt_func,
+                                                                  direction_dist_factors=direction_dist_factors)
     segs=np.array(segs)
     lines=np.array(lines)
     ax.set_yscale('linear')
@@ -358,17 +358,17 @@ def initiate_ax_attenuation(ax, analyzer, records, electrical=True, start_seg=No
     return update
 
 def initiate_ax_cable(ax, analyzer, more_conductances, cable_type='d3_2', start_seg=None, seg_to_indicate_dict=dict(),
-                      factor_e_space=25, factor_m_space=10, ignore_sections=[], start_loc=0, shift=0, x_axis = True, factor=1,
-                      dots_size=10, start_color='k', plot_legend = True,  extra = 5, cable_factor = 1, labal_start = None,
+                      factor_e_space=25, factor_m_space=10, ignore_sections=[], start_loc=0, shift=0, vertical = True,
+                      dots_size=10, start_color='k', plot_legend = True, cable_factor = 1, labal_start = None,
                       scales=dict(x=10, y=1), dt_func= lambda x: np.mean(x), title=None):
 
     distance = Distance(analyzer.cell, more_conductances, dt_func=dt_func)
     distance.compute(start_seg=start_seg, time=0, dt=1)
     analyzer.plot_cable(start_seg = start_seg, ax = ax,
                         factor_e_space = factor_e_space, factor_m_space = factor_m_space, segs_to_indecate = seg_to_indicate_dict,
-                        ignore_sections = ignore_sections, cable_type = cable_type, start_loc = start_loc, shift=shift, x_axis = x_axis,
-                        factor = factor, dots_size = dots_size, start_color = start_color,
-                        plot_legend = plot_legend, distance = distance, extra = extra, cable_factor = cable_factor, labal_start = labal_start,
+                        ignore_sections = ignore_sections, cable_type = cable_type, start_loc = start_loc, shift=shift, vertical = vertical,
+                        dots_size = dots_size, start_color = start_color,
+                        plot_legend = plot_legend, distance = distance, cable_factor = cable_factor, labal_start = labal_start,
                         return_shift = False, dt_func=dt_func)
 
     lim_x = ax.get_xlim()
@@ -418,9 +418,9 @@ def initiate_ax_cable(ax, analyzer, more_conductances, cable_type='d3_2', start_
         analyzer.plot_cable(start_seg=start_seg, ax=ax,
                             factor_e_space=factor_e_space, factor_m_space=factor_m_space,
                             segs_to_indecate=seg_to_indicate_dict,
-                            ignore_sections=ignore_sections, cable_type=cable_type, start_loc=start_loc, shift=shift, x_axis=x_axis,
-                            factor=factor, dots_size=dots_size, start_color=start_color,
-                            plot_legend=plot_legend, distance=distance, extra=extra, cable_factor=cable_factor,
+                            ignore_sections=ignore_sections, cable_type=cable_type, start_loc=start_loc, shift=shift, vertical=vertical,
+                            dots_size=dots_size, start_color=start_color,
+                            plot_legend=plot_legend, distance=distance, cable_factor=cable_factor,
                             labal_start=labal_start, return_shift=False)
         ax.set_xlim(lim_x)
         ax.set_ylim(lim_y)
@@ -464,9 +464,9 @@ def initiate_ax_cable(ax, analyzer, more_conductances, cable_type='d3_2', start_
 def initiate_ax(ax, analyzer, plot_type, records=None, slow_down_factor=1,  electrical=False, seg=None, dancing=False, more_conductances_=None,
                 color='k', voltage_window=50, xlabel='time (ms)', ylabel=None, title=None, # for voltage
                 distance_factor=1, plot_every=0.25, # for voltage_all
-                seg_to_indicate_dict=dict(), ignore_sections=[], draw_funcs=[], cmap=plt.cm.turbo, func_for_missing_frames=np.max, bounds=None, # for attenuation
+                seg_to_indicate_dict=dict(), ignore_sections=[], draw_funcs=[], cmap=plt.cm.turbo, func_for_missing_frames=np.max, bounds=None, direction_dist_factors=dict(sons=1, parent=1), # for attenuation
                 margin=0, diam_factor=None, sec_to_change=None, theta=0, scale=0, plot_color_bar=True, color_bar_kwarts = dict(shrink=0.6),# for morph
-                cable_type='d3_2', factor_e_space=25, factor_m_space=10, start_loc=0, shift=None, x_axis=True, factor=1,
+                cable_type='d3_2', factor_e_space=25, factor_m_space=10, start_loc=0, shift=None, vertical=True, factor=1,
                 dots_size=10, start_color='k', plot_legend=True, extra=5, cable_factor=1, labal_start=None, scales=dict(x=10, y=2),
                 dt_func=lambda x: np.mean(x)):
 
@@ -481,7 +481,7 @@ def initiate_ax(ax, analyzer, plot_type, records=None, slow_down_factor=1,  elec
                             voltage_window=voltage_window, xlabel=xlabel, ylabel=ylabel, dt_func=dt_func)
     elif plot_type == 'attenuation':
         return initiate_ax_attenuation(ax, analyzer, records, electrical=electrical, start_seg=seg, seg_to_indicate_dict=seg_to_indicate_dict, ignore_sections=ignore_sections,
-                            draw_funcs=draw_funcs, cmap=cmap, func_for_missing_frames=func_for_missing_frames, bounds=bounds, margin=margin, dt_func=dt_func)
+                            draw_funcs=draw_funcs, cmap=cmap, func_for_missing_frames=func_for_missing_frames, bounds=bounds, margin=margin, dt_func=dt_func, direction_dist_factors=direction_dist_factors)
 
     if dancing:
         assert dancing == electrical, 'only electrical plot can dance!!!, got electrical=' + str(
@@ -504,8 +504,8 @@ def initiate_ax(ax, analyzer, plot_type, records=None, slow_down_factor=1,  elec
         assert more_conductances_ is not None
         return initiate_ax_cable(ax, analyzer, more_conductances =more_conductances_, cable_type=cable_type, start_seg=seg,
                                  seg_to_indicate_dict=seg_to_indicate_dict, factor_e_space=factor_e_space, factor_m_space=factor_m_space,
-                                 ignore_sections=ignore_sections, start_loc=start_loc, shift=shift, x_axis=x_axis, factor=factor, dots_size=dots_size,
-                                 start_color=start_color, plot_legend=plot_legend, extra=extra, cable_factor=cable_factor, labal_start=labal_start, scales=scales, title=title, dt_func=dt_func)
+                                 ignore_sections=ignore_sections, start_loc=start_loc, shift=shift, vertical=vertical, dots_size=dots_size,
+                                 start_color=start_color, plot_legend=plot_legend, cable_factor=cable_factor, labal_start=labal_start, scales=scales, title=title, dt_func=dt_func)
 
     else:
         raise Exception('not a valid plot_type: '+plot_type +', not implemented')

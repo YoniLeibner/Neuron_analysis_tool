@@ -8,7 +8,6 @@
 # date of modification: 11.05.2023
 #
 #########################################################
-
 from neuron import h
 import os
 
@@ -79,7 +78,7 @@ def open_swc(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, seg_every=20):
     return open_morph(morph_path, Rm=Rm, Ra=Ra, Cm=Cm, e_pas=e_pas, nl=h.Import3d_SWC_read(), seg_every=seg_every)
 
 
-def open_rall_tree():
+def open_rall_tree(seg_every=20):
     """
     load a rall_tree (with 5 degree)
     :return: Neuron model, parts dict, color dict
@@ -89,9 +88,11 @@ def open_rall_tree():
     for sec in cell.soma[0].children():
         h.disconnect(sec=sec)
         sec.connect(cell.soma[0](1))
+    for sec in cell.all:
+        sec.nseg = int(sec.L / seg_every) + 1
     return cell, parts_dict, colors_dict
 
-def open_L5PC():
+def open_L5PC(seg_every=20):
     """
     open Itay Hay L5PC model
     :return:  Neuron model, parts dict, color dict
@@ -102,6 +103,8 @@ def open_L5PC():
     h.load_file(os.path.join(f,"data/L5PC/L5PCbiophys3.hoc"))
     h.load_file(os.path.join(f,"data/L5PC/L5PCtemplate.hoc"))
     cell = h.L5PCtemplate(morphology_file)
+    for sec in cell.all:
+        sec.nseg = int(sec.L / seg_every) + 1
     return get_parts_and_colors(cell)
 
 
@@ -128,3 +131,12 @@ def get_parts_and_colors(cell):
             else:
                 parts_dict['else'].append(seg)
     return cell, parts_dict, colors_dict
+
+def insert_g_total(cell):
+    """
+    defult part for a neuron into:'soma','basal', 'apical', 'axon', 'else'
+    :param cell: Neuron model
+    :return: Neuron model, parts dict, color dict
+    """
+    for sec in cell.all:
+        sec.insert('g_total')

@@ -31,10 +31,17 @@ def get_segment_length_lamda(seg, more_conductances, time=None, dt=1, dt_func= l
     """
     sec = seg.sec
     seg_len = sec.L/sec.nseg
-    d = seg.diam
-    R_total = more_conductances.cumpute(seg, time=time, dt=dt, dt_func=dt_func)
-    lamda = np.sqrt((R_total / sec.Ra) * (d / 10000.0) / 4.0)
-    return (float(seg_len) / 10000.0) / lamda
+
+    # # old calc
+    # R_total2 = (1.0/seg.g_pas)/(np.pi*seg.diam)
+    # R_total2 = (1.0/(seg.g_pas+seg.Ih_human_linear.gIh))
+    # lamda2 = np.sqrt(R_total2/sec.Ra*seg.diam*10**4/4)
+    # return seg_len/lamda2
+
+    R_total = more_conductances.cumpute(seg, time=time, dt=dt, dt_func=dt_func)*10**-4 # this in u ohm*um change to ohm*cm
+    ri = sec.Ra * 4 / (np.pi * (seg.diam*10**-4) ** 2) # Ra is in ohm*cm we change ohm/cm
+    lamda = (R_total / ri) ** 0.5 *10**2 #result i non units, this is in cm (10^2)
+    return (float(seg_len)*10**-5) / lamda # change the length to cm to match with lamda
 
 def get_segment_length_um(seg):
     """

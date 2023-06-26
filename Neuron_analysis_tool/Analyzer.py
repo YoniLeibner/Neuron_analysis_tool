@@ -10,7 +10,6 @@
 #########################################################
 
 # from neuron import h, gui
-# from Neuron_analysis_tool.more_conductances import more_conductances, more_conductances_fake
 # from Neuron_analysis_tool.distance import Distance
 # from Neuron_analysis_tool.morph_ploter import get_norm
 # import matplotlib.pyplot as plt
@@ -27,10 +26,14 @@ from Neuron_analysis_tool.cable import get_cable, plot_cable
 from Neuron_analysis_tool.attenuation import plot_attenuation, record_to_value
 from Neuron_analysis_tool.record import multi_record_all #record, record_all,
 from Neuron_analysis_tool.utils import seg_Rin_func #, get_segment_length_lamda, get_segment_length_um, LAMDA, MICRO, sec_name, seg_name
-from Neuron_analysis_tool.loaders import open_swc, open_L5PC, open_ASC, open_rall_tree, get_parts_and_colors #, open_morph
+from Neuron_analysis_tool.loaders import open_swc, open_L5PC, open_ASC, open_rall_tree, get_parts_and_colors, insert_g_total #, open_morph
 from Neuron_analysis_tool.Video import *
+from Neuron_analysis_tool.more_conductances import more_conductances, more_conductances_fake, callback
 from tqdm import tqdm
-
+from neuron import h
+import neuron
+# import os
+neuron.load_mechanisms(os.path.dirname(os.path.realpath(__file__))+'/x86_64/special')
 
 class Analyzer:
     """
@@ -78,7 +81,7 @@ class Analyzer:
         """
         if cell is None:
             if type == 'Rall_tree':
-                cell, parts_dict, colors_dict = open_rall_tree()
+                cell, parts_dict, colors_dict = open_rall_tree(seg_every=seg_every)
             elif type == 'ASC' and morph_path:
                 cell, parts_dict, colors_dict = open_ASC(morph_path, Rm=Rm, Ra=Ra,
                                                          Cm=Cm, e_pas=e_pas, seg_every=seg_every)
@@ -86,17 +89,23 @@ class Analyzer:
                 cell, parts_dict, colors_dict = open_swc(morph_path, Rm=Rm, Ra=Ra,
                                                          Cm=Cm, e_pas=e_pas, seg_every=seg_every)
             elif type == 'L5PC':
-                cell, parts_dict, colors_dict = open_L5PC()
+                cell, parts_dict, colors_dict = open_L5PC(seg_every=seg_every)
 
         if parts_dict is None:
             cell, parts_dict, colors_dict = get_parts_and_colors(cell)
+        insert_g_total(cell)
         self.type=type
         self.cell=cell
         self.parts_dict = parts_dict
+        #
+        soma_segs = list(cell.soma[0])
+        self.bscallback = h.beforestep_callback(soma_segs[len(soma_segs)//2])  # starting the ref
+        self.bscallback.set_callback((callback, self))
         self.more_conductances = more_conductances(cell, is_resting=True,
                                                    protocol=more_conductances_protocol)
         self.colors_dict = colors_dict
         self.colors = color_func(parts_dict=parts_dict, color_dict=colors_dict)
+
 
     def get_mechanism_names(self):
         """
@@ -107,8 +116,39 @@ class Analyzer:
         for sec in self.cell.all:
             for seg in sec:
                 for mechanisms in seg:
-                    mechanisms_names.add(str(mechanisms))
+                    if not mechanisms.is_ion():
+                        mechanisms_names.add(str(mechanisms))
         return list(mechanisms_names)
+
+    def get_synapses(self):
+        """
+
+        :return: the names of the mechanism in the model
+        """
+        synapses = dict()
+        for sec in self.cell.all:
+            for seg in sec:
+                for syn in seg.point_processes():
+                    if sec_name(sec) not in synapses:
+                        synapses[sec_name(sec)] = []
+                    syn_type = syn.hname().split('[')[0]
+                    if hasattr(syn, 'g'):
+                            synapses[sec_name(sec)].append(dict(syn=syn, g_name='g'))
+                    else:
+                        synapses[sec_name(sec)].append(dict(syn=syn, g_name='g_'+syn_type))
+            #
+            # for syn_type in sec.psection()['point_processes']:
+            #     print(sec.name(), syn_type)
+            #     if sec_name(sec) not in synapses:
+            #         synapses[sec_name(sec)] = dict()
+            #     synapses[sec_name(sec)][syn_type] = list()
+            #     for syn in list(sec.psection()['point_processes'][syn_type]):
+            #         assert hasattr(syn, 'g') or hasattr(syn, 'g_'+syn_type), 'syn_type:'+syn_type+' dont have g or g_'+syn_type
+            #         if hasattr(syn, 'g'):
+            #             synapses[sec_name(sec)][syn_type].append(dict(syn=syn, g_name='g'))
+            #         else:
+            #             synapses[sec_name(sec)][syn_type].append(dict(syn=syn, g_name='g_'+syn_type))
+        return synapses
 
     def change_color_dict(self, colors_dict):
         """
@@ -136,9 +176,9 @@ class Analyzer:
         self.colors = color_func(parts_dict=self.parts_dict, color_dict=colors_dict)
 
     def plot_morph(self, ax=None, seg_to_indicate_dict = {}, diam_factor=None, sec_to_change=None,
-                   ignore_sections=[],
-                   theta=0, scale=0, scale_text=True, ignore_soma=True, distance=None, electrical=False,
-                   time=None, dt=1, more_conductances_=None, colors=None, dt_func= lambda x: np.mean(x)):
+                   ignore_sections=[], theta=0, scale=0, scale_text=True, ignore_soma=True, distance=None,
+                   electrical=False, time=None, dt=1, more_conductances_=None, colors=None,
+                   dt_func= lambda x: np.mean(x)):
         """
         plot the morphology
         :param ax: the ax to plot on
@@ -188,9 +228,14 @@ class Analyzer:
             y_lim = ax.get_ylim()
             ax.plot([x_lim[0], x_lim[0]], [y_lim[0], y_lim[0] + scale], color='k')
             if scale_text:
-                fontsize = (y_lim[1]-y_lim[0])*0.01
-                ax.text(x_lim[0]-fontsize*6, y_lim[0], str(scale)+' ('+MICRO+'m)', rotation=90, fontsize=fontsize)
-                ax.set_xlim([x_lim[0]-fontsize*6, x_lim[1]])
+                text_scale = str(scale)+' '+MICRO+'m'
+                y_pos = y_lim[0]+scale/3.0
+                text_scale_size=10
+                ax.annotate(text_scale,
+                            xy=(x_lim[0], y_pos), xycoords='data', size=text_scale_size,
+                            xytext=(-text_scale_size - 2, -text_scale_size / 2), textcoords='offset points', rotation=90)
+
+
         return ax, lines, segs
 
     def plot_morph_with_values(self, seg_val_dict, ax=None, seg_to_indicate_dict={}, diam_factor=None,
@@ -460,99 +505,11 @@ class Analyzer:
                           dots_size=dots_size, start_color=start_color, shift=shift, plot_legend=plot_legend,
                           cable_factor=cable_factor, labal_start=labal_start, return_shift=return_shift, dt_func=dt_func)
 
-        # seg_dist_dict = dict()
-        # for part in ['sons', 'parent']:
-        #     seg_dist_dict[part] = dict()
-        #     # seg_dist_dict[part][self.cell.soma[0](0.5)] = []
-        #     for seg_ in segs_to_indecate.keys():
-        #         seg_dist_dict[part][seg_] = []
-        # results, seg_dist, cross_dist_dict = get_cable(self.cell,
-        #                                                 start_seg=start_seg,
-        #                                                 factor_e_space=factor_e_space,
-        #                                                 factor_m_space=factor_m_space,
-        #                                                 more_conductances=self.more_conductances,
-        #                                                 seg_dist_dict=seg_dist_dict,
-        #                                                 part_dict=self.parts_dict,
-        #                                                 ignore_sections=ignore_sections,
-        #                                                 distance=distance, dt_func=dt_func)
-        # max_cable = 0
-        #
-        # for direction in results:
-        #     for part in results[direction]:
-        #         for cable_type in results[direction][part]:
-        #             results[direction][part][cable_type]*=cable_factor
-
-        # for part, direction in zip(results, [1, -1]):
-        #     cable = results[part]['all'][cable_type].flatten()
-        #     if cable_type == 'd3_2':
-        #         befor_d_3_2 = np.power(cable, 3.0 / 2.0)
-        #     y = np.arange(0, len(cable), 1) / factor_e_space
-        #
-        #     start_pos = -cable / 2.0 + shift
-        #     for morph_part in self.parts_dict.keys():
-        #         remove_start_diam = False
-        #         part_cable = results[part][morph_part][cable_type].flatten()
-        #         if cable_type == 'd3_2':
-        #             part_cable = results[part][morph_part][cable_type].flatten()
-        #             part_cable_befor_d_3_2 = np.power(part_cable, 3.0 / 2.0)
-        #             part_cable = cable * (part_cable_befor_d_3_2 / befor_d_3_2)
-        #         if part_cable[1]>0 and part_cable[0] == 0:
-        #             part_cable[0] = (results[part]['all'][cable_type].flatten())[0]
-        #             remove_start_diam=True
-        #             temp_=start_pos[0]
-        #             start_pos[0] = -cable[0] / 2.0+shift
-        #         plot_cable = part_cable[part_cable > 0]
-        #         start_pos_temp = start_pos[part_cable > 0]
-        #         if vertical:
-        #             ax.fill_betweenx(direction * y[part_cable > 0], start_pos_temp, start_pos_temp + plot_cable,
-        #                              label=morph_part, color=self.colors_dict[morph_part])
-        #         else:
-        #             ax.fill_between(direction * y[part_cable > 0], start_pos_temp, start_pos_temp + plot_cable,
-        #                             label=morph_part, color=self.colors_dict[morph_part])
-        #         if remove_start_diam:
-        #             part_cable[0]=0
-        #             start_pos[0] = temp_
-        #         start_pos += part_cable
-        # if vertical:
-        #     for seg_ in segs_to_indecate:
-        #         if len(seg_dist_dict['parent'][seg_]) > 0:
-        #             dist = -seg_dist_dict['parent'][seg_][0]['dist_e'] if cable_type in ['electric', 'd3_2'] \
-        #                 else seg_dist_dict['parent'][seg_][0]['dist_m']
-        #             ax.scatter(shift, dist, s=segs_to_indecate[seg_]['size'], color=segs_to_indecate[seg_]['color'])
-        #         else:
-        #             dist = seg_dist_dict['sons'][seg_][0]['dist_e'] if cable_type in ['electric', 'd3_2'] \
-        #                 else seg_dist_dict['sons'][seg_][0]['dist_m']
-        #             ax.scatter(shift, dist, s=segs_to_indecate[seg_]['size'], color=segs_to_indecate[seg_]['color'])
-        #     if labal_start is None:
-        #         ax.scatter(shift, 0, s=dots_size, color=start_color, edgecolor='k')
-        #     else:
-        #         ax.scatter(shift, 0, s=dots_size, color=start_color, label=labal_start, edgecolor='k')
-        # else:
-        #     for seg_ in segs_to_indecate:
-        #         if len(seg_dist_dict['parent'][seg_]) > 0:
-        #             dist = -seg_dist_dict['parent'][seg_][0]['dist_e'] if cable_type in ['electric', 'd3_2'] \
-        #                 else seg_dist_dict['parent'][seg_][0]['dist_m']
-        #             ax.scatter(dist, shift, s=segs_to_indecate[seg_]['size'], color=segs_to_indecate[seg_]['color'])
-        #         else:
-        #             dist = seg_dist_dict['sons'][seg_][0]['dist_e'] if cable_type in ['electric', 'd3_2'] \
-        #                 else seg_dist_dict['sons'][seg_][0]['dist_m']
-        #             ax.scatter(dist, shift, s=segs_to_indecate[seg_]['size'], color=segs_to_indecate[seg_]['color'])
-        #     if labal_start is None:
-        #         ax.scatter(0, shift, s=dots_size, color=start_color, edgecolor='k')
-        #     else:
-        #         ax.scatter(0, shift, s=dots_size, color=start_color, label=labal_start, edgecolor='k')
-        # handles, labels = ax.get_legend_handles_labels()
-        # by_label = dict(zip(labels, handles))
-        # if plot_legend:
-        #     ax.legend(by_label.values(), by_label.keys(), loc='best')
-        # if return_shift:
-        #     return ax, shift
-        # return ax
 
     def plot_attenuation(self, protocol=long_pulse_protocol, ax=None, seg_to_indicate_dict=dict(), start_seg =None,
                          record_to_value_func=record_to_value, norm=True, record_name='v', norm_by=None,
                          electrical=True, distance=None, records=None, ignore_sections=[],
-                         dt_func= lambda x: np.mean(x), **kwargs):
+                         dt_func= lambda x: np.mean(x), direction_dist_factors=dict(sons=1, parent=1), **kwargs):
         """
         plot the record along the distance
         :param protocol: protocol to run (if records are not givin)
@@ -578,7 +535,8 @@ class Analyzer:
                                                              norm_by=norm_by,  norm=norm, electrical=electrical,
                                                              seg_to_indicate=seg_to_indicate_dict, distance=distance,
                                                              records=records, ignore_sections=ignore_sections,
-                                                             dt_func=dt_func, **kwargs)
+                                                             dt_func=dt_func, direction_dist_factors=direction_dist_factors,
+                                                             **kwargs)
 
         ax.set_yscale('log')
         ax.set_xlabel('distance from origin (x / '+LAMDA+')')
@@ -590,7 +548,7 @@ class Analyzer:
         return ax, norm_by, lines, segs, records
 
     def create_card(self, start_seg=None, theta=0, scale=500, factor_e_space=50, cable_type='d3_2', diam_factor=None,
-                    plot_legend=False, start_color='green', start_dots_size=50, dt_func= lambda x: np.mean(x),
+                    plot_legend=False, start_color='green', start_dots_size=50, cable_factor=1, dt_func= lambda x: np.mean(x),
                     protocol1=long_pulse_protocol, protocol2=short_pulse_protocol, **kwargs):
         """
         create a viewing card from a segment prospective
@@ -607,6 +565,7 @@ class Analyzer:
         :param plot_legend: if True it will dd a legend with the parts_dict keys and colors
         :param start_dots_size: the size of the dot at the origin
         :param start_color: the color of the dot in the origin
+        :param cable_factor: factor for the cable width
         :param dt_func: function for dt in the more_conductances
         :param protocol1: the first protocol for attenuation plot. default=long_pulse_protocol (1 sec current ingection of 0.1 pA)
         :param protocol2: the second protocol for attenuation plot. default=short_pulse_protocol (2 ms current ingection of 0.1 pA)
@@ -628,9 +587,9 @@ class Analyzer:
                                 distance=distance)
         _, x_pos, _, _ = self.plot_dendogram(start_seg=start_seg, ax=ax[1], electrical=True, plot_legend=False,
                                              segs_to_indecate=seg_to_indicate_dict, distance=distance)
-        self.plot_cable(start_seg=start_seg, ax=ax[1], factor_e_space=factor_e_space, cable_type=cable_type,
+        _, shift = self.plot_cable(start_seg=start_seg, ax=ax[1], factor_e_space=factor_e_space, cable_type=cable_type,
                         plot_legend=plot_legend, start_loc=x_pos+15, start_color=start_color, dots_size=start_dots_size,
-                        distance=distance)
+                        distance=distance, cable_factor=cable_factor, return_shift=True)
         for a in ax[1:]:
             a.spines['top'].set_visible(False)
             a.spines['right'].set_visible(False)
@@ -638,17 +597,25 @@ class Analyzer:
         x_lim = ax[1].get_xlim()
         y_lim = ax[1].get_ylim()
 
-        ax[1].plot([x_lim[0], x_lim[0]+10], [y_lim[0], y_lim[0]], color='k')
+        ax[1].plot([shift-5/cable_factor, shift+5/cable_factor], [y_lim[0], y_lim[0]], color='k')
+        text_size = 10
         if cable_type=='d3_2':
-            ax[1].text(x_lim[0], y_lim[0]-0.25, '10 ('+MICRO+'m)')
+            x_scale_text = '10 '+MICRO+'m'
+            ax[1].annotate(x_scale_text,
+                        xy=(shift, y_lim[0]), xycoords='data', size=text_size,
+                        xytext=(-text_size, -text_size - 2), textcoords='offset points')
         else:
-
-            ax[1].text(x_lim[0], y_lim[0]-0.25, '10 ('+MICRO+'$m^{2}$)')
+            x_scale_text = '10 '+MICRO+'$m^{2}$'
+            ax[1].annotate(x_scale_text,
+                        xy=(shift, y_lim[0]), xycoords='data', size=text_size,
+                        xytext=(-text_size, -text_size - 2), textcoords='offset points')
 
         ax[1].plot([x_lim[0], x_lim[0]], [y_lim[0], y_lim[0] + 0.5], color='k')
-        ax[1].text(x_lim[0]-15, y_lim[0], '0.5 ('+LAMDA+')', rotation=90)
-        ax[1].set_xlim([x_lim[0]-15, x_lim[1]])
-        ax[1].set_ylim([y_lim[0]-0.25, y_lim[1]])
+        y_scale_text = '0.5 '+LAMDA+''
+        y_pos = y_lim[0] + 0.5 / 3.0
+        ax[1].annotate(y_scale_text,
+                    xy=(x_lim[0], y_pos), xycoords='data', size=text_size,
+                    xytext=(-text_size - 2, -text_size / 2), textcoords='offset points', rotation=90)
         ax[1].set_ylabel('')
 
         self.plot_attenuation(start_seg=start_seg, ax=ax[2], protocol=protocol1,
@@ -717,21 +684,16 @@ class Analyzer:
         x_lim = ax[1].get_xlim()
         y_lim = ax[1].get_ylim()
 
-        ax[1].plot([x_lim[0], x_lim[0]+10], [y_lim[0], y_lim[0]], color='k')
-        if cable_type=='d3_2':
-            ax[1].text(x_lim[0], y_lim[0]-0.25, '10 ('+MICRO+'m)')
-            ax[2].set_xlabel('diameter (' + MICRO + 'm)')
-        else:
-
-            ax[1].text(x_lim[0], y_lim[0]-0.25, '10 ('+MICRO+'$m^{2}$)')
-            ax[2].set_xlabel('diameter (' + MICRO + '$m^{2}$)')
-
+        text_size=10
         ax[1].plot([x_lim[0], x_lim[0]], [y_lim[0], y_lim[0] + 0.5], color='k')
-        ax[1].text(x_lim[0]-15, y_lim[0], '0.5 ('+LAMDA+')', rotation=90)
-        ax[2].set_ylabel('distance ('+LAMDA+')')
+        y_scale_text = '0.5 '+LAMDA+''
+        y_pos = y_lim[0] + 0.5 / 3.0
+        ax[1].annotate(y_scale_text,
+                    xy=(x_lim[0], y_pos), xycoords='data', size=text_size,
+                    xytext=(-text_size - 2, -text_size / 2), textcoords='offset points', rotation=90)
+        ax[1].set_ylabel('')
 
-        ax[1].set_xlim([x_lim[0]-15, x_lim[1]])
-        ax[1].set_ylim([y_lim[0]-0.25, y_lim[1]])
+        ax[2].set_ylabel('distance ('+LAMDA+')')
         ax[1].set_ylabel('')
 
         ax[0].set_title('morphology')
