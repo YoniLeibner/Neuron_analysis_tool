@@ -106,8 +106,10 @@ def get_parts(sec, color_func, soma_loc, rotation_matrix = np.eye(3), rotation_m
 
 def get_point_segs(sec, soma_loc, color_func, rotation_matrix=np.eye(3), rotation_matrix_2d=np.eye(2)):
     try: # in case some sections are deleted
+    # if True:
         parts = get_parts(sec, color_func, soma_loc, rotation_matrix=rotation_matrix, rotation_matrix_2d=rotation_matrix_2d)
     except:
+        print('error in geting morph part from section:', sec.name())
         return []
     return parts
 

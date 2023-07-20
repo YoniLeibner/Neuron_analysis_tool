@@ -12,7 +12,7 @@ from Neuron_analysis_tool.utils import sec_name, seg_name, LAMDA, MICRO
 
 
 
-def plot_all_records_func(records, distance, ax, analyzer, distance_factor=1, plot_every=0.25):
+def plot_all_records_func(records, distance, ax, analyzer, distance_factor=1, plot_every=0.25, **kwargs):
     t1 = records.time.copy()
     soma_sec = list(analyzer.cell.soma[0])
     soma_seg = soma_sec[len(soma_sec)//2]
@@ -27,7 +27,7 @@ def plot_all_records_func(records, distance, ax, analyzer, distance_factor=1, pl
                 if distance.get_direction(seg) == 'parent':
                     d=-d
                 color, _ = analyzer.colors.get_seg_color(seg)
-                ax.plot(t1, v1+d, color=color)
+                ax.plot(t1, v1+d, color=color, **kwargs)
             except:
                 pass
 

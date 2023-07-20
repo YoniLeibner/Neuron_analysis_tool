@@ -11,6 +11,7 @@
 from neuron import h
 import numpy as np
 from Neuron_analysis_tool.utils import get_segment_length_lamda, get_segment_length_um
+from .utils import seg_name, sec_name
 
 
 class Distance:
@@ -67,8 +68,8 @@ class Distance:
         done = set()
         done.add(sec)
         parent_seg = start_seg
-        self.distance_dict[sec] = dict(segs=dict(), parent_seg=None, sec_sons=[])
-        self.distance_dict[sec]['segs'][start_seg] = dict(
+        self.distance_dict[sec_name(sec)] = dict(segs=dict(), parent_seg=None, sec_sons=[])
+        self.distance_dict[sec_name(sec)]['segs'][seg_name(start_seg)] = dict(
                                         length=dict(start=0, end=get_segment_length_um(start_seg)),
                                         electrical_length=dict(start=0,
                                                                end=get_segment_length_lamda(start_seg,
@@ -78,14 +79,14 @@ class Distance:
                                         parent=parent_seg, direction='sons')
         for seg in segs:
             if seg.x > start_seg.x:
-                self.distance_dict[sec]['segs'][seg] = dict(
-                    length=dict(start = self.distance_dict[sec]['segs'][parent_seg]['length']['end'],
+                self.distance_dict[sec_name(sec)]['segs'][seg_name(seg)] = dict(
+                    length=dict(start = self.distance_dict[sec_name(sec)]['segs'][seg_name(parent_seg)]['length']['end'],
                                 end = get_segment_length_um(seg) +
-                                      self.distance_dict[sec]['segs'][parent_seg]['length']['end']),
-                    electrical_length=dict(start = self.distance_dict[sec]['segs'][parent_seg]['electrical_length']['end'],
+                                      self.distance_dict[sec_name(sec)]['segs'][seg_name(parent_seg)]['length']['end']),
+                    electrical_length=dict(start = self.distance_dict[sec_name(sec)]['segs'][seg_name(parent_seg)]['electrical_length']['end'],
                                            end=get_segment_length_lamda(seg, self.more_conductances, time=time, dt=dt,
                                                                         dt_func=dt_func) +
-                                               self.distance_dict[sec]['segs'][parent_seg]['electrical_length']['end']),
+                                               self.distance_dict[sec_name(sec)]['segs'][seg_name(parent_seg)]['electrical_length']['end']),
                     parent=parent_seg,direction='sons')
                 parent_seg = seg
         # now we go to the sones and
@@ -95,14 +96,14 @@ class Distance:
         parent_seg = start_seg
         for seg in segs[::-1]:
             if seg.x < start_seg.x:
-                self.distance_dict[sec]['segs'][seg] = dict(
-                    length=dict(start=self.distance_dict[sec]['segs'][parent_seg]['length']['end'],
+                self.distance_dict[sec_name(sec)]['segs'][seg_name(seg)] = dict(
+                    length=dict(start=self.distance_dict[sec_name(sec)]['segs'][seg_name(parent_seg)]['length']['end'],
                                 end=get_segment_length_um(seg) +
-                                    self.distance_dict[sec]['segs'][parent_seg]['length']['end']),
-                    electrical_length=dict(start=self.distance_dict[sec]['segs'][parent_seg]['electrical_length']['end'],
+                                    self.distance_dict[sec_name(sec)]['segs'][seg_name(parent_seg)]['length']['end']),
+                    electrical_length=dict(start=self.distance_dict[sec_name(sec)]['segs'][seg_name(parent_seg)]['electrical_length']['end'],
                                            end=get_segment_length_lamda(seg, self.more_conductances, time=time, dt=dt,
                                                                         dt_func=dt_func) +
-                                               self.distance_dict[sec]['segs'][parent_seg]['electrical_length']['end']),
+                                               self.distance_dict[sec_name(sec)]['segs'][seg_name(parent_seg)]['electrical_length']['end']),
                     parent=parent_seg, direction='parent')
                 parent_seg = seg
         if len(parent)>0:
@@ -125,7 +126,7 @@ class Distance:
         """
         if sec in done:
             return done
-        self.distance_dict[parent_seg.sec]['sec_sons'].append(sec)
+        self.distance_dict[sec_name(parent_seg.sec)]['sec_sons'].append(sec)
         done.add(sec)
         segs = list(sec)
         if reverse:
@@ -133,16 +134,16 @@ class Distance:
             for son in sec.children():
                 done = self.compute_distances_helper(son, parent_seg=parent_seg, done=done, direction=direction,
                                                      time=time, dt=dt)
-        self.distance_dict[sec] = dict(segs=dict(), parent_seg=parent_seg, sec_sons=[])
+        self.distance_dict[sec_name(sec)] = dict(segs=dict(), parent_seg=parent_seg, sec_sons=[])
         for seg in segs:
-            self.distance_dict[sec]['segs'][seg] = dict(
-                length=dict(start=self.distance_dict[parent_seg.sec]['segs'][parent_seg]['length']['end'],
+            self.distance_dict[sec_name(sec)]['segs'][seg_name(seg)] = dict(
+                length=dict(start=self.distance_dict[sec_name(parent_seg.sec)]['segs'][seg_name(parent_seg)]['length']['end'],
                             end=get_segment_length_um(seg) +
-                                self.distance_dict[parent_seg.sec]['segs'][parent_seg]['length']['end']),
-                electrical_length=dict(start=self.distance_dict[parent_seg.sec]['segs'][parent_seg]['electrical_length']['end'],
+                                self.distance_dict[sec_name(parent_seg.sec)]['segs'][seg_name(parent_seg)]['length']['end']),
+                electrical_length=dict(start=self.distance_dict[sec_name(parent_seg.sec)]['segs'][seg_name(parent_seg)]['electrical_length']['end'],
                                        end=get_segment_length_lamda(seg, self.more_conductances, time=time, dt=dt,
                                         dt_func=self.dt_func) +
-                                           self.distance_dict[parent_seg.sec]['segs'][parent_seg]['electrical_length']['end']),
+                                           self.distance_dict[sec_name(parent_seg.sec)]['segs'][seg_name(parent_seg)]['electrical_length']['end']),
                 parent=parent_seg, direction=direction)
             parent_seg = seg
 
@@ -163,14 +164,31 @@ class Distance:
         :param electrical: if True it will plot the dendogram in electrical units
         :return: dictionary of {start: value, end: value}
         """
+        return self.get_start_end_str(sec_name(seg.sec), seg_name(seg), electrical=electrical)
+        # if self.start_seg is None:
+        #     print('you forgot to compute')
+        #     self.compute()
+        # if (seg.sec not in self.distance_dict) or (seg not in self.distance_dict[sec_name(seg.sec)]['segs']):
+        #     return dict(start=0, end=0)
+        # if electrical:
+        #     return self.distance_dict[sec_name(seg.sec)]['segs'][seg_name(seg)]['electrical_length']
+        # return self.distance_dict[sec_name(seg.sec)]['segs'][seg_name(seg)]['length']
+
+    def get_start_end_str(self, sec_name_, seg_name_, electrical=True):
+        """
+        get the start and end distance of a givin segment from the start segment
+        :param seg: the givin segment
+        :param electrical: if True it will plot the dendogram in electrical units
+        :return: dictionary of {start: value, end: value}
+        """
         if self.start_seg is None:
             print('you forgot to compute')
             self.compute()
-        if (seg.sec not in self.distance_dict) or (seg not in self.distance_dict[seg.sec]['segs']):
+        if (sec_name_ not in self.distance_dict) or (seg_name_ not in self.distance_dict[sec_name_]['segs']):
             return dict(start=0, end=0)
         if electrical:
-            return self.distance_dict[seg.sec]['segs'][seg]['electrical_length']
-        return self.distance_dict[seg.sec]['segs'][seg]['length']
+            return self.distance_dict[sec_name_]['segs'][seg_name_]['electrical_length']
+        return self.distance_dict[sec_name_]['segs'][seg_name_]['length']
 
     def get_sec_start_end(self, sec, electrical=True):
         """
@@ -221,6 +239,19 @@ class Distance:
         start_end = self.get_start_end(seg, electrical=electrical)
         return (start_end['end']+start_end['start'])/2.0
 
+    def get_mid_point_str(self, sec_name_, seg_name_, electrical=True):
+        """
+        geting the distance for middle point of a givin segment
+        :param seg: the givin segment
+        :param electrical: if True it will plot the dendogram in electrical units
+        :return: distance for middle point of a givin segment
+        """
+        if self.start_seg is None:
+            print('you forgot to compute')
+            self.compute()
+        start_end = self.get_start_end_str(sec_name_, seg_name_, electrical=electrical)
+        return (start_end['end']+start_end['start'])/2.0
+
     def get_length(self, seg, electrical=True):
         """
         get the length of a givin segment
@@ -237,10 +268,22 @@ class Distance:
         :param seg: the givin segment
         :return: direction of a givin segment
         """
+        return self.get_direction_str(sec_name(seg.sec), seg_name(seg))
+        # if self.start_seg is None:
+        #     print('you forgot to compute')
+        #     self.compute()
+        # return self.distance_dict[sec_name(seg.sec)]['segs'][seg_name(seg)]['direction']
+
+    def get_direction_str(self, sec_name_, seg_name_):
+        """
+        get the direction of a givin segment
+        :param seg: the givin segment
+        :return: direction of a givin segment
+        """
         if self.start_seg is None:
             print('you forgot to compute')
             self.compute()
-        return self.distance_dict[seg.sec]['segs'][seg]['direction']
+        return self.distance_dict[sec_name_]['segs'][seg_name_]['direction']
 
     def get_max(self, electrical=True):
         """
@@ -251,8 +294,8 @@ class Distance:
         max_dict = dict(parent=0, sons=0)
         for sec in self.distance_dict:
             for seg in self.distance_dict[sec]['segs']:
-                if max_dict[self.get_direction(seg)] < self.get_start_end(seg, electrical=electrical)['end']:
-                    max_dict[self.get_direction(seg)] = self.get_start_end(seg, electrical=electrical)['end']
+                if max_dict[self.get_direction_str(sec, seg)] < self.get_start_end_str(sec, seg, electrical=electrical)['end']:
+                    max_dict[self.get_direction_str(sec, seg)] = self.get_start_end_str(sec, seg, electrical=electrical)['end']
         return max_dict
 
     def is_terminal(self, sec):
@@ -261,7 +304,7 @@ class Distance:
         :param sec: thegivin section
         :return: boolean, if the section is a terminal section
         """
-        return len(self.distance_dict[sec]['sec_sons'])==0
+        return len(self.distance_dict[sec_name(sec)]['sec_sons'])==0
 
     def get_sons(self, sec):
         """
@@ -269,7 +312,7 @@ class Distance:
         :param sec:
         :return:
         """
-        return self.distance_dict[sec]['sec_sons']
+        return self.distance_dict[sec_name(sec)]['sec_sons']
 
     def get_sec_parent(self, sec):
         """
@@ -277,7 +320,7 @@ class Distance:
         :param sec:
         :return: the section parent
         """
-        return self.distance_dict[sec]['parent_seg']
+        return self.distance_dict[sec_name(sec)]['parent_seg']
 
     def get_seg_parent(self, seg):
         """
@@ -285,12 +328,12 @@ class Distance:
         :param seg:
         :return:
         """
-        return self.distance_dict[seg.sec]['segs'][seg]['parent']
+        return self.distance_dict[sec_name(seg.sec)]['segs'][seg_name(seg)]['parent']
 
     def get_segs(self, sec):
         """
         :param sec:
         :return: list of dictionary of {start: value, end: value} for all the segment in a givin section
         """
-        return self.distance_dict[sec]['segs']
+        return self.distance_dict[sec_name(sec)]['segs']
 

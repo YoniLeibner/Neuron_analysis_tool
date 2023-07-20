@@ -239,7 +239,7 @@ class Analyzer:
         return ax, lines, segs
 
     def plot_morph_with_values(self, seg_val_dict, ax=None, seg_to_indicate_dict={}, diam_factor=None,
-                               sec_to_change=None, ignore_sections=[], theta=0, scale=0, scale_text=True,
+                               sec_to_change=None, ignore_sections=[], theta=0, scale=500, scale_text=True,
                                cmap=plt.cm.turbo,
                                plot_color_bar=True, bounds=None, ignore_soma=True,
                                color_bar_kwarts=dict(shrink=0.6),
@@ -278,6 +278,7 @@ class Analyzer:
         ax.set_aspect('equal', adjustable='box')
         if colors is None:
             colors = color_func_norm(value_dict=seg_val_dict, bounds=bounds, cmap=cmap)
+
         ax, lines, segs =  self.plot_morph(ax=ax, seg_to_indicate_dict = seg_to_indicate_dict, diam_factor=diam_factor,
                                            sec_to_change=sec_to_change, ignore_sections=ignore_sections, theta=theta,
                                            scale=scale, scale_text=scale_text, ignore_soma=ignore_soma, distance=distance,
