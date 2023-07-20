@@ -244,7 +244,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="72" />
     <option name="width" value="3768" />
     <option name="height" value="2160" />
@@ -507,8 +507,7 @@
     </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="72" y="0" width="3768" height="2160" extended-state="7" />
-    <editor active="true" />
+    <frame x="72" y="0" width="3768" height="2160" extended-state="6" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1504777" />
       <window_info anchor="bottom" id="TODO" order="6" />
