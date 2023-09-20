@@ -16,8 +16,12 @@ import tkinter.filedialog as tkFileDialog
 import os,pickle
 
 SHIFT_FACTOR = 0.05 # up down shift in mV
+SHIFT_FACTOR = 0.05 # up down shift in mV
 
 class Peeler(object):
+    """
+    class that help to peel exponants see Segev & Rall (?)
+    """
     def __init__(self):
         self.fig, self.ax = plt.subplots(1, 2)
         plt.subplots_adjust(bottom=0.2, wspace=0.35)
@@ -27,6 +31,10 @@ class Peeler(object):
         plt.show()
 
     def start_buttons(self):
+        """
+        setting stat of the buttons
+        :return:
+        """
         b1 = plt.axes([0.0, 0.005, 0.2, 0.075])
         b2 = plt.axes([0.2, 0.005, 0.1, 0.075])
         b3 = plt.axes([0.3, 0.005, 0.1, 0.075])
@@ -65,6 +73,10 @@ class Peeler(object):
         self.breturn_id = self.breturn.on_clicked(self.return_)
 
     def set_buttons(self):
+        """
+        setting of the buttons to start functionalitys
+        :return:
+        """
         self.bopen.label.set_text('Open Saved')
         self.bload.label.set_text('Load')
         self.bcut.label.set_text('Cut')
@@ -81,6 +93,10 @@ class Peeler(object):
 
 
     def set_buttons2(self):
+        """
+        setting of the buttons to save functionality
+        :return:
+        """
         self.bopen.label.set_text('Open Saved')
         self.bload.label.set_text('Load')
         self.bcut.label.set_text('')
@@ -97,9 +113,19 @@ class Peeler(object):
 
 
     def pass_func(self, to_print):
+        """
+        function that dint do enything!!!
+        :param to_print:
+        :return:
+        """
         pass
 
     def open(self, event):
+        """
+        open data from a folder the data need to be numpy readable as (T, I, V).T ot (T, V).T format
+        :param event:
+        :return:
+        """
         self.V = []
         self.T = []
         self.tau = []
@@ -129,6 +155,11 @@ class Peeler(object):
 
 
     def open_save(self, event):
+        """
+        open the peeling from a save point
+        :param event:
+        :return:
+        """
         Tkinter.Tk().withdraw()  # Close the root window
         in_path = tkFileDialog.askopenfilename()
 
@@ -149,6 +180,12 @@ class Peeler(object):
 
 
     def plot(self, num, color='k'):
+        """
+        plot the results for a givin num (number of iteration)
+        :param num:
+        :param color:
+        :return:
+        """
         self.ax[0].clear()
         self.ax[1].clear()
         if self.fit_started():
@@ -172,12 +209,21 @@ class Peeler(object):
         self.fig.canvas.flush_events()
 
     def fit_started(self):
+        """
+        fit the linear line on the log scale
+        :return:
+        """
         for action in self.action_names:
             if action .startswith('fit-'):
                 return True
         return False
 
     def cut(self, event):
+        """
+        cut the signal to new [start, end]
+        :param event:
+        :return:
+        """
         if self.fit_started():
             self.fig.suptitle('cut is disable after fit')
             return
@@ -197,6 +243,11 @@ class Peeler(object):
             self.fig.suptitle('you must choose a valid points where delta X > 0!!!')
 
     def flip(self, event):
+        """
+        change the signal direction so volage = -voltage
+        :param event:
+        :return:
+        """
         if self.fit_started():
             self.fig.suptitle('cut is disable after fit')
             return
@@ -208,6 +259,11 @@ class Peeler(object):
         self.fig.suptitle('')
 
     def return_(self, event):
+        """
+        go backan action can do this only befor fit is started
+        :param event:
+        :return:
+        """
         current_num = len(self.V)-1
         if self.ready_to_fit:
             if self.action_names[-1].startswith('confirm-fit'):
@@ -228,6 +284,11 @@ class Peeler(object):
         self.fig.suptitle('')
 
     def up(self, event):
+        """
+        move the voltave up by SHIFT_FACTOR
+        :param event:
+        :return:
+        """
         if self.fit_started():
             self.fig.suptitle('cut is disable after fit')
             return
@@ -239,6 +300,11 @@ class Peeler(object):
         self.fig.suptitle('')
 
     def down(self, event):
+        """
+        move the voltave down by SHIFT_FACTOR
+        :param event:
+        :return:
+        """
         if self.fit_started():
             self.fig.suptitle('cut is disable after fit')
             return
@@ -251,22 +317,46 @@ class Peeler(object):
 
     @staticmethod
     def remove_exp(T_, V_, C_, tau_):
+        """
+        remove one exponent from the voltage
+        :param T_:
+        :param V_:
+        :param C_:
+        :param tau_:
+        :return:
+        """
         to_remove = C_ * np.exp(-T_ / tau_)
         return T_.copy(), np.array(V_ - to_remove).copy()
 
     @staticmethod
     def find_exp(T, V):
+        """
+        find a best fit exponent of T, V
+        :param T:
+        :param V:
+        :return:
+        """
         print(T.shape, V.shape)
         Pol = np.polyfit(T, np.log(V), 1)
         return np.exp(Pol[1]), -1.0 / Pol[0]  # this are C and tau
 
     def fit_btn(self, event):
+        """
+        run a fit
+        :param event:
+        :return:
+        """
         if self.ready_to_fit:
             self.fit(event)
         else:
             self.confirm_fit(event)
 
     def fit(self, event):
+        """
+        fit exponent betweeen 2 dots
+        :param event:
+        :return:
+        """
         self.fig.suptitle('choose 2 points for start-end')
         current_num = len(self.V)-1
         if self.idx_fit_start is None:
@@ -296,6 +386,11 @@ class Peeler(object):
 
 
     def confirm_fit(self, event):
+        """
+        btn to confirm the fit results
+        :param event:
+        :return:
+        """
         # unblock other bottuns
         start = self.temp_stuff['start']
         end = self.temp_stuff['end']
@@ -311,6 +406,11 @@ class Peeler(object):
         self.ready_to_fit = True
 
     def save(self, event):
+        """
+        save the peel into pickle
+        :param event:
+        :return:
+        """
         print('in save')
         if self.idx_fit_start is None:
             self.fig.suptitle('nothing to save, first you need to peel')

@@ -33,7 +33,14 @@ from tqdm import tqdm
 from neuron import h
 import neuron
 # import os
-neuron.load_mechanisms(os.path.dirname(os.path.realpath(__file__))+'/x86_64/special')
+
+
+import sys
+if hasattr(sys, 'getwindowsversion'):
+    print('error in loading mechanism')
+    # h.load_dll(os.path.dirname(os.path.realpath(__file__))+'/')
+else:
+    neuron.load_mechanisms(os.path.dirname(os.path.realpath(__file__)))
 
 class Analyzer:
     """
@@ -99,7 +106,7 @@ class Analyzer:
         self.parts_dict = parts_dict
         #
         soma_segs = list(cell.soma[0])
-        self.bscallback = h.beforestep_callback(soma_segs[len(soma_segs)//2])  # starting the ref
+        self.bscallback = h.beforestep_callback(soma_segs[len(soma_segs)//2])  # starting the ref of g_tatals (this asume you have less then 19 mechanisms and les then 39 synapses per segment!!!!!!!
         self.bscallback.set_callback((callback, self))
         self.more_conductances = more_conductances(cell, is_resting=True,
                                                    protocol=more_conductances_protocol)
@@ -136,18 +143,6 @@ class Analyzer:
                             synapses[sec_name(sec)].append(dict(syn=syn, g_name='g'))
                     else:
                         synapses[sec_name(sec)].append(dict(syn=syn, g_name='g_'+syn_type))
-            #
-            # for syn_type in sec.psection()['point_processes']:
-            #     print(sec.name(), syn_type)
-            #     if sec_name(sec) not in synapses:
-            #         synapses[sec_name(sec)] = dict()
-            #     synapses[sec_name(sec)][syn_type] = list()
-            #     for syn in list(sec.psection()['point_processes'][syn_type]):
-            #         assert hasattr(syn, 'g') or hasattr(syn, 'g_'+syn_type), 'syn_type:'+syn_type+' dont have g or g_'+syn_type
-            #         if hasattr(syn, 'g'):
-            #             synapses[sec_name(sec)][syn_type].append(dict(syn=syn, g_name='g'))
-            #         else:
-            #             synapses[sec_name(sec)][syn_type].append(dict(syn=syn, g_name='g_'+syn_type))
         return synapses
 
     def change_color_dict(self, colors_dict):
@@ -175,7 +170,7 @@ class Analyzer:
         self.colors_dict = colors_dict
         self.colors = color_func(parts_dict=self.parts_dict, color_dict=colors_dict)
 
-    def plot_morph(self, ax=None, seg_to_indicate_dict = {}, diam_factor=None, sec_to_change=None,
+    def plot_morph(self, ax=None, seg_to_indicate_dict = {}, diam_factor=None, diam_const=1, diam_min=0, sec_to_change=None,
                    ignore_sections=[], theta=0, scale=0, scale_text=True, ignore_soma=True, distance=None,
                    electrical=False, time=None, dt=1, more_conductances_=None, colors=None,
                    dt_func= lambda x: np.mean(x)):
@@ -208,10 +203,10 @@ class Analyzer:
             ax = plt.gca()
         ax.set_aspect('equal', adjustable='box')
         fig = plt.gca().figure
-        ax, lines, segs = plot_morph(self.cell, color_func=colors.get_seg_color, scatter=False, add_nums=False,
+        ax, lines, segs = plot_morph(self.cell, color_func=colors.get_seg_color, add_nums=False,
                                                      seg_to_indicate=seg_to_indicate_dict,
-                                                     fig=fig, ax=ax, diam_factor=diam_factor,
-                                                     sec_to_change=sec_to_change,
+                                                     ax=ax, diam_factor=diam_factor, diam_const=diam_const,
+                                                     diam_min=diam_min, sec_to_change=sec_to_change,
                                                      theta=theta, ignore_sections=ignore_sections,
                                                      ignore_soma=ignore_soma,
                                                      distance=distance,
@@ -244,7 +239,7 @@ class Analyzer:
                                plot_color_bar=True, bounds=None, ignore_soma=True,
                                color_bar_kwarts=dict(shrink=0.6),
                                colors=None, distance=None, electrical=False, time=None, dt=1,
-                               more_conductances_=None, dt_func=lambda x: np.mean(x)):
+                               more_conductances_=None, dt_func=lambda x: np.mean(x), bar_name=''):
         """
         plot the morph with colorcode
         :param seg_val_dict: dictionary of {section name: {segment name: numarical value}}
@@ -268,6 +263,7 @@ class Analyzer:
         :param bounds: the bounds for the color map. default is the max and min value givin in seg_val_dict.
         :param cmap: cmap to use, a matplotlib cmap.
         :param color_bar_kwarts: kwarts for the color bar
+        :param bar_name: text for the color-bar
         :return:
         """
         if self.type.startswith('Rall_tree'):
@@ -288,8 +284,14 @@ class Analyzer:
         if plot_color_bar:
             im = plt.cm.ScalarMappable(norm=colors.norm, cmap=colors.cmap)
             color_bar = plt.colorbar(im, ax=ax, **color_bar_kwarts )
+            if bounds is not None:
+                ticks = color_bar.get_ticks()
+                ticks[0]=bounds[0]
+                ticks[-1]=bounds[-1]
+                color_bar.set_ticks(ticks)
             cax = color_bar.ax
             fig.add_axes(cax)
+            cax.set_title(bar_name)
         else:
             color_bar = None
             cax = None
@@ -302,7 +304,7 @@ class Analyzer:
                                    plot_color_bar=True, bounds=None, ignore_soma=True,
                                    color_bar_kwarts=dict(shrink=0.6),
                                    colors=None, distance=None, electrical=False, time=None, dt=1,
-                                   more_conductances_=None, dt_func=lambda x: np.mean(x)):
+                                   more_conductances_=None, dt_func=lambda x: np.mean(x), bar_name=''):
         """
         plot the morph with color code resulting of a function for each segment
         :param func: the function to run on each segment
@@ -328,6 +330,7 @@ class Analyzer:
         :param bounds: the bounds for the color map. default is the max and min value givin in seg_val_dict.
         :param cmap: cmap to use, a matplotlib cmap.
         :param color_bar_kwarts: kwarts for the color bar
+        :param bar_name: text for the color-bar
         :return:
         """
         if colors is None:
@@ -349,7 +352,7 @@ class Analyzer:
                                            plot_color_bar=plot_color_bar, bounds=bounds, ignore_soma=ignore_soma,
                                            color_bar_kwarts=color_bar_kwarts,
                                            colors=colors, distance=distance, electrical=electrical, time=time, dt=dt,
-                                           more_conductances_=more_conductances_, dt_func=dt_func)
+                                           more_conductances_=more_conductances_, dt_func=dt_func, bar_name=bar_name)
 
     def plot_dendogram(self, start_seg = None ,ax=None, segs_to_indecate = dict(), plot_legend=True, ignore_sections=[],
                        electrical=False, diam_factor=None, distance=None, colors=None,
@@ -384,7 +387,7 @@ class Analyzer:
     def plot_dendogram_with_values(self, seg_val_dict, start_seg = None ,ax=None, segs_to_indecate = dict(),
                                    ignore_sections=[], electrical=False, diam_factor=None, distance=None, bounds=None,
                                    cmap=plt.cm.turbo, plot_color_bar=True, color_bar_kwarts=dict(shrink=0.6),
-                                   colors=None, BRANCH_SPACE_=None, dt_func= lambda x: np.mean(x)):
+                                   colors=None, BRANCH_SPACE_=None, dt_func= lambda x: np.mean(x), bar_name=''):
         """
         plot the dendorgam with colorcode
         :param seg_val_dict:
@@ -421,8 +424,14 @@ class Analyzer:
             fig = ax.figure
             im = plt.cm.ScalarMappable(norm=colors.norm, cmap=colors.cmap)
             color_bar = plt.colorbar(im, ax=ax, **color_bar_kwarts)
+            if bounds is not None:
+                ticks = color_bar.get_ticks()
+                ticks[0]=bounds[0]
+                ticks[-1]=bounds[-1]
+                color_bar.set_ticks(ticks)
             cax = color_bar.ax
             fig.add_axes(cax)
+            cax.set_title(bar_name)
         else:
             color_bar = None
             cax = None
@@ -468,6 +477,39 @@ class Analyzer:
                                                plot_color_bar=plot_color_bar, color_bar_kwarts=color_bar_kwarts,
                                                colors=colors, BRANCH_SPACE_=BRANCH_SPACE_, dt_func=dt_func)
 
+    def get_cable(self, start_seg=None, type='d3_2', factor_e_space=100, factor_m_space=10,
+                  ignore_sections = [], distance=None, dt_func=lambda x: np.mean(x)):
+        """
+        calculate the cables.
+        for each direction in 'sons', 'parent' and for each part from part dict and all
+        :param cell: the cell neuron model
+        :param start_seg: the seg to start the cable from
+        :param factor_e_space: the bin size in electrical units, every 1/factor_e_space lamda is a bin
+        :param factor_m_space: the bin size in physical units, every factor_m_space um is a bin
+        :param more_conductances: more_conductances to initiate the distance if distance is None
+        :param seg_dist_dict: dict in the form {direction: {seg: []}} (segs to get there electric distane
+        :param part_dict: the part dict as {part name: list of segments}
+        :param ignore_sections: section to skip in the cable
+        :param distance: a distance for the segments
+                        (if not givin its uses the default distance from the init more_conductances function)
+        :param dt_func: function for dt in the more_conductances
+        :return:
+        """
+        if start_seg is None:
+            start_sec = list(self.cell.soma[0])
+            start_seg = start_sec[len(start_sec)//2]
+        cable = get_cable(self.cell,
+                         start_seg=start_seg,
+                         factor_e_space=factor_e_space,
+                         factor_m_space=factor_m_space,
+                         more_conductances=self.more_conductances,
+                         seg_dist_dict={},
+                         part_dict=self.parts_dict,
+                         ignore_sections = ignore_sections,
+                         distance=distance,
+                         dt_func=dt_func)[0]
+        return cable['parent']['all'][type], cable['sons']['all'][type]
+
     def plot_cable(self, start_seg = None ,ax=None, factor_e_space=25, factor_m_space=10, segs_to_indecate= dict(),
                    ignore_sections=[], cable_type='d3_2', start_loc=0, shift=None, vertical=True, dots_size=10,
                    start_color='k', plot_legend=True, distance=None, cable_factor=1, labal_start=None,
@@ -497,7 +539,8 @@ class Analyzer:
         if ax is None:
             ax = plt.gca()
         if start_seg is None:
-            start_seg = self.cell.soma[0](0.5)
+            start_sec_list = list(self.cell.soma[0])
+            start_seg = start_sec_list[len(start_sec_list)//2]
 
         return plot_cable(self.cell, start_seg=start_seg, ax=ax, cable_type=cable_type, factor_e_space=factor_e_space,
                           factor_m_space=factor_m_space, more_conductances=self.more_conductances,
@@ -598,7 +641,7 @@ class Analyzer:
         x_lim = ax[1].get_xlim()
         y_lim = ax[1].get_ylim()
 
-        ax[1].plot([shift-5/cable_factor, shift+5/cable_factor], [y_lim[0], y_lim[0]], color='k')
+        ax[1].plot([shift-5*cable_factor, shift+5*cable_factor], [y_lim[0], y_lim[0]], color='k')
         text_size = 10
         if cable_type=='d3_2':
             x_scale_text = '10 '+MICRO+'m'
@@ -732,7 +775,7 @@ class Analyzer:
         return records, extra#['draw_funcs'] if 'draw_funcs' in extra else []
 
     def save_movie_from_rec(self, fig,slow_down_factor=1, plot_kwargs=[], func_before_run=[lambda: plt.tight_layout()],
-                            func_during_run=[], save_to='', clip_name='clip', fps=None, threads=16, preset='medium'): # ultrafast
+                            func_during_run=[], save_to='', clip_name='clip', fps=None, threads=16, preset='medium', auto_del=False): # ultrafast
         """
         create and save a video
         :param fig: the figure of the movie
@@ -747,6 +790,18 @@ class Analyzer:
         :param preset: the preset to use in frame generation
         :return:
         """
+        if not clip_name.endswith('.mp4'):
+            clip_name += '.mp4'
+        if os.path.isfile(os.path.join(save_to, clip_name)):
+            if auto_del:
+                os.remove(os.path.join(save_to, clip_name))
+            else:
+                to_del=input('the file name is taken, delete the file? (Y, N)')
+                if to_del=='Y':
+                    os.remove(os.path.join(save_to, clip_name))
+                else:
+                    print('exit without running')
+                    return
         save_movie_from_rec(analyzer=self, fig=fig, slow_down_factor=slow_down_factor, plot_kwargs=plot_kwargs,
                             func_before_run=func_before_run, func_during_run=func_during_run, save_to=save_to,
                             clip_name=clip_name, fps=fps, threads=threads, preset=preset)

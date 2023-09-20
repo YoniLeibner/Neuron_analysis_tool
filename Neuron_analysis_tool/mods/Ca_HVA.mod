@@ -40,7 +40,7 @@ STATE	{
 BREAKPOINT	{
 	SOLVE states METHOD cnexp
 	gCa_HVA = gCa_HVAbar*m*m*h
-	ica = gCa_HVA*(v-eca)
+	ica' = gCa_HVA*(v-eca)
 }
 
 DERIVATIVE states	{

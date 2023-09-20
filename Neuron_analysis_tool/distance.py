@@ -157,6 +157,14 @@ class Distance:
                                                      time=time, dt=dt)
         return done
 
+    def get_all_mid_distances(self):
+        results = dict()
+        for sec_name_ in self.distance_dict:
+            results[sec_name_]=dict()
+            for seg_name_ in self.distance_dict[sec_name_]['segs']:
+                results[sec_name_][seg_name_] = self.get_mid_point_str(sec_name_, seg_name_)
+        return results
+
     def get_start_end(self, seg, electrical=True):
         """
         get the start and end distance of a givin segment from the start segment
@@ -304,7 +312,9 @@ class Distance:
         :param sec: thegivin section
         :return: boolean, if the section is a terminal section
         """
-        return len(self.distance_dict[sec_name(sec)]['sec_sons'])==0
+        if sec_name(sec) in self.distance_dict:
+            return len(self.distance_dict[sec_name(sec)]['sec_sons'])==0
+        return True
 
     def get_sons(self, sec):
         """
@@ -335,5 +345,6 @@ class Distance:
         :param sec:
         :return: list of dictionary of {start: value, end: value} for all the segment in a givin section
         """
-        return self.distance_dict[sec_name(sec)]['segs']
-
+        if sec_name(sec) in self.distance_dict:
+            return [sec(float(x)) for x in self.distance_dict[sec_name(sec)]['segs']]
+        return []

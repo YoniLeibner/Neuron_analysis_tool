@@ -70,9 +70,9 @@ def get_cable(cell, start_seg, factor_e_space=100, factor_m_space=10, more_condu
     e_threshs = np.arange(0, 1000, 1)/factor_e_space
     m_threshs = np.arange(0, 1000, 1)*factor_m_space
 
-    for sec in distance.distance_dict:
+    for sec in distance.cell.all:
         if sec in ignore_sections: continue
-        for seg in distance.distance_dict[sec]['segs']:
+        for seg in distance.get_segs(sec):
             e_dist = distance.get_mid_point(seg, electrical=True)
             m_dist = distance.get_mid_point(seg, electrical=False)
             m_idx = np.where(m_threshs<=m_dist)[0][-1]
@@ -92,7 +92,7 @@ def get_cable(cell, start_seg, factor_e_space=100, factor_m_space=10, more_condu
     for direction in total_res.keys():
         for part in total_res[direction].keys():
             total_res[direction][part]['d3_2'] = np.power(total_res[direction][part]['d3_2'], 2.0/3.0)
-    return total_res, seg_dist_dict, dict()
+    return total_res, seg_dist_dict
 
 
 def plot_cable(cell, start_seg, ax=None, cable_type='d3_2', factor_e_space=25, factor_m_space=10,
@@ -139,16 +139,16 @@ def plot_cable(cell, start_seg, ax=None, cable_type='d3_2', factor_e_space=25, f
         seg_dist_dict[direction] = dict()
         for seg_ in segs_to_indecate.keys():
             seg_dist_dict[direction][seg_] = []
-    results, seg_dist, cross_dist_dict = get_cable(cell,
-                                                   start_seg=start_seg,
-                                                   factor_e_space=factor_e_space,
-                                                   factor_m_space=factor_m_space,
-                                                   more_conductances=more_conductances,
-                                                   seg_dist_dict=seg_dist_dict,
-                                                   part_dict=part_dict,
-                                                   ignore_sections=ignore_sections,
-                                                   distance=distance,
-                                                   dt_func=dt_func)
+    results, seg_dist = get_cable(cell,
+                                  start_seg=start_seg,
+                                  factor_e_space=factor_e_space,
+                                  factor_m_space=factor_m_space,
+                                  more_conductances=more_conductances,
+                                  seg_dist_dict=seg_dist_dict,
+                                  part_dict=part_dict,
+                                  ignore_sections=ignore_sections,
+                                  distance=distance,
+                                  dt_func=dt_func)
     max_cable = 0
     for direction in results:
         for part in results[direction]:

@@ -34,14 +34,37 @@ def rotation_matrix_from_vectors(vec1, vec2):
         return np.eye(3) #cross of all zeros only occurs on identical directions
 
 def get_rotation_matrix_2d(theta):
+    """
+    get a rotation matrix in 2d space
+    :param theta:
+    :return:
+    """
     theta = np.radians(theta)
     return np.array([[np.cos(theta), -np.sin(theta)],[np.sin(theta), np.cos(theta)]])
 
 def split_point(prev_point, next_point, split_pos):
+    """
+    split the space between two points to match the segment length
+    the dots are from reconstruction and don't have to alien with the segments location, here we take care of that
+    by spliting the distance between to dots into the length of the segment
+    :param prev_point:
+    :param next_point:
+    :param split_pos:
+    :return:
+    """
     direction_vec = next_point-prev_point
     return prev_point + direction_vec * split_pos
 
 def get_parts(sec, color_func, soma_loc, rotation_matrix = np.eye(3), rotation_matrix_2d = np.eye(2)):
+    """
+    take a section and split its x, y, z cordinated into list of cordinates per segment.
+    :param sec: the section to split into segment paths
+    :param color_func: color func that gives color to each segment
+    :param soma_loc: the location of the soma (to move to (0,0,0)
+    :param rotation_matrix: the 3d rotationmatrix to aply on the dots
+    :param rotation_matrix_2d: the 2d rotation matrix to aply on the dots
+    :return: list of dictinary of points there color and there attached segment
+    """
     pos = np.array([sec.x3d(0), sec.y3d(0), sec.z3d(0)])-soma_loc
     pos = rotation_matrix @ pos
     pos_2d = rotation_matrix_2d @ pos[:2]
@@ -105,6 +128,15 @@ def get_parts(sec, color_func, soma_loc, rotation_matrix = np.eye(3), rotation_m
     return res
 
 def get_point_segs(sec, soma_loc, color_func, rotation_matrix=np.eye(3), rotation_matrix_2d=np.eye(2)):
+    """
+    take a section and split its x, y, z cordinated into list of cordinates per segment.
+    :param sec:
+    :param soma_loc:
+    :param color_func:
+    :param rotation_matrix:
+    :param rotation_matrix_2d:
+    :return:
+    """
     try: # in case some sections are deleted
     # if True:
         parts = get_parts(sec, color_func, soma_loc, rotation_matrix=rotation_matrix, rotation_matrix_2d=rotation_matrix_2d)
@@ -114,6 +146,15 @@ def get_point_segs(sec, soma_loc, color_func, rotation_matrix=np.eye(3), rotatio
     return parts
 
 def cell_to_points(cell, color_func, rotation_matrix=np.eye(3), rotation_matrix_2d=np.eye(2), ignore_sections=[]):
+    """
+    take a cell and split its x, y, z cordinated into list of cordinates per segment.
+    :param cell:
+    :param color_func:
+    :param rotation_matrix:
+    :param rotation_matrix_2d:
+    :param ignore_sections: sectins to exude from the plot
+    :return:
+    """
     number_of_soma_points = cell.soma[0].n3d()
     soma_loc = [cell.soma[0].x3d(number_of_soma_points // 2),
                 cell.soma[0].y3d(number_of_soma_points // 2),
@@ -126,7 +167,18 @@ def cell_to_points(cell, color_func, rotation_matrix=np.eye(3), rotation_matrix_
     return all_points
 
 
-def plot(ax, all_points, add_nums=False, seg_to_indicate={}, counter=None, diam_factor=None, ignore_soma=False):
+def plot(ax, all_points, add_nums=False, seg_to_indicate={}, counter=None, diam_factor=None, ignore_soma=False, diam_const=1, diam_min=0):
+    """
+    plot the morphology and return list of ploted lines and corisponding list of segment so line[i] corespond to seg[i], note that one segment can have multipl lines!!!
+    :param ax:
+    :param all_points:
+    :param add_nums:
+    :param seg_to_indicate:
+    :param counter:
+    :param diam_factor:
+    :param ignore_soma:
+    :return:
+    """
     lines=[]
     segs = []
     for sec in all_points:
@@ -140,9 +192,11 @@ def plot(ax, all_points, add_nums=False, seg_to_indicate={}, counter=None, diam_
             seg = i['seg']
             diam = seg.diam
             if diam_factor is None:
-                diam=1
+                diam=diam_const
             else:
                 diam*=diam_factor
+            if diam<diam_min:
+                diam=diam_min
             lines.append(ax.plot(x, y, color=c, linewidth=diam, zorder=1)[0])
             segs.append(seg)
             # prev_point = cur_point
@@ -157,11 +211,15 @@ def plot(ax, all_points, add_nums=False, seg_to_indicate={}, counter=None, diam_
 
     return ax, lines, segs
 
-def get_norm(all_vals):
-    norm = mpl.colors.Normalize(vmin=np.min(all_vals), vmax=np.max(all_vals))
-    return norm
-
 def electrical_move_helper(all_points, sec, start_point, distance):
+    """
+    helper function for electrical_move
+    :param all_points:
+    :param sec:
+    :param start_point:
+    :param distance:
+    :return:
+    """
     for seg in sec:
         for idx, sec_data in enumerate(all_points[sec]):
             if sec_data['seg'] == seg:
@@ -187,15 +245,45 @@ def electrical_move_helper(all_points, sec, start_point, distance):
 
 
 def electrical_move(all_points, cell, distance):
+    """
+    move the morphology dots acording to there electrical property's
+        (we move them so there distance in um in the plot will be there electrical distance in lamda)
+    :param all_points:
+    :param cell:
+    :param distance:
+    :return:
+    """
     all_points = electrical_move_helper(all_points, cell.soma[0], dict(x=0, y=0), distance)
     return all_points
 
-def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate={},
-               counter=None, fig=None,  ax=None,
+def plot_morph(cell, color_func, add_nums=False, seg_to_indicate={},
+               counter=None, ax=None,
                sec_to_change =None, diam_factor=None, theta=0,
                ignore_sections=[], ignore_soma=False,
-               color_bar_idx = [0.9, 0.2, 0.02, 0.6],
-               electrical=False, distance=None, more_conductances=None, time=None, dt=1, dt_func= lambda x: np.mean(x)): #cmap = plt.cm.coolwarm, norm_colors=True,
+               electrical=False, distance=None, more_conductances=None, time=None, dt=1,
+               dt_func= lambda x: np.mean(x), diam_const=1, diam_min=0):
+    """
+    plot the morphology
+    :param cell: the cell to plot
+    :param color_func: function that get a segment and return its color and part name
+    :param seg_to_indicate: dictinary of {seg {color, size, alpha} to scatter on the segment location
+    :param add_nums: if to add numbers to the acording to the counter
+    :param counter: class that have a function get_num_and_color that get a section and return num, color for the text to add,
+    and aa function do_count that get a section and retun if he is part off the counting (if to add text next to it or not)
+    :param ax: axis to plot on
+    :param sec_to_change: section to change there location from one parent seg ot ather arent seg {sec: {from_: seg, to: seg}}
+    :param diam_factor: factor for the diameter, if None that consatnt diameter is used for all the tree
+    :param theta: rotation angle in 2d
+    :param ignore_sections: section not to plot
+    :param ignore_soma: if True the soma is ploted as a circle
+    :param electrical: if True, the morphology will be change to show distance in electical units
+    :param distance: distance of the cell (from a givin POV)
+    :param more_conductances: the conductances to use if changing into electrical units
+    :param time: time to take the more_conductances from
+    :param dt: dt for the more_conductances
+    :param dt_func: dt_fuction for the more_conductances
+    :return:
+    """
     if electrical and distance is None:
         distance = Distance(cell, more_conductances, dt_func=dt_func)
         distance.compute(time=time, dt=dt)
@@ -233,20 +321,25 @@ def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate=
 
 
     if ax is None:
-        fig = plt.figure(figsize=(20, 20))
         ax = plt.gca()
     if ignore_soma:
         sec=cell.soma[0]
-        soma_diam = cell.soma[0].diam * (diam_factor if diam_factor else 1)
-        soma_length = cell.soma[0].L * (diam_factor if diam_factor else 1)
+        soma_diam = cell.soma[0].diam * (diam_factor if diam_factor else diam_const)
+        soma_length = cell.soma[0].L * (diam_factor if diam_factor else diam_const)
+        if soma_diam< diam_min:
+            soma_diam=diam_min
+        if soma_length< diam_min:
+            soma_length=diam_min
         soma_x = abs(all_points[sec][0]['x'][0] - all_points[sec][-1]['x'][-1])
         soma_y = abs(all_points[sec][0]['y'][0] - all_points[sec][-1]['y'][-1])
         soma_angle = np.rad2deg(np.arctan(soma_y/soma_x))
 
     if electrical:
-        soma_diam = soma_length = sum([distance.get_length(seg, electrical=True) for seg in cell.soma[0]])*2*(diam_factor if diam_factor else 1)
+        soma_diam = soma_length = sum([distance.get_length(seg, electrical=True) for seg in cell.soma[0]])*2*(diam_factor if diam_factor else diam_const)
+        if soma_diam< diam_min:
+            soma_diam=diam_min
         all_points = electrical_move(all_points, cell, distance)
-    ax, lines, segs = plot(ax, all_points, add_nums=add_nums, seg_to_indicate=seg_to_indicate,counter=counter, diam_factor=diam_factor, ignore_soma=ignore_soma)
+    ax, lines, segs = plot(ax, all_points, add_nums=add_nums, seg_to_indicate=seg_to_indicate,counter=counter, diam_factor=diam_factor, ignore_soma=ignore_soma, diam_const=diam_const, diam_min=diam_min)
     if ignore_soma:
         segs.append(list(cell.soma[0])[len(list(cell.soma[0]))//2])
         c, _ = color_func(segs[-1])
@@ -255,7 +348,4 @@ def plot_morph(cell, color_func, scatter=False, add_nums=False, seg_to_indicate=
             if seg.sec == cell.soma[0]:
                 ax.scatter(0, 0, s=seg_to_indicate[seg]['size'], color=seg_to_indicate[seg]['color'], zorder=3, alpha=seg_to_indicate[seg]['alpha'])
                 break
-        # ax.add_patch(lines[-1])
-    # todo change x,  values to electrical units
-
     return ax, lines, segs

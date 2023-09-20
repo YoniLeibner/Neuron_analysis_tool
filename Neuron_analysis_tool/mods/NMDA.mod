@@ -13,7 +13,7 @@ ENDCOMMENT
 NEURON {
 
         POINT_PROCESS NMDA
-        RANGE  tau_r_NMDA, tau_d_NMDA,n_NMDA,gama_NMDA
+        RANGE  tau_r_NMDA, tau_d_NMDA, n_NMDA, gama_NMDA
         RANGE Use
         RANGE i,  i_NMDA,  g_NMDA, e, gmax
         NONSPECIFIC_CURRENT i

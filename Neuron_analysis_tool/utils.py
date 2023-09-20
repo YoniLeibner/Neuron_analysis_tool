@@ -8,17 +8,27 @@
 
 import numpy as np
 from neuron import h
+import matplotlib as mpl
 
-
+# chars of special characters lamda and micro
 LAMDA = '\u03BB'
 MICRO = '\u03BC'
 
-
 def sec_name(sec):
+    """
+    change section into string for the section name
+    :param sec:
+    :return:
+    """
     sec_full_name = sec.name()
     return sec_full_name.split('.')[-1]
 
 def seg_name(seg):
+    """
+    change segment into string for the segment name
+    :param seg:
+    :return:
+    """
     return str(seg.x)
 
 def get_segment_length_lamda(seg, more_conductances, time=None, dt=1, dt_func= lambda x: np.mean(x)):
@@ -55,9 +65,19 @@ def get_segment_length_um(seg):
     return sec.L/sec.nseg
 
 def have_parent(sec):
+    """
+    check if a section have parent seg or its a source
+    :param sec:
+    :return:
+    """
     return not sec.parentseg() is None
 
 def seg_Rin_func(seg):
+    """
+    function that get the input resistance of a segment
+    :param seg:
+    :return:
+    """
     imp = h.Impedance(seg.x, sec=seg.sec)
     imp.loc(seg.x, sec=seg.sec)
     imp.compute(0, 1)
@@ -83,11 +103,20 @@ def video_player(local_path, video, mtype="video/mp4"):
     #     f'{video} must be in local directory: {cwd}'
 
     call = """
-    <video width=100% controls>
+    <video width=100% controls autoplay loop>
         <source src="{}" type="{}">
-    </video>""".format(video, mtype)
+    </video>""".format(video+'?t='+str(np.random.rand(1)[0]), mtype)
 
     display(HTML(call))
+
+def get_norm(all_vals):
+    """
+    getting the norm for ploting (allow working with colormaps
+    :param all_vals:
+    :return:
+    """
+    norm = mpl.colors.Normalize(vmin=np.min(all_vals), vmax=np.max(all_vals))
+    return norm
 
 def plot_shring_axes(plot_kwargs, share_idxs, scales=dict(x=10, y=2, x_text=MICRO + 'm', y_text=LAMDA)):
     def cable_limets_func(plot_kwargs):
@@ -135,5 +164,3 @@ def plot_shring_axes(plot_kwargs, share_idxs, scales=dict(x=10, y=2, x_text=MICR
                             xy=(x_pos, y_lims[0]), xycoords='data', size=s,
                             xytext=(-s, -s - 2), textcoords='offset points')
     return cable_limets_func
-
-

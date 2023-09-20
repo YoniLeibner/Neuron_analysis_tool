@@ -58,7 +58,8 @@ def plot_recursive(sec, distance, ax, color_func, x_pos, lines, segs, ignore_sec
         m_point = x_pos # terminal
 
     mul = 1 if distance.get_direction(list(sec)[0]) == 'sons' else -1
-    for seg in distance.get_segs(sec):
+    segs_list = distance.get_segs(sec)
+    for seg in segs_list:
         start_end = distance.get_start_end(seg, electrical=electrical)
         [color, part_name]=color_func.get_seg_color(seg)
         lines.append(ax.plot([m_point] * 2,  mul * np.array([start_end['start'], start_end['end']]), color=color,
@@ -68,7 +69,7 @@ def plot_recursive(sec, distance, ax, color_func, x_pos, lines, segs, ignore_sec
             ax.scatter(m_point, mul * (start_end['start']+(start_end['end']-start_end['start'])/2.0),
                        color=segs_to_indecate[seg]['color'], s=segs_to_indecate[seg]['size'],
                        alpha=segs_to_indecate[seg]['alpha'], zorder=3)
-    if len(sons) > 1:
+    if len(sons) > 1 and len(segs_list)>0:
         sec_start_end = distance.get_sec_start_end(sec, electrical=electrical)
           # plot vertical at end
         segs.append(seg)

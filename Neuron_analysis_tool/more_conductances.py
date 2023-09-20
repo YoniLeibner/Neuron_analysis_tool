@@ -18,11 +18,11 @@ from Neuron_analysis_tool.utils import sec_name, seg_name
 from Neuron_analysis_tool.protocols import resting_protocol
 import pickle
 
-#todo we need to generalize to all channels and allow to add protocol run and record all channels
-
-
 
 class more_conductances_fake():
+    """
+    class that use only the passive conductance to get R_total = 1 / g_pas
+    """
     def __init__(self, cell):
         pass
 
@@ -30,6 +30,11 @@ class more_conductances_fake():
         return 1.0/seg.g_pas
 
 def get_condactance_name(mechanisms):
+    """
+    get the names of the conductances in each mechanism (for channels)
+    :param mechanisms:
+    :return:
+    """
     try:
         valids = []
         for param in list(mechanisms):
@@ -37,12 +42,16 @@ def get_condactance_name(mechanisms):
                 valids.append(param.name())
         assert len(valids)==1, 'check the more_conductances, and change the get_condactance func to seport your case'
         return valids[0]
-        # return getattr(mechanisms, 'g_'+str(mechanisms))
     except:
         return ''
 
-
 def get_condactance_point_prosses_name(point_prosses):
+    """
+    get the names of the conductances in each mechanism (for synapses/point_prosses)
+    :param point_prosses:
+    :return:
+    """
+
     if hasattr(point_prosses, 'g'):
         return True, 'g'
     name = point_prosses.hname().split('[')[0]
@@ -51,6 +60,10 @@ def get_condactance_point_prosses_name(point_prosses):
     return False, 0
 
 def get_seg_condactances(cell):
+    """
+    get the names of the conductances in very seg in the cell
+    """
+
     res = dict()
     for sec in cell.all:
         for seg in sec:
@@ -68,10 +81,20 @@ def get_seg_condactances(cell):
     return res
 #
 def callback(analyzer):
+    """
+    callback for neuron to run if T=0, set the referance g_mech to sum into g_total
+    :param analyzer:
+    :return:
+    """
     if h.t==0: #start of new simulation
         set_refs(analyzer.cell)
 
 def set_refs(cell):
+    """
+    callback for neuron to run if T=0, set the referance g_mech to sum into g_total
+    :param cell:
+    :return:
+    """
     seg_conductances = get_seg_condactances(cell)
 
     for seg in seg_conductances :
@@ -80,14 +103,16 @@ def set_refs(cell):
         for [p, g_name] in seg_conductances[seg]:
             if type(p) == nrn.Segment:
                 if g_ref_count > 19:
+                    print(p, g_name, 'g_ref_count=', g_ref_count)
                     print('to many conductances to record, please update the g_total mod file.\n this conductance is not recorded:'+g_name, p.sec.name, p.x)
                 else:
                     h.setpointer(getattr(p, '_ref_'+g_name), 'g_ref'+str(g_ref_count), p.g_total)
                     g_ref_count+=1
             else:
                 if g_syn_count > 39:
+                    print(p, g_name, 'g_ref_count=', g_ref_count)
                     print(
-                    'to many synapses iin this segment, please update the g_total mod file.\n this synaptic conductance is not recorded:' + g_name, p.sec.name, p.x)
+                    'to many synapses iin this segment, please update the g_total mod file.\n this synaptic conductance is not recorded:' + g_name, p, p.x)
                 else:
                     h.setpointer(getattr(p, '_ref_'+g_name), 'g_syn'+str(g_syn_count), seg.g_total)
                     g_syn_count+=1
@@ -97,6 +122,10 @@ def set_refs(cell):
             h.setpointer(seg._ref_zero_val_g_total, 'g_syn' + str(i), seg.g_total)
 
 class more_conductances():
+    """
+    class that get all the conductances in order to get the R_total of aeach segment
+    R_total = 1.0/ sum(g for all conductances in this segment)
+    """
     def __init__(self, cell, is_resting=True, extraction_func=None, protocol = resting_protocol):
 
         self.cell=cell
@@ -109,6 +138,11 @@ class more_conductances():
         self.set(extraction_func)
 
     def set(self, extraction_func):
+        """
+        record the total conductance per segment
+        :param extraction_func: the function to extract the vector to save.
+        :return:
+        """
         self.g_total_rec = record_all(self.cell, record_name='g_total_g_total')
         self.g_syn_rec = record_all(self.cell, record_name='g_syn_g_total')
         if self.protocol is not None:
@@ -118,12 +152,25 @@ class more_conductances():
             self.extract()
 
     def extract(self, extraction_func=None):
+        """
+        extract the records using the extraction_func
+        :param extraction_func:
+        :return:
+        """
         if extraction_func is None:
-            extraction_func =  self.extraction_func
+            extraction_func = self.extraction_func
         self.g_total_rec.extract(extraction_func)
         self.g_syn_rec.extract(extraction_func)
 
     def cumpute(self, seg, time=None, dt=1, dt_func = lambda x: np.mean(x)):
+        """
+        compute R_total for a givin segment
+        :param seg:
+        :param time: the time to extract (for dancing movies)
+        :param dt: the dt to extract around this time point
+        :param dt_func: how to extract the recording from value across time to one number (default is mean)
+        :return:
+        """
         # g_total is in S/cm^2
         seg_L = seg.sec.L/seg.sec.nseg
         if time is None:
@@ -137,121 +184,24 @@ class more_conductances():
         return 1.0/g_total
 
     def save(self, save_dir):
+        """
+        save the recorded data
+        :param save_dir: path to save to
+        :return:
+        """
         pickle.dump(dict(
             is_resting = self.is_resting,
             record_dict=self.g_total_rec,
         ), open(save_dir, 'wb'))
 
     def load(self, save_dir):
+        """
+        load precomuted data
+        :param save_dir: path to load from
+        :return:
+        """
         pickle.dump(dict(
             is_resting=self.is_resting,
             record_dict=self.g_total_rec,
         ), open(save_dir, 'wb'))
 
-#
-# class more_conductances():
-#     def __init__(self, cell, is_resting=True, extraction_func=None, protocol = resting_protocol):
-#         # assert protocol is not None, 'check your protocol in more_conductances'
-#         self.cell=cell
-#         self.is_resting=is_resting
-#         if extraction_func is None:
-#             self.extraction_func = lambda x: np.array(x)
-#         else:
-#             self.extraction_func=extraction_func
-#         self.protocol = protocol
-#         self.record_names=[]
-#         for sec in self.cell.all:
-#             for i, seg in enumerate(sec):
-#                 for mechanisms in seg:
-#                     if mechanisms.is_ion(): continue
-#                     if mechanisms.name() in ['CaDynamics_E2', 'g_total']: continue # ion pumps not listed
-#                     mechanisms_g_name = get_condactance_name(mechanisms)
-#                     if mechanisms_g_name == '':
-#                         raise Exception('un recognized mechanisms:'+mechanisms.name()+', check get_condactance_name func in more_conductances')
-#                     self.record_names.append(mechanisms_g_name)
-#
-#
-#         self.record_names = list(set(self.record_names))
-#         self.set(extraction_func)
-#
-#         # delay, _ = self.protocol(self.cell, None)
-#         # if extraction_func is None:
-#         #     self.extraction_func = lambda x: np.array(x)[int(delay / h.dt):]
-#         # self.extract()
-#
-#     def set(self, extraction_func):
-#         self.record_dict = dict()
-#         if not self.is_resting:
-#             for record_name in self.record_names:
-#                 self.record_dict[record_name] = record_all(self.cell, record_name=record_name)
-#         if self.protocol is not None:
-#             delay, _ = self.protocol(self.cell, None)
-#             if extraction_func is None:
-#                 self.extraction_func = lambda x: np.array(x)[int(delay / h.dt):]
-#
-#             self.extract()
-#
-#
-#
-#     def extract(self, extraction_func=None):
-#         if extraction_func is None:
-#             extraction_func =  self.extraction_func
-#         # self.time = np.arange(0, h.tstop, h.dt)
-#         if not self.is_resting:
-#             for record_name in self.record_dict.keys():
-#                 self.record_dict[record_name].extract(extraction_func)
-#                 # self.time = self.record_dict[record_name].time
-#         else:
-#             for record_name in self.record_names:
-#                 temp_record_dict = dict()
-#                 for sec in self.cell.all:
-#                     temp_record_dict[sec] = dict()
-#                     for i, seg in enumerate(sec):
-#                         try:
-#                             temp_record_dict[sec][seg] = np.array([getattr(seg, record_name)])
-#                         except:
-#                             # print('record name:'+record_name+', is not in:'+str(sec.name())+' '+str(seg))
-#                             temp_record_dict[sec][seg] = np.array([0])
-#                 self.record_dict[record_name] = record_all(self.cell, record_name=record_name)
-#                 self.record_dict[record_name].push_records(temp_record_dict, np.array([0]))
-#
-#             # self.record_dict = dict()
-#             # for sec in self.cell.all:
-#             #     self.record_dict[sec] = dict()
-#             #     for i, seg in enumerate(sec):
-#             #         self.record_dict[sec][seg] = dict()
-#             #         for mechanisms in seg:
-#             #             self.record_dict[sec][seg]['g'+str(mechanisms)] = get_condactance(mechanisms)
-#
-#     def cumpute(self, seg, time=None, dt=1, dt_func = lambda x: np.mean(x)): #  lambda x: x[-1]
-#         sec= seg.sec
-#         if self.is_resting:
-#             # g_total = seg.g_pas + sum([self.record_dict[sec_name(sec)][seg_name(seg)][record_name] for record_name in self.record_dict[sec_name(sec)][seg_name(seg)]])
-#
-#             g_total = seg.g_pas + sum([record.get_record(seg)[0] for record in self.record_dict.values()])
-#         else:
-#             if time is None:
-#                 g_total = seg.g_pas + sum(
-#                     [record.get_record_at_dt(seg, t1=record.time[-2], t2=record.time[-1], dt_func = dt_func) for
-#                      record in self.record_dict.values()])
-#             else:
-#                 g_total = seg.g_pas + sum(
-#                     [record.get_record_at_dt(seg, t1=time-dt/2, t2=time+dt/2, dt_func=dt_func) for
-#                      record in self.record_dict.values()])
-#         return 1.0/g_total
-#
-#
-#     def save(self, save_dir):
-#         pickle.dump(dict(
-#             is_resting = self.is_resting,
-#             record_names=self.record_names,
-#             record_dict=self.record_dict,
-#         ), open(save_dir, 'wb'))
-#
-#     def load(self, save_dir):
-#         pickle.dump(dict(
-#             is_resting=self.is_resting,
-#             record_names=self.record_names,
-#             record_dict=self.record_dict,
-#         ), open(save_dir, 'wb'))
-# #

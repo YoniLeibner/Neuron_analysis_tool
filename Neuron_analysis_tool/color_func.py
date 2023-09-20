@@ -20,51 +20,64 @@ class color_func:
     class that gives color to each segment baed on there part name
     """
     def __init__(self, parts_dict, color_dict, defult_name='else'):
-        self.parts_dict=parts_dict
-        self.color_dict=color_dict
-        self.defult_name=defult_name
+        self.parts_dict = parts_dict
+        self.parts_dict_str = dict()
+        for key in parts_dict:
+            self.parts_dict_str[key] = set()
+            for seg in self.parts_dict[key]:
+                self.parts_dict_str[key].add((sec_name(seg.sec), seg_name(seg)))
+
+        self.color_dict = color_dict
+        self.defult_name = defult_name
 
     def get_seg_color(self, seg):
+        return self.get_seg_color_str(sec_name(seg.sec), seg_name(seg))
+        # for part in self.parts_dict:
+        #     if seg in self.parts_dict[part]:
+        #         return [self.color_dict[part], part]
+        # return [self.color_dict[self.defult_name], self.defult_name]
+
+    def get_seg_color_str(self, sec_name_, seg_name_):
         for part in self.parts_dict:
-            if seg in self.parts_dict[part]:
+            if (sec_name_, seg_name_) in self.parts_dict_str[part]:
                 return [self.color_dict[part], part]
         return [self.color_dict[self.defult_name], self.defult_name]
-
-    def __call__(self, sec, parent=None, *args, **kwargs):
-        """
-        deprecated
-        :param sec:
-        :param parent:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        if type(sec) == str:
-            if sec in self.color_dict:
-                return [self.color_dict[sec], sec], [1]
-            return [self.color_dict[self.defult_name], self.defult_name], [1]
-
-        colors=[]
-        lengths = {self.defult_name:0}
-        segs = list(sec)
-        if (not sec.parentseg() is None) and (not parent == sec.parentseg().sec):
-            segs = segs[::-1]
-        seg_L = sec.L/sec.nseg
-        for seg in segs:
-            colors.append(self.get_seg_color(seg))
-            part = colors[-1][1]
-            if not part in lengths:
-                lengths[part]=0
-            lengths[part]+=seg_L
-
-        colors_only = np.array(colors)[:,0]
-        indexes = np.unique(colors_only, return_index=True)[1]
-        colors = [colors[index] for index in sorted(indexes)]
-        assert sum(lengths.values()) - sec.L < 1e-3, str(sum(lengths.values()))+'!='+str(sec.L)
-        lengths = [lengths[part]/sec.L for [color, part] in colors]
-        lengths = np.array(lengths)
-        lengths /= lengths.sum()
-        return colors, lengths
+    #
+    # def __call__(self, sec, parent=None, *args, **kwargs):
+    #     """
+    #     deprecated
+    #     :param sec:
+    #     :param parent:
+    #     :param args:
+    #     :param kwargs:
+    #     :return:
+    #     """
+    #     if type(sec) == str:
+    #         if sec in self.color_dict:
+    #             return [self.color_dict[sec], sec], [1]
+    #         return [self.color_dict[self.defult_name], self.defult_name], [1]
+    #
+    #     colors=[]
+    #     lengths = {self.defult_name:0}
+    #     segs = list(sec)
+    #     if (not sec.parentseg() is None) and (not parent == sec.parentseg().sec):
+    #         segs = segs[::-1]
+    #     seg_L = sec.L/sec.nseg
+    #     for seg in segs:
+    #         colors.append(self.get_seg_color(seg))
+    #         part = colors[-1][1]
+    #         if not part in lengths:
+    #             lengths[part]=0
+    #         lengths[part]+=seg_L
+    #
+    #     colors_only = np.array(colors)[:,0]
+    #     indexes = np.unique(colors_only, return_index=True)[1]
+    #     colors = [colors[index] for index in sorted(indexes)]
+    #     assert sum(lengths.values()) - sec.L < 1e-3, str(sum(lengths.values()))+'!='+str(sec.L)
+    #     lengths = [lengths[part]/sec.L for [color, part] in colors]
+    #     lengths = np.array(lengths)
+    #     lengths /= lengths.sum()
+    #     return colors, lengths
 
 
 class color_func_norm:
@@ -98,7 +111,12 @@ class color_func_norm:
         :param seg:
         :return: the segment color
         """
-        return [self.color_dict[sec_name(seg.sec)][seg_name(seg)], '']
+        return self.get_seg_color_str(sec_name(seg.sec), seg_name(seg))
+
+
+    def get_seg_color_str(self, sec_name_, seg_name_):
+        return [self.color_dict[sec_name_][seg_name_], '']
+
 
     def change_cmap(self, cmap):
         """
@@ -122,17 +140,6 @@ class color_func_norm:
         """
         self.norm = mpl.colors.Normalize(vmin=low_bound, vmax=high_bound)
         self.change_cmap(self.cmap)
-
-    def __call__(self, sec, parent=None, *args, **kwargs):
-        """
-        deprecated
-        :param sec:
-        :param parent:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        return ['error'], ['error']
 
 
 class color_func_by_func:
@@ -180,14 +187,3 @@ class color_func_by_func:
         :return:
         """
         self.colors.change_bounds(low_bound, high_bound)
-
-    def __call__(self, sec, parent=None, *args, **kwargs):
-        """
-        deprecated
-        :param sec:
-        :param parent:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        return ['error'], ['error']
