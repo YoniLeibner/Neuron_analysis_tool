@@ -9,7 +9,7 @@
 #
 #########################################################
 
-from neuron import h
+from neuron import h, gui
 import os
 import numpy as np
 

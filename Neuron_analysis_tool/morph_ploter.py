@@ -55,6 +55,98 @@ def split_point(prev_point, next_point, split_pos):
     direction_vec = next_point-prev_point
     return prev_point + direction_vec * split_pos
 
+def get_parts_3d(sec, soma_loc, rotation_matrix = np.eye(3)):
+    """
+    take a section and split its x, y, z cordinated into list of cordinates per segment.
+    :param sec: the section to split into segment paths
+    :param soma_loc: the location of the soma (to move to (0,0,0)
+    :param rotation_matrix: the 3d rotationmatrix to aply on the dots
+    :return: list of dictinary of points there color and there attached segment
+    """
+    pos = np.array([sec.x3d(0), sec.y3d(0), sec.z3d(0)])-soma_loc
+    pos = rotation_matrix @ pos
+    res = []
+    seg_len = sec.L/sec.nseg
+    segs = list(sec)
+    seg_lengths = [0] * len(segs)
+    current_seg_idx = 0
+    x = [pos[0]]
+    y = [pos[1]]
+    z = [pos[2]]
+    l=0
+    for i in range(1, sec.n3d()):
+        next_pos = rotation_matrix @ (np.array([sec.x3d(i), sec.y3d(i), sec.z3d(i)])-soma_loc)
+        curent_len=np.linalg.norm(pos-next_pos)
+        l+=curent_len
+        if curent_len+seg_lengths[current_seg_idx]<=seg_len:
+            x.append(next_pos[0])
+            y.append(next_pos[1])
+            z.append(next_pos[2])
+            seg_lengths[current_seg_idx]+=curent_len
+            if seg_lengths[current_seg_idx]>=seg_len:
+                res.append(dict(x=np.array(x), y=np.array(y), z=np.array(z),seg=segs[current_seg_idx]))
+                x = x[-1]
+                y = y[-1]
+                z = z[-1]
+                current_seg_idx+=1
+        else:
+            # create_new pos in between
+            while current_seg_idx < len(seg_lengths) and curent_len+seg_lengths[current_seg_idx]>seg_len:
+                mid_points = split_point(pos, next_pos, (seg_len - seg_lengths[current_seg_idx]) / curent_len)
+                seg_lengths[current_seg_idx] = seg_len
+
+                x.append(mid_points[0])
+                y.append(mid_points[1])
+                z.append(mid_points[2])
+                res.append(dict(x=np.array(x), y=np.array(y), z=np.array(z), seg=segs[current_seg_idx]))
+                curent_len = np.linalg.norm(mid_points-next_pos)
+                current_seg_idx+=1
+                pos=mid_points
+
+            if current_seg_idx < len(seg_lengths):
+                seg_lengths[current_seg_idx] = curent_len
+            elif curent_len>10:
+                print('not using length of:', curent_len)
+            x = [x[-1]]
+            y = [y[-1]]
+            z = [z[-1]]
+            x.append(next_pos[0])
+            y.append(next_pos[1])
+            z.append(next_pos[2])
+        pos = next_pos
+    last_seg_in = False
+    for data in res:
+        if data['seg'] == segs[-1]:
+            last_seg_in=True
+    if not last_seg_in:
+        res.append(dict(x=np.array(x), y=np.array(y), z=np.array(z), seg=segs[-1]))
+    return res
+
+def cell_to_points_3d(cell, rotation_matrix=np.eye(3), ignore_sections=[]):
+    """
+    take a cell and split its x, y, z cordinated into list of cordinates per segment.
+    :param cell:
+    :param rotation_matrix:
+    :param rotation_matrix_2d:
+    :param ignore_sections: sectins to exude from the plot
+    :return:
+    """
+    number_of_soma_points = cell.soma[0].n3d()
+    soma_loc = [cell.soma[0].x3d(number_of_soma_points // 2),
+                cell.soma[0].y3d(number_of_soma_points // 2),
+                cell.soma[0].z3d(number_of_soma_points // 2)]
+    all_points = dict()
+    for sec in cell.all:
+        if sec in ignore_sections: continue
+        try:
+            sec_points = get_parts_3d(sec, soma_loc, rotation_matrix=rotation_matrix)
+            all_points[sec]=sec_points
+        except:
+            all_points[sec] = []
+            print('skiping section:', sec)
+    return all_points
+
+
 def get_parts(sec, color_func, soma_loc, rotation_matrix = np.eye(3), rotation_matrix_2d = np.eye(2)):
     """
     take a section and split its x, y, z cordinated into list of cordinates per segment.
@@ -127,23 +219,6 @@ def get_parts(sec, color_func, soma_loc, rotation_matrix = np.eye(3), rotation_m
         res.append(dict(x=np.array(x), y=np.array(y), seg=segs[-1], color=c, diam=d))
     return res
 
-def get_point_segs(sec, soma_loc, color_func, rotation_matrix=np.eye(3), rotation_matrix_2d=np.eye(2)):
-    """
-    take a section and split its x, y, z cordinated into list of cordinates per segment.
-    :param sec:
-    :param soma_loc:
-    :param color_func:
-    :param rotation_matrix:
-    :param rotation_matrix_2d:
-    :return:
-    """
-    try: # in case some sections are deleted
-    # if True:
-        parts = get_parts(sec, color_func, soma_loc, rotation_matrix=rotation_matrix, rotation_matrix_2d=rotation_matrix_2d)
-    except:
-        print('error in geting morph part from section:', sec.name())
-        return []
-    return parts
 
 def cell_to_points(cell, color_func, rotation_matrix=np.eye(3), rotation_matrix_2d=np.eye(2), ignore_sections=[]):
     """
@@ -162,8 +237,12 @@ def cell_to_points(cell, color_func, rotation_matrix=np.eye(3), rotation_matrix_
     all_points = dict()
     for sec in cell.all:
         if sec in ignore_sections: continue
-        sec_points = get_point_segs(sec, soma_loc, color_func=color_func, rotation_matrix=rotation_matrix, rotation_matrix_2d=rotation_matrix_2d)
-        all_points[sec]=sec_points
+        try:
+            sec_points = get_parts(sec, color_func, soma_loc, rotation_matrix=rotation_matrix, rotation_matrix_2d=rotation_matrix_2d)
+            all_points[sec]=sec_points
+        except:
+            all_points[sec] = []
+            print('skiping section:', sec)
     return all_points
 
 
@@ -234,8 +313,8 @@ def electrical_move_helper(all_points, sec, start_point, distance):
 
                 # fixing the length
                 for point_idx in range(1, len(sec_data['x']), 1):
-                    new_x  = sec_data['x'][point_idx-1] + (sec_data['x'][point_idx]-sec_data['x'][point_idx-1])*f
-                    new_y  = sec_data['y'][point_idx-1] + (sec_data['y'][point_idx]-sec_data['y'][point_idx-1])*f
+                    new_x = sec_data['x'][point_idx-1] + (sec_data['x'][point_idx]-sec_data['x'][point_idx-1])*f
+                    new_y = sec_data['y'][point_idx-1] + (sec_data['y'][point_idx]-sec_data['y'][point_idx-1])*f
                     all_points[sec][idx]['x'][point_idx:] += (new_x-sec_data['x'][point_idx])
                     all_points[sec][idx]['y'][point_idx:] += (new_y-sec_data['y'][point_idx])
                 start_point = dict(x=sec_data['x'][-1], y=sec_data['y'][-1])
@@ -254,6 +333,82 @@ def electrical_move(all_points, cell, distance):
     :return:
     """
     all_points = electrical_move_helper(all_points, cell.soma[0], dict(x=0, y=0), distance)
+    return all_points
+
+def electrical_move_helper_3d(all_points, sec, start_point, distance):
+    """
+    helper function for electrical_move
+    :param all_points:
+    :param sec:
+    :param start_point:
+    :param distance:
+    :return:
+    """
+    for seg in sec:
+        if sec not in all_points: continue
+        for idx, sec_data in enumerate(all_points[sec]):
+            if sec_data['seg'] == seg:
+                dx = sec_data['x'][:-1] - sec_data['x'][1:]
+                dy = sec_data['y'][:-1] - sec_data['y'][1:]
+                dz = sec_data['z'][:-1] - sec_data['z'][1:]
+                current_lens = (dx**2 + dy**2 + dz**2)**0.5
+                wanted_len = distance.get_length(seg, electrical=True)
+                f = wanted_len/sum(current_lens)
+                # fixing the shift
+                all_points[sec][idx]['x'] += start_point['x']-sec_data['x'][0]
+                all_points[sec][idx]['y'] += start_point['y']-sec_data['y'][0]
+                all_points[sec][idx]['z'] += start_point['z']-sec_data['z'][0]
+
+                # fixing the length
+                for point_idx in range(1, len(sec_data['x']), 1):
+                    new_x = sec_data['x'][point_idx-1] + (sec_data['x'][point_idx]-sec_data['x'][point_idx-1])*f
+                    new_y = sec_data['y'][point_idx-1] + (sec_data['y'][point_idx]-sec_data['y'][point_idx-1])*f
+                    new_z = sec_data['z'][point_idx-1] + (sec_data['z'][point_idx]-sec_data['z'][point_idx-1])*f
+                    all_points[sec][idx]['x'][point_idx:] += (new_x-sec_data['x'][point_idx])
+                    all_points[sec][idx]['y'][point_idx:] += (new_y-sec_data['y'][point_idx])
+                    all_points[sec][idx]['z'][point_idx:] += (new_y-sec_data['z'][point_idx])
+                start_point = dict(x=sec_data['x'][-1], y=sec_data['y'][-1], z=sec_data['z'][-1])
+    for son in sec.children():
+        all_points = electrical_move_helper_3d(all_points, son, start_point, distance)
+    return all_points
+
+
+def electrical_move_3d(all_points, cell, distance):
+    """
+    move the morphology dots acording to there electrical property's
+        (we move them so there distance in um in the plot will be there electrical distance in lamda)
+    :param all_points:
+    :param cell:
+    :param distance:
+    :return:
+    """
+    all_points = electrical_move_helper_3d(all_points, cell.soma[0], dict(x=0, y=0, z=0), distance)
+    return all_points
+
+def get_dots(cell, electrical=False, distance=None, more_conductances=None, time=None, dt=1, dt_func= lambda x: np.mean(x)):
+
+    if electrical and distance is None:
+        distance = Distance(cell, more_conductances, dt_func=dt_func)
+        distance.compute(time=time, dt=dt)
+    if electrical:
+        assert (more_conductances is not None) or (distance is not None)
+    all_points_arr = []
+    for sec in cell.all:
+        for i in range(sec.n3d()):
+            all_points_arr.append([sec.x3d(i), sec.y3d(i), sec.z3d(i)])
+
+    from sklearn.decomposition import PCA
+    X = np.array(all_points_arr)
+    pca = PCA()
+    pca.fit(X)
+    V0 = pca.components_[0]
+    V1 = pca.components_[1]
+    rotation_matrix = rotation_matrix_from_vectors(V0, V1)
+
+    all_points = cell_to_points_3d(cell, rotation_matrix=rotation_matrix, ignore_sections=[])
+
+    if electrical:
+        all_points = electrical_move_3d(all_points, cell, distance)
     return all_points
 
 def plot_morph(cell, color_func, add_nums=False, seg_to_indicate={},
