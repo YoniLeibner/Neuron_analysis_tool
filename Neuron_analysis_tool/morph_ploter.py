@@ -246,7 +246,7 @@ def cell_to_points(cell, color_func, rotation_matrix=np.eye(3), rotation_matrix_
     return all_points
 
 
-def plot(ax, all_points, add_nums=False, seg_to_indicate={}, counter=None, diam_factor=None, ignore_soma=False, diam_const=1, diam_min=0):
+def plot(ax, all_points, add_nums=False, seg_to_indicate={}, counter=None, diam_factor=None, ignore_soma=False, ignore_axon=False, diam_const=1, diam_min=0):
     """
     plot the morphology and return list of ploted lines and corisponding list of segment so line[i] corespond to seg[i], note that one segment can have multipl lines!!!
     :param ax:
@@ -256,12 +256,15 @@ def plot(ax, all_points, add_nums=False, seg_to_indicate={}, counter=None, diam_
     :param counter:
     :param diam_factor:
     :param ignore_soma:
+    :param ignore_axon:
     :return:
     """
     lines=[]
     segs = []
     for sec in all_points:
         if ignore_soma and sec in sec.cell().soma:
+            continue
+        if ignore_axon and sec in sec.cell().axon:
             continue
         for i in all_points[sec]:
             x=i['x']
@@ -414,9 +417,9 @@ def get_dots(cell, electrical=False, distance=None, more_conductances=None, time
 def plot_morph(cell, color_func, add_nums=False, seg_to_indicate={},
                counter=None, ax=None,
                sec_to_change =None, diam_factor=None, theta=0,
-               ignore_sections=[], ignore_soma=False,
+               ignore_sections=[], ignore_soma=False, ignore_axon=False,
                electrical=False, distance=None, more_conductances=None, time=None, dt=1,
-               dt_func= lambda x: np.mean(x), diam_const=1, diam_min=0):
+               dt_func= lambda x: np.mean(x), diam_const=1, diam_min=0, ido_soma_scatter=False, soma_diam_factor=1):
     """
     plot the morphology
     :param cell: the cell to plot
@@ -485,20 +488,27 @@ def plot_morph(cell, color_func, add_nums=False, seg_to_indicate={},
             soma_diam=diam_min
         if soma_length< diam_min:
             soma_length=diam_min
-        soma_x = abs(all_points[sec][0]['x'][0] - all_points[sec][-1]['x'][-1])
-        soma_y = abs(all_points[sec][0]['y'][0] - all_points[sec][-1]['y'][-1])
-        soma_angle = np.rad2deg(np.arctan(soma_y/soma_x))
+        try:
+            soma_x = abs(all_points[sec][0]['x'][0] - all_points[sec][-1]['x'][-1])
+            soma_y = abs(all_points[sec][0]['y'][0] - all_points[sec][-1]['y'][-1])
+            soma_angle = np.rad2deg(np.arctan(soma_y/soma_x))
+        except Exception as e:
+            print('error in calculating soma angle:', e)
+            soma_angle = 0
 
     if electrical:
         soma_diam = soma_length = sum([distance.get_length(seg, electrical=True) for seg in cell.soma[0]])*2*(diam_factor if diam_factor else diam_const)
         if soma_diam< diam_min:
             soma_diam=diam_min
         all_points = electrical_move(all_points, cell, distance)
-    ax, lines, segs = plot(ax, all_points, add_nums=add_nums, seg_to_indicate=seg_to_indicate,counter=counter, diam_factor=diam_factor, ignore_soma=ignore_soma, diam_const=diam_const, diam_min=diam_min)
+    ax, lines, segs = plot(ax, all_points, add_nums=add_nums, seg_to_indicate=seg_to_indicate,counter=counter, diam_factor=diam_factor, ignore_soma=ignore_soma, ignore_axon=ignore_axon, diam_const=diam_const, diam_min=diam_min)
     if ignore_soma:
         segs.append(list(cell.soma[0])[len(list(cell.soma[0]))//2])
         c, _ = color_func(segs[-1])
-        lines.append(ax.add_patch(mpl.patches.Ellipse((0, 0), soma_length*2, soma_diam*2, soma_angle, color=c, clip_on=False, zorder=2)))
+        if ido_soma_scatter:
+            ax.scatter(0, 0, s=soma_diam*soma_diam_factor, color=c, zorder=2)
+        else:
+            lines.append(ax.add_patch(mpl.patches.Ellipse((0, 0), soma_length*2, soma_diam*2, soma_angle, color=c, clip_on=False, zorder=2)))
         for seg in seg_to_indicate.keys():
             if seg.sec == cell.soma[0]:
                 ax.scatter(0, 0, s=seg_to_indicate[seg]['size'], color=seg_to_indicate[seg]['color'], zorder=3, alpha=seg_to_indicate[seg]['alpha'])

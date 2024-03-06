@@ -11,7 +11,7 @@
 from neuron import h
 import os
 
-def open_morph(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, nl=None, seg_every=20):
+def open_morph(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, nl=None, seg_every=20, with_apic=True):
     """
     load a model from a givin morphology
     :param morph_path: the morphology file path
@@ -43,10 +43,10 @@ def open_morph(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, nl=None, seg_eve
         sec.cm = Cm
         sec.Ra = Ra
         sec.g_pas = 1.0 / Rm
-    return get_parts_and_colors(cell)
+    return get_parts_and_colors(cell, with_apic=with_apic)
 
 
-def open_ASC(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, seg_every=20):
+def open_ASC(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, seg_every=20, with_apic=True):
     """
     load a model from a givin ASC morphology
     :param morph_path: the morphology file path
@@ -59,10 +59,10 @@ def open_ASC(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, seg_every=20):
     :return:
     """
     h.load_file("import3d.hoc")
-    return open_morph(morph_path, Rm=Rm, Ra=Ra, Cm=Cm, e_pas=e_pas, nl=h.Import3d_Neurolucida3(), seg_every=seg_every)
+    return open_morph(morph_path, Rm=Rm, Ra=Ra, Cm=Cm, e_pas=e_pas, nl=h.Import3d_Neurolucida3(), seg_every=seg_every, with_apic=with_apic)
 
 
-def open_swc(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, seg_every=20):
+def open_swc(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, seg_every=20, with_apic=True):
     """
     load a model from a givin swc morphology
     :param morph_path: the morphology file path
@@ -75,7 +75,7 @@ def open_swc(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, seg_every=20):
     :return:
     """
     h.load_file("import3d.hoc")
-    return open_morph(morph_path, Rm=Rm, Ra=Ra, Cm=Cm, e_pas=e_pas, nl=h.Import3d_SWC_read(), seg_every=seg_every)
+    return open_morph(morph_path, Rm=Rm, Ra=Ra, Cm=Cm, e_pas=e_pas, nl=h.Import3d_SWC_read(), seg_every=seg_every, with_apic=with_apic)
 
 
 def open_rall_tree(seg_every=20):
@@ -108,7 +108,7 @@ def open_L5PC(seg_every=20):
     return get_parts_and_colors(cell)
 
 
-def get_parts_and_colors(cell):
+def get_parts_and_colors(cell, with_apic=True):
     """
     defult part for a neuron into:'soma','basal', 'apical', 'axon', 'else'
     :param cell: Neuron model
@@ -124,7 +124,7 @@ def get_parts_and_colors(cell):
                 parts_dict['soma'].append(seg)
             elif len(cell.dend)>1 and sec in cell.dend:
                 parts_dict['basal'].append(seg)
-            elif len(cell.apic)>1 and sec in cell.apic:
+            elif with_apic and len(cell.apic)>1 and sec in cell.apic:
                 parts_dict['apical'].append(seg)
             elif len(cell.axon)>1 and sec in cell.axon:
                 parts_dict['axon'].append(seg)

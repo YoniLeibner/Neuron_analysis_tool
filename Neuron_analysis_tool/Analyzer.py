@@ -66,7 +66,7 @@ class Analyzer:
     """
     def __init__(self, cell=None, parts_dict=None, colors_dict=None, type='input_cell',
                  morph_path = None, Rm=10000.0, Ra=100, Cm=1, e_pas=-70,
-                 more_conductances_protocol =resting_protocol, seg_every=20):
+                 more_conductances_protocol =resting_protocol, seg_every=20, with_apic=True, for_plotting_only=False):
         """
         you can initiate this tool with
             type='input_cell' -> with a givin cell model
@@ -89,20 +89,25 @@ class Analyzer:
         :param more_conductances_protocol: protocol to run to get the conductances for the distance. default is 500 ms of nothing
         :param seg_every: how many segments there are in every um
         """
+        orig_colors_dict = colors_dict
         if cell is None:
             if type == 'Rall_tree':
                 cell, parts_dict, colors_dict = open_rall_tree(seg_every=seg_every)
             elif type == 'ASC' and morph_path:
                 cell, parts_dict, colors_dict = open_ASC(morph_path, Rm=Rm, Ra=Ra,
-                                                         Cm=Cm, e_pas=e_pas, seg_every=seg_every)
+                                                         Cm=Cm, e_pas=e_pas, seg_every=seg_every, with_apic=with_apic)
             elif type == 'swc' and morph_path:
                 cell, parts_dict, colors_dict = open_swc(morph_path, Rm=Rm, Ra=Ra,
-                                                         Cm=Cm, e_pas=e_pas, seg_every=seg_every)
+                                                         Cm=Cm, e_pas=e_pas, seg_every=seg_every, with_apic=with_apic)
             elif type == 'L5PC':
                 cell, parts_dict, colors_dict = open_L5PC(seg_every=seg_every)
 
         if parts_dict is None:
             cell, parts_dict, colors_dict = get_parts_and_colors(cell)
+
+        if orig_colors_dict is not None:
+            colors_dict = orig_colors_dict
+
         insert_g_total(cell)
         self.type=type
         self.cell=cell
@@ -111,8 +116,11 @@ class Analyzer:
         soma_segs = list(cell.soma[0])
         self.bscallback = h.beforestep_callback(soma_segs[len(soma_segs)//2])  # starting the ref of g_tatals (this asume you have less then 19 mechanisms and les then 39 synapses per segment!!!!!!!
         self.bscallback.set_callback((callback, self))
-        self.more_conductances = more_conductances(cell, is_resting=True,
-                                                   protocol=more_conductances_protocol)
+        if not for_plotting_only:
+            self.more_conductances = more_conductances(cell, is_resting=True,
+                                                    protocol=more_conductances_protocol)
+        else:
+            self.more_conductances = None
         self.colors_dict = colors_dict
         self.colors = color_func(parts_dict=parts_dict, color_dict=colors_dict)
 
@@ -178,9 +186,15 @@ class Analyzer:
         if sec in self.cell.soma:
             type_num = '1'
             sec_data = all_points_3d[sec]
-            total_x = [sec_data[0]['x'].min(), sec_data[0]['x'].max()]
-            total_y = [sec_data[0]['y'].min(), sec_data[0]['y'].max()]
-            total_z = [sec_data[0]['z'].min(), sec_data[0]['z'].max()]
+            try:
+                total_x = [sec_data[0]['x'].min(), sec_data[0]['x'].max()]
+                total_y = [sec_data[0]['y'].min(), sec_data[0]['y'].max()]
+                total_z = [sec_data[0]['z'].min(), sec_data[0]['z'].max()]
+            except Exception as e:
+                print(f'error in soma {e}')
+                total_x = [1e99, -1e99]
+                total_y = [1e99, -1e99]
+                total_z = [1e99, -1e99]
             for seg_data in sec_data:
                 total_x = [min(seg_data['x'].min(), total_x[0]),
                            max(seg_data['x'].max(), total_x[1])]
@@ -254,9 +268,9 @@ class Analyzer:
         self.save_morph_to_swc_helper(f=swc_out, all_points_3d=all_points_3d, sec=self.cell.soma[0], counter=0, parent_counter=-1)
 
     def plot_morph(self, ax=None, seg_to_indicate_dict = {}, diam_factor=None, diam_const=1, diam_min=0, sec_to_change=None,
-                   ignore_sections=[], theta=0, scale=0, scale_text=True, ignore_soma=True, distance=None,
+                   ignore_sections=[], theta=0, scale=0, scale_text=True, ignore_soma=True, ignore_axon=False, distance=None,
                    electrical=False, time=None, dt=1, more_conductances_=None, colors=None,
-                   dt_func= lambda x: np.mean(x)):
+                   dt_func= lambda x: np.mean(x), ido_soma_scatter=False, soma_diam_factor=1):
         """
         plot the morphology
         :param ax: the ax to plot on
@@ -291,11 +305,12 @@ class Analyzer:
                                                      ax=ax, diam_factor=diam_factor, diam_const=diam_const,
                                                      diam_min=diam_min, sec_to_change=sec_to_change,
                                                      theta=theta, ignore_sections=ignore_sections,
-                                                     ignore_soma=ignore_soma,
+                                                     ignore_soma=ignore_soma, ignore_axon=ignore_axon,
                                                      distance=distance,
                                                      more_conductances=self.more_conductances if more_conductances_ is None else more_conductances_,
                                                      electrical=electrical,
-                                                     time=time, dt=dt, dt_func=dt_func
+                                                     time=time, dt=dt, dt_func=dt_func,
+                                                     ido_soma_scatter=ido_soma_scatter, soma_diam_factor=soma_diam_factor,
                                                      )
         ax.grid(False)
         ax.set_xticks([])
@@ -319,10 +334,11 @@ class Analyzer:
     def plot_morph_with_values(self, seg_val_dict, ax=None, seg_to_indicate_dict={}, diam_factor=None,
                                sec_to_change=None, ignore_sections=[], theta=0, scale=500, scale_text=True,
                                cmap=plt.cm.turbo,
-                               plot_color_bar=True, bounds=None, ignore_soma=True,
+                               plot_color_bar=True, bounds=None, ignore_soma=True, ignore_axon=False,
                                color_bar_kwarts=dict(shrink=0.6),
                                colors=None, distance=None, electrical=False, time=None, dt=1,
-                               more_conductances_=None, dt_func=lambda x: np.mean(x), bar_name=''):
+                               more_conductances_=None, dt_func=lambda x: np.mean(x), ido_soma_scatter=False, soma_diam_factor=1,
+                                bar_name=''):
         """
         plot the morph with colorcode
         :param seg_val_dict: dictionary of {section name: {segment name: numarical value}}
@@ -360,9 +376,10 @@ class Analyzer:
 
         ax, lines, segs =  self.plot_morph(ax=ax, seg_to_indicate_dict = seg_to_indicate_dict, diam_factor=diam_factor,
                                            sec_to_change=sec_to_change, ignore_sections=ignore_sections, theta=theta,
-                                           scale=scale, scale_text=scale_text, ignore_soma=ignore_soma, distance=distance,
+                                           scale=scale, scale_text=scale_text, ignore_soma=ignore_soma, ignore_axon=ignore_axon, distance=distance,
                                            electrical=electrical, time=time, dt=dt,
-                                           more_conductances_=more_conductances_, colors=colors, dt_func=dt_func)
+                                           more_conductances_=more_conductances_, colors=colors, dt_func=dt_func,
+                                           ido_soma_scatter=ido_soma_scatter, soma_diam_factor=soma_diam_factor)
 
         if plot_color_bar:
             im = plt.cm.ScalarMappable(norm=colors.norm, cmap=colors.cmap)
@@ -384,7 +401,7 @@ class Analyzer:
                                    diam_factor=None,
                                    sec_to_change=None, ignore_sections=[], theta=0, scale=0, scale_text=True,
                                    cmap=plt.cm.turbo,
-                                   plot_color_bar=True, bounds=None, ignore_soma=True,
+                                   plot_color_bar=True, bounds=None, ignore_soma=True, ignore_axon=False,
                                    color_bar_kwarts=dict(shrink=0.6),
                                    colors=None, distance=None, electrical=False, time=None, dt=1,
                                    more_conductances_=None, dt_func=lambda x: np.mean(x), bar_name=''):
@@ -432,7 +449,7 @@ class Analyzer:
                                            diam_factor=diam_factor,
                                            sec_to_change=sec_to_change, ignore_sections=ignore_sections, theta=theta,
                                            scale=scale, scale_text=scale_text, cmap=cmap,
-                                           plot_color_bar=plot_color_bar, bounds=bounds, ignore_soma=ignore_soma,
+                                           plot_color_bar=plot_color_bar, bounds=bounds, ignore_soma=ignore_soma, ignore_axon=ignore_axon,
                                            color_bar_kwarts=color_bar_kwarts,
                                            colors=colors, distance=distance, electrical=electrical, time=time, dt=dt,
                                            more_conductances_=more_conductances_, dt_func=dt_func, bar_name=bar_name)

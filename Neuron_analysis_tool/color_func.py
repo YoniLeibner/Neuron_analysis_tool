@@ -187,3 +187,106 @@ class color_func_by_func:
         :return:
         """
         self.colors.change_bounds(low_bound, high_bound)
+
+
+class color_func_by_func_by_sec:
+    """
+    class that gives color to each segment baed on a func to each section
+    """
+    def __init__(self, cell, func, bounds=None, cmap=plt.cm.coolwarm):
+        """
+
+        :param cell: the cell model (Neuron model
+        :param func: the function to run for each segment
+        :param bounds: the bounds for the normalaziation of the cmap
+        :param cmap: the color map to use (matplotlib cmap)
+        """
+        self.value_dict=dict()
+        for sec in cell.all:
+            self.value_dict[sec] = dict()
+            sec_value = func(sec)
+            for seg in sec:
+                self.value_dict[sec][seg] = sec_value
+        self.colors = color_func_norm(self.value_dict, bounds=bounds, cmap=cmap)
+        self.cmap=cmap
+        self.norm=self.colors.norm
+
+    def get_seg_color(self, seg):
+        """
+
+        :param seg:
+        :return: the segment color
+        """
+        return self.colors.get_seg_color(seg)
+
+    def change_cmap(self, cmap):
+        """
+        change the cmap used
+        :param cmap: the new cmap (matplotlib cmap)
+        :return:
+        """
+        self.colors.change_cmap(cmap)
+
+    def change_bounds(self, low_bound, high_bound):
+        """
+        change the bound of the cmap
+        :param low_bound:
+        :param high_bound:
+        :return:
+        """
+        self.colors.change_bounds(low_bound, high_bound)        
+
+
+class color_func_by_color_func:
+    """
+    class that gives color to each segment baed on a func to each segment
+    """
+    def __init__(self, cell, func, bounds=None, cmap=plt.cm.coolwarm):
+        """
+
+        :param cell: the cell model (Neuron model
+        :param func: the function to run for each segment
+        :param bounds: the bounds for the normalaziation of the cmap
+        :param cmap: the color map to use (matplotlib cmap)
+        """
+        self.value_dict=dict()
+        for sec in cell.all:
+            self.value_dict[sec] = dict()
+            for seg in sec:
+                self.value_dict[sec][seg] = func(seg)
+
+    def get_seg_color(self, seg):
+        """
+
+        :param seg:
+        :return: the segment color
+        """
+        return self.value_dict[seg.sec][seg], ""
+
+
+class color_func_by_color_func_by_sec:
+    """
+    class that gives color to each segment baed on a func to each section
+    """
+    def __init__(self, cell, func, bounds=None, cmap=plt.cm.coolwarm):
+        """
+
+        :param cell: the cell model (Neuron model
+        :param func: the function to run for each segment
+        :param bounds: the bounds for the normalaziation of the cmap
+        :param cmap: the color map to use (matplotlib cmap)
+        """
+        self.value_dict=dict()
+        for sec in cell.all:
+            self.value_dict[sec] = dict()
+            sec_value = func(sec)
+            for seg in sec:
+                self.value_dict[sec][seg] = sec_value
+
+    def get_seg_color(self, seg):
+        """
+
+        :param seg:
+        :return: the segment color
+        """
+        return self.value_dict[seg.sec][seg], ""
