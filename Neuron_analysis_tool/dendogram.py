@@ -134,17 +134,21 @@ def plot_dendogram(cell, start_seg, more_conductances, color_func, ax=None, plot
             lines.append(ax.plot([mean_points[0], mean_points[-1]], [sec_start_end['end']*mul] * 2, color=color, linewidth= FIX_DIAM if diam_factor is None else start_seg.diam * diam_factor, zorder=2)[0]) # plot horizental at end
         # change to segs and add scatter
         for seg in start_seg.sec:
-            if distance.get_direction(seg) == direction or seg == start_seg:
+            if distance.get_direction(seg) == direction and not seg == start_seg:
                 start_end = distance.get_start_end(seg, electrical=electrical)
                 segs.append(seg)
                 lines.append(ax.plot([np.mean(mean_points)]*2, [start_end['start']*mul, start_end['end']*mul], color=color, linewidth= FIX_DIAM if diam_factor is None else start_seg.diam * diam_factor, zorder=2)[0])  # plot vertical at end
                 if seg in segs_to_indecate:
                     ax.scatter(np.mean(mean_points), mul * (start_end['start'] + (start_end['end'] - start_end['start']) / 2.0), color=segs_to_indecate[seg]['color'], s=segs_to_indecate[seg]['size'], alpha=segs_to_indecate[seg]['alpha'], zorder=3)
-        total_means.append(np.mean(mean_points))
+        if len(mean_points)>0:
+            total_means.append(np.mean(mean_points))
     if len(total_means) > 1:
         segs.append(start_seg)
         lines.append(ax.plot([np.min(total_means), np.max(total_means)], [0] * 2, color=color, linewidth= FIX_DIAM if diam_factor is None else start_seg.diam * diam_factor, zorder=2)[0]) # plot vertical at end
-
+    if start_seg in segs_to_indecate:
+        ax.scatter(np.mean(total_means), 0,
+                   color=segs_to_indecate[start_seg]['color'], s=segs_to_indecate[start_seg]['size'],
+                   alpha=segs_to_indecate[start_seg]['alpha'], zorder=3)
     if plot_legend:
         legend_elements = [Line2D([0], [0], color=color_func.color_dict[label], lw=2, label=label) for label in color_func.color_dict]
         ax.legend(handles=legend_elements, loc="best")

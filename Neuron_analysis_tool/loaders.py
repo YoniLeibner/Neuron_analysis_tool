@@ -67,7 +67,6 @@ def open_swc(morph_path, Rm=10000.0, Ra=100, Cm=1, e_pas=-70, seg_every=20):
     load a model from a givin swc morphology
     :param morph_path: the morphology file path
     :param Rm: Rm for the model
-    :param Ra: Ra for the model
     :param Cm: Cm for the model
     :param e_pas: e_pas for the model
     :param seg_every: control how many segment each section will have, result with sec, nseg=L/seg_every+1

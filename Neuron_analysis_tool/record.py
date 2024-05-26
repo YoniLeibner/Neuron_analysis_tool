@@ -127,7 +127,7 @@ class record_all:
                 self.record_dict[sec_name(sec)][seg_name(seg)].set_record(record_dict[seg])
         self.time = time
 
-    def extract(self, extraction_func):
+    def extract(self, extraction_func, force=False, do_time=True):
         """
         extract the recorded values from h.Vector using extraction_func
         :param extraction_func: function that get vector and return numpy array (can cut the start)
@@ -135,12 +135,13 @@ class record_all:
         :param extraction_func:
         :return:
         """
-        if type(self.time) == np.ndarray: return
+        if type(self.time) == np.ndarray and not force: return
         for sec in self.record_dict:
             for seg in self.record_dict[sec]:
                 if not self.record_dict[sec][seg] == 'non_exsisting':
                     self.record_dict[sec][seg].extract(extraction_func)
-        self.time = extraction_func(self.time)
+        if do_time or (not type(self.time) == np.ndarray):
+            self.time = extraction_func(self.time)
         self.extraction_func=extraction_func
         self.time -= self.time[0]
 
@@ -390,13 +391,14 @@ class record_all:
         """
         return self.is_existing_str(sec_name(seg.sec), seg_name(seg))
 
-    def save(self, save_dir='records'):
+    def save(self, save_dir='records', create_folder=True):
         """
         save all the records into pickle
         :param save_dir: save path
         :return:
         """
-        os.makedirs(os.path.basename(save_dir), exist_ok=True)
+        if create_folder:
+            os.makedirs(os.path.basename(save_dir), exist_ok=True)
         if type(self.time) == neuron.hoc.HocObject:
             self.extract(lambda x: np.array(x))
         pickle.dump(dict(

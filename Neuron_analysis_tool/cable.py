@@ -98,7 +98,8 @@ def get_cable(cell, start_seg, factor_e_space=100, factor_m_space=10, more_condu
 def plot_cable(cell, start_seg, ax=None, cable_type='d3_2', factor_e_space=25, factor_m_space=10,
                more_conductances=dict(), part_dict=dict(), colors_dict=dict(), ignore_sections = [], distance=None,
                segs_to_indecate=dict(), start_loc=0, vertical=True, dots_size=10, start_color='k', shift=None,
-               plot_legend=True, cable_factor=1, labal_start=None, return_shift=False, dt_func=lambda x: np.mean(x)):
+               plot_legend=True, cable_factor=1, labal_start=None, return_shift=False, dt_func=lambda x: np.mean(x),
+               edge_color='k'):
     """
     calculate and plot a cable.
     :param cell: the cell neuron model
@@ -206,9 +207,9 @@ def plot_cable(cell, start_seg, ax=None, cable_type='d3_2', factor_e_space=25, f
                 seg_dist_dict['sons'][seg_][0]['dist_m']
                 ax.scatter(shift, dist, s=segs_to_indecate[seg_]['size'], color=segs_to_indecate[seg_]['color'])
         if labal_start is None:
-            ax.scatter(shift, 0, s=dots_size, color=start_color, edgecolor='k', linewidths=2)
+            ax.scatter(shift, 0, s=dots_size, color=start_color, edgecolor=edge_color, linewidths=2)
         else:
-            ax.scatter(shift, 0, s=dots_size, color=start_color, label=labal_start, edgecolor='k', linewidths=2)
+            ax.scatter(shift, 0, s=dots_size, color=start_color, label=labal_start, edgecolor=edge_color, linewidths=2)
     else:
         for seg_ in segs_to_indecate:
             if len(seg_dist_dict['parent'][seg_]) > 0:
@@ -220,9 +221,9 @@ def plot_cable(cell, start_seg, ax=None, cable_type='d3_2', factor_e_space=25, f
                 seg_dist_dict['sons'][seg_][0]['dist_m']
                 ax.scatter(dist, shift, s=segs_to_indecate[seg_]['size'], color=segs_to_indecate[seg_]['color'])
         if labal_start is None:
-            ax.scatter(0, shift, s=dots_size, color=start_color, edgecolor='k', linewidths=2)
+            ax.scatter(0, shift, s=dots_size, color=start_color, edgecolor=edge_color, linewidths=2)
         else:
-            ax.scatter(0, shift, s=dots_size, color=start_color, label=labal_start, edgecolor='k', linewidths=2)
+            ax.scatter(0, shift, s=dots_size, color=start_color, label=labal_start, edgecolor=edge_color, linewidths=2)
     handles, labels = ax.get_legend_handles_labels()
     by_label = dict(zip(labels, handles))
     if plot_legend:
