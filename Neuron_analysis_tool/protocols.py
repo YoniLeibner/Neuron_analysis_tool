@@ -47,7 +47,7 @@ def short_pulse_protocol(cell, start_seg):
     h.v_init = cell.soma[0].e_pas
     h.celsius = 37
     h.run()
-    return delay, {}
+    return delay, {},
 
 def spike_protocol(cell, start_seg):
     spike_data = np.loadtxt(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data/spike.txt'))

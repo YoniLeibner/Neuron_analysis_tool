@@ -41,9 +41,9 @@ if hasattr(sys, 'getwindowsversion'):
     # h.load_dll(os.path.dirname(os.path.realpath(__file__))+'/')
 else:
     try:
-        neuron.load_mechanisms(os.path.dirname(os.path.realpath(__file__)))
+        neuron.load_mechanisms(os.path.dirname(os.path.realpath(__file__)), warn_if_already_loaded=False)
     except:
-        neuron.load_mechanisms(os.path.dirname(os.path.realpath(__file__))+'/x86_64/special')
+        neuron.load_mechanisms(os.path.dirname(os.path.realpath(__file__))+'/x86_64/special', warn_if_already_loaded=False)
 
 class Analyzer:
     """
@@ -124,6 +124,9 @@ class Analyzer:
         self.colors_dict = colors_dict
         self.colors = color_func(parts_dict=parts_dict, color_dict=colors_dict)
 
+    def __del__(self):
+        for sec in self.cell.all:
+            h.delete_section(sec=sec)
 
     def get_mechanism_names(self):
         """
@@ -321,7 +324,10 @@ class Analyzer:
             y_lim = ax.get_ylim()
             ax.plot([x_lim[0], x_lim[0]], [y_lim[0], y_lim[0] + scale], color='k')
             if scale_text:
-                text_scale = str(scale)+' '+MICRO+'m'
+                if electrical:
+                    text_scale = str(scale)+' '+LAMDA
+                else:
+                    text_scale = str(scale)+' '+MICRO+'m'
                 y_pos = y_lim[0]+scale/3.0
                 text_scale_size=10
                 ax.annotate(text_scale,
@@ -608,12 +614,17 @@ class Analyzer:
                          ignore_sections = ignore_sections,
                          distance=distance,
                          dt_func=dt_func)[0]
-        return cable['parent']['all'][type], cable['sons']['all'][type]
+
+        cable_parent = cable['parent']['all'][type]
+        cable_sons = cable['sons']['all'][type]
+        cable_distance_scale_parent = np.arange(0, len(cable_parent), 1) / factor_e_space
+        cable_distance_scale_sons = np.arange(0, len(cable_sons), 1) / factor_e_space
+        return [cable_distance_scale_parent, cable_parent], [cable_distance_scale_sons, cable_sons]
 
     def plot_cable(self, start_seg = None ,ax=None, factor_e_space=25, factor_m_space=10, segs_to_indecate= dict(),
                    ignore_sections=[], cable_type='d3_2', start_loc=0, shift=None, vertical=True, dots_size=10,
                    start_color='k', plot_legend=True, distance=None, cable_factor=1, labal_start=None,
-                   return_shift=False, dt_func= lambda x: np.mean(x)):
+                   return_shift=False, dt_func= lambda x: np.mean(x), edge_color='k'):
         """
         plot a cable from a givin start point
         :param start_seg: the seg to start the cable from
@@ -647,7 +658,8 @@ class Analyzer:
                           part_dict=self.parts_dict, colors_dict=self.colors_dict, ignore_sections=ignore_sections,
                           distance=distance, segs_to_indecate=segs_to_indecate, start_loc=start_loc, vertical=vertical,
                           dots_size=dots_size, start_color=start_color, shift=shift, plot_legend=plot_legend,
-                          cable_factor=cable_factor, labal_start=labal_start, return_shift=return_shift, dt_func=dt_func)
+                          cable_factor=cable_factor, labal_start=labal_start, return_shift=return_shift, dt_func=dt_func,
+                          edge_color=edge_color)
 
 
     def plot_attenuation(self, protocol=long_pulse_protocol, ax=None, seg_to_indicate_dict=dict(), start_seg =None,

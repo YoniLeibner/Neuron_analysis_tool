@@ -442,7 +442,7 @@ def plot_morph(cell, color_func, add_nums=False, seg_to_indicate={},
     :param dt_func: dt_fuction for the more_conductances
     :return:
     """
-    if electrical and distance is None:
+    if  distance is None:
         distance = Distance(cell, more_conductances, dt_func=dt_func)
         distance.compute(time=time, dt=dt)
     if electrical:
@@ -459,7 +459,37 @@ def plot_morph(cell, color_func, add_nums=False, seg_to_indicate={},
     V0 = pca.components_[0]
     V1 = pca.components_[1]
     rotation_matrix = rotation_matrix_from_vectors(V0, V1)
-    rotation_matrix_2d = get_rotation_matrix_2d(theta)
+
+    segs_dists_full = []
+    for sec in cell.all:
+        for seg in sec:
+            segs_dists_full.append([distance.get_mid_point(seg, electrical=False), seg])
+    segs_dists_full.sort()
+    segs_dists = [s[1] for s in segs_dists_full[-10:]]
+    number_of_soma_points = cell.soma[0].n3d()
+    soma_point = [cell.soma[0].x3d(number_of_soma_points // 2),
+                  cell.soma[0].y3d(number_of_soma_points // 2),
+                  cell.soma[0].z3d(number_of_soma_points // 2)]
+    sec_list = list(set([seg.sec for seg in segs_dists]))
+    vectors = []
+    for sec in sec_list:
+        number_of_points = sec.n3d() - 1
+        sec_point = [sec.x3d(number_of_points),
+                     sec.y3d(number_of_points),
+                     sec.z3d(number_of_points)]
+        vectors.append(np.array(sec_point) - np.array(soma_point))
+    vectors = np.array(vectors)
+    mean_vector = vectors.mean(axis=0)
+    mean_vector = (rotation_matrix@mean_vector)[:2]
+    vector_1 = mean_vector
+    vector_2 = np.array([0,1])
+    unit_vector_1 = vector_1 / np.linalg.norm(vector_1)
+    unit_vector_2 = vector_2 / np.linalg.norm(vector_2)
+    dot_product = np.dot(unit_vector_1, unit_vector_2)
+    angle = np.arccos(dot_product)
+    theta_calc = np.degrees(angle)
+
+    rotation_matrix_2d = get_rotation_matrix_2d(theta+theta_calc)
 
     all_points = cell_to_points(cell, color_func=color_func, rotation_matrix=rotation_matrix, rotation_matrix_2d=rotation_matrix_2d, ignore_sections=ignore_sections)
     if sec_to_change is not None:

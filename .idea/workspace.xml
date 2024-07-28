@@ -2,10 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="203c9854-7fa7-4948-a9c2-8a65a205a2b2" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool.egg-info/SOURCES.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool.egg-info/SOURCES.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/Analyzer.py" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/Analyzer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/morph_ploter.py" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/morph_ploter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/cable.py" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/cable.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/dendogram.py" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/dendogram.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/example.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/example.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/loaders.py" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/loaders.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/protocols.py" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/protocols.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/test1.py" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/test1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/record.py" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/record.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Neuron_analysis_tool/synpapses movie.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Neuron_analysis_tool/synpapses movie.ipynb" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -15,12 +21,12 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Analyzer.py" pinned="false" current-in-tab="false">
+    <leaf>
+      <file leaf-file-name="Analyzer.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/Analyzer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="398">
-              <caret line="238" column="18" selection-start-line="238" selection-start-column="18" selection-end-line="238" selection-end-column="18" />
+            <state relative-caret-position="518">
+              <caret line="346" column="31" selection-start-line="346" selection-start-column="31" selection-end-line="346" selection-end-column="31" />
               <folding>
                 <element signature="e#661#705#0" expanded="true" />
               </folding>
@@ -31,8 +37,8 @@
       <file leaf-file-name="loaders.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/loaders.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="108">
-              <caret line="13" column="4" selection-start-line="13" selection-start-column="4" selection-end-line="13" selection-end-column="4" />
+            <state relative-caret-position="507">
+              <caret line="52" column="31" selection-start-line="52" selection-start-column="31" selection-end-line="52" selection-end-column="31" />
               <folding>
                 <element signature="e#385#405#0" expanded="true" />
               </folding>
@@ -40,20 +46,53 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="rotate_3D.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../human_cortex/allen_human/rotate_3D.py">
+      <file leaf-file-name="Cell.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../human_cortex/allen_human/Cell.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="702">
-              <caret line="49" lean-forward="true" selection-start-line="46" selection-start-column="4" selection-end-line="49" />
+            <state relative-caret-position="621">
+              <caret line="28" column="34" selection-start-line="28" selection-start-column="34" selection-end-line="28" selection-end-column="34" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="morph_ploter.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="color_func.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/color_func.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1005">
+              <caret line="105" column="27" selection-start-line="105" selection-start-column="27" selection-end-line="105" selection-end-column="27" />
+              <folding>
+                <element signature="e#493#511#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="record.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/record.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="3380">
+              <caret line="232" column="16" selection-start-line="232" selection-start-column="8" selection-end-line="232" selection-end-column="16" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Video.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/Video.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1068">
+              <caret line="142" column="24" selection-start-line="142" selection-start-column="24" selection-end-line="142" selection-end-column="65" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="morph_ploter.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/morph_ploter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="722">
-              <caret line="112" column="25" selection-start-line="112" selection-start-column="25" selection-end-line="112" selection-end-column="25" />
+            <state relative-caret-position="381">
+              <caret line="301" column="19" selection-start-line="301" selection-start-column="19" selection-end-line="301" selection-end-column="19" />
+              <folding>
+                <element signature="e#346#377#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -61,65 +100,26 @@
       <file leaf-file-name="protocols.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/protocols.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="243">
-              <caret line="9" column="33" lean-forward="true" selection-start-line="9" selection-start-column="33" selection-end-line="9" selection-end-column="33" />
-              <folding>
-                <element signature="e#364#384#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="405">
+              <caret line="37" selection-start-line="37" selection-end-line="49" selection-end-column="21" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="distance.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/distance.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
-              <caret line="34" column="11" selection-start-line="34" selection-start-column="11" selection-end-line="34" selection-end-column="11" />
-              <folding>
-                <element signature="e#338#358#0" expanded="true" />
-              </folding>
+      <file leaf-file-name="example.ipynb" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/example.ipynb">
+          <provider selected="true" editor-type-id="ipnb-editor">
+            <state>
+              <selected id="2" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="test1.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/test1.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
-              <caret line="10" column="20" lean-forward="true" selection-start-line="10" selection-start-column="20" selection-end-line="10" selection-end-column="20" />
-              <folding>
-                <element signature="e#0#71#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="temp.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../ping_pong_model_init/temp.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="858">
-              <caret line="433" column="12" selection-start-line="433" selection-start-column="12" selection-end-line="433" selection-end-column="12" />
-              <folding>
-                <element signature="e#0#25#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CaDynamics_E2.mod" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/mods/CaDynamics_E2.mod">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="513">
-              <caret line="19" column="16" selection-start-line="19" selection-start-column="12" selection-end-line="19" selection-end-column="16" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/anaconda3/lib/python3.8/site-packages/neuron/__init__.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="394">
-              <caret line="295" selection-start-line="295" selection-end-line="295" />
+      <file leaf-file-name="example Rall model.ipynb" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/example Rall model.ipynb">
+          <provider selected="true" editor-type-id="ipnb-editor">
+            <state>
+              <selected id="14" />
             </state>
           </provider>
         </entry>
@@ -135,43 +135,42 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>fix_soma_density</find>
-      <find>open_ASC</find>
-      <find>load_model</find>
-      <find>change_path_g_na</find>
+      <find>start_seg</find>
+      <find>factor_e_space</find>
+      <find>IClamp</find>
+      <find>create_small_card</find>
+      <find>dt</find>
+      <find>peel</find>
+      <find>print</find>
+      <find>seg_Rin_func</find>
+      <find>ignore_sections</find>
+      <find>get_cable</find>
+      <find>skiping section:</find>
+      <find>sec_name</find>
+      <find>protocol</find>
+      <find>plot_all</find>
+      <find>scatter</find>
+      <find>mean_points</find>
+      <find>electrical_length</find>
+      <find>cable</find>
+      <find>seg_dist_dict</find>
+      <find>plot_m</find>
+      <find>total_means</find>
       <find>plot_cable</find>
-      <find>lines</find>
-      <find>plot_</find>
-      <find>mid_points_2d</find>
-      <find>get_point_segs</find>
-      <find>electrical_move_3d</find>
-      <find>electrical_move</find>
-      <find>electrical_move_helper</find>
-      <find>color_func</find>
-      <find>swc</find>
-      <find>get_parts</find>
-      <find>all_points_3d</find>
-      <find>cell_to_points</find>
-      <find>z</find>
-      <find>soma_diam</find>
-      <find>fix_hot_spot_density</find>
-      <find>save_morph_to_swc_helper</find>
-      <find># generated by Neuron_analysis_tool and Yoni Leibner</find>
-      <find>get_dots</find>
+      <find>synapse</find>
+      <find>get_record</find>
+      <find>colorbar</find>
+      <find>nl</find>
+      <find>distance</find>
+      <find>cmap</find>
+      <find>get_vals_at_t</find>
       <find>plot_morph</find>
-      <find>ignor</find>
-      <find>ignore_soma</find>
-      <find>seg_every</find>
-      <find>cell_to_points_3d</find>
-      <find>get_parts_3d</find>
-      <find>save</find>
     </findStrings>
     <replaceStrings>
       <replace>start_seg</replace>
     </replaceStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$/Neuron_analysis_tool</dir>
-      <dir>$PROJECT_DIR$</dir>
     </dirStrings>
   </component>
   <component name="Git.Settings">
@@ -180,9 +179,31 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
+        <option value="$PROJECT_DIR$/README.txt" />
+        <option value="$PROJECT_DIR$/Neuron_analysis_tool/example-L5pc.ipynb" />
+        <option value="$PROJECT_DIR$/Neuron_analysis_tool/distance.py" />
+        <option value="$PROJECT_DIR$/_version.py" />
+        <option value="$PROJECT_DIR$/Neuron_analysis_tool/Rall_tree.py" />
+        <option value="$PROJECT_DIR$/Neuron_analysis_tool/tests_Rall_tree.py" />
+        <option value="$PROJECT_DIR$/../Hippocampus_new/fig1_2.py" />
+        <option value="$PROJECT_DIR$/../Hippocampus_new/fig2_sup_new.py" />
+        <option value="$PROJECT_DIR$/Neuron_analysis_tool/morph_ploter.py" />
+        <option value="$PROJECT_DIR$/Neuron_analysis_tool/test1.py" />
+        <option value="$PROJECT_DIR$/../Hippocampus_new/new_fig_3_synapses.py" />
+        <option value="$PROJECT_DIR$/../Hippocampus_new/new_fig_3_synapses_option2.py" />
+        <option value="$PROJECT_DIR$/../Hippocampus_new/new_fig_3_synapses_option3.py" />
+        <option value="$PROJECT_DIR$/../Hippocampus_new/new_fig_3_recordings.py" />
+        <option value="$PROJECT_DIR$/../Hippocampus_new/new_fig_3_full_2.py" />
+        <option value="$PROJECT_DIR$/Neuron_analysis_tool/color_func.py" />
+        <option value="$PROJECT_DIR$/../Hippocampus_new/new_fig_3_full_effect.py" />
+        <option value="$PROJECT_DIR$/../Hippocampus_new/If_curve_fit.py" />
+        <option value="$PROJECT_DIR$/../Hippocampus_new/new_fig_3_recordings_groups.py" />
+        <option value="$PROJECT_DIR$/../Hippocampus_new/new_fig_3_full_effect2.py" />
+        <option value="$PROJECT_DIR$/../Hippocampus_new/new_fig_2_impadance_2.py" />
         <option value="$PROJECT_DIR$/../Hippocampus_new/new_fig_2_impadance.py" />
         <option value="$USER_HOME$/anaconda3/lib/python3.8/site-packages/statannot/statannot.py" />
         <option value="$PROJECT_DIR$/../Hippocampus_new/find_bifercations.py" />
+        <option value="$PROJECT_DIR$/Neuron_analysis_tool/more_conductances.py" />
         <option value="$PROJECT_DIR$/../Hippocampus_new/utils_functions.py" />
         <option value="$PROJECT_DIR$/../Hippocampus_new/diam_plots.py" />
         <option value="$PROJECT_DIR$/../Hippocampus_new/impadance_2_runner.py" />
@@ -198,47 +219,25 @@
         <option value="$PROJECT_DIR$/../Hippocampus_new/fit_sag_model2.py" />
         <option value="$PROJECT_DIR$/../Hippocampus_new/plot_halloffame_results.py" />
         <option value="$PROJECT_DIR$/../Hippocampus_new/open_IV.py" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/check_Rall_tree.py" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/mods/beforestep_py.mod" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/c1.py" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/mods/g_total_large.mod" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/mods/g_total.mod" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/loaders.py" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/t.py" />
-        <option value="$PROJECT_DIR$/../Hippocampus_new/Untitled7.ipynb" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/t2.py" />
         <option value="$PROJECT_DIR$/Neuron_analysis_tool/attenuation.py" />
-        <option value="$PROJECT_DIR$/../for_Ido/Human_Hippocampus/get_cell.py" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/dendogram.py" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/color_func.py" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/distance.py" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/cable.py" />
-        <option value="$USER_HOME$/Downloads/HayEtAl2013/step_current_firing_scaling.hoc" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/more_conductances.py" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/peeler.py" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/ploters.py" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/single_spike_cables.py" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/Video.py" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/utils.py" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/mods/kv.mod" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/example Rall model.ipynb" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/mods/Ca_LVAst.mod" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/mods/Ca_HVA.mod" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/mods/NMDA.mod" />
         <option value="$PROJECT_DIR$/Neuron_analysis_tool/record.py" />
-        <option value="$PROJECT_DIR$/../ping_pong_model_init/temp.py" />
+        <option value="$PROJECT_DIR$/Neuron_analysis_tool/Video.py" />
+        <option value="$PROJECT_DIR$/Neuron_analysis_tool/check_Rall_tree.py" />
+        <option value="$PROJECT_DIR$/Neuron_analysis_tool/peeler.py" />
         <option value="$PROJECT_DIR$/Neuron_analysis_tool/protocols.py" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/morph_ploter.py" />
-        <option value="$PROJECT_DIR$/Neuron_analysis_tool/test1.py" />
+        <option value="$PROJECT_DIR$/Neuron_analysis_tool/example.ipynb" />
+        <option value="$PROJECT_DIR$/Neuron_analysis_tool/cable.py" />
+        <option value="$PROJECT_DIR$/Neuron_analysis_tool/dendogram.py" />
+        <option value="$PROJECT_DIR$/Neuron_analysis_tool/loaders.py" />
         <option value="$PROJECT_DIR$/Neuron_analysis_tool/Analyzer.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="3912" />
-    <option name="y" value="27" />
-    <option name="width" value="3768" />
-    <option name="height" value="2133" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="3847" />
+    <option name="y" value="303" />
+    <option name="width" value="2173" />
+    <option name="height" value="1599" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -265,15 +264,12 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../ping_pong_model_init" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/../ping_pong_model_init" />
-      <recent name="$PROJECT_DIR$/Neuron_analysis_tool" />
-      <recent name="$PROJECT_DIR$/Neuron_analysis_tool/mods" />
       <recent name="$PROJECT_DIR$/../Hippocampus_new" />
+      <recent name="$PROJECT_DIR$/Neuron_analysis_tool" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -288,8 +284,8 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.test1">
-    <configuration name="Analyzer" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.peeler">
+    <configuration name="open_IV" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Neuron_analysis_tool" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -297,35 +293,17 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Neuron_analysis_tool" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Neuron_analysis_tool/Analyzer.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
-    <configuration name="get_cell" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Neuron_analysis_tool" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../for_Ido/Human_Hippocampus" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../Hippocampus_new" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../for_Ido/Human_Hippocampus/get_cell.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../Hippocampus_new/open_IV.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="t2" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="peeler" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Neuron_analysis_tool" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -337,13 +315,13 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Neuron_analysis_tool/t2.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Neuron_analysis_tool/peeler.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="temp" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="plot_all_traces" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Neuron_analysis_tool" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -351,29 +329,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../ping_pong_model_init" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../Hippocampus_new" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../ping_pong_model_init/temp.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
-    <configuration name="test1" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="Neuron_analysis_tool" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Neuron_analysis_tool" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Neuron_analysis_tool/test1.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../Hippocampus_new/plot_all_traces.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -433,23 +393,59 @@
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
+    <configuration name="very_new_fig_3" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Neuron_analysis_tool" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../Hippocampus_new" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../Hippocampus_new/very_new_fig_3.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="very_new_fig_3_2" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Neuron_analysis_tool" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../Hippocampus_new" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../Hippocampus_new/very_new_fig_3_2.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
     <list>
       <item itemvalue="Python.tests_Rall_tree.py" />
       <item itemvalue="Python.tests2.py" />
       <item itemvalue="Python.tests.py" />
-      <item itemvalue="Python.test1" />
-      <item itemvalue="Python.t2" />
-      <item itemvalue="Python.Analyzer" />
-      <item itemvalue="Python.get_cell" />
-      <item itemvalue="Python.temp" />
+      <item itemvalue="Python.very_new_fig_3" />
+      <item itemvalue="Python.very_new_fig_3_2" />
+      <item itemvalue="Python.plot_all_traces" />
+      <item itemvalue="Python.open_IV" />
+      <item itemvalue="Python.peeler" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.test1" />
-        <item itemvalue="Python.temp" />
-        <item itemvalue="Python.get_cell" />
-        <item itemvalue="Python.Analyzer" />
-        <item itemvalue="Python.t2" />
+        <item itemvalue="Python.peeler" />
+        <item itemvalue="Python.open_IV" />
+        <item itemvalue="Python.plot_all_traces" />
+        <item itemvalue="Python.very_new_fig_3_2" />
+        <item itemvalue="Python.very_new_fig_3" />
       </list>
     </recent_temporary>
   </component>
@@ -499,20 +495,20 @@
     </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="3912" y="27" width="3768" height="2133" extended-state="6" />
+    <frame x="3847" y="303" width="2173" height="1599" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1504777" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.18821906" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5002654" side_tool="true" weight="0.40773374" />
+      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5002654" side_tool="true" weight="0.329907" />
       <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.45585316" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Python Console" order="7" sideWeight="0.4997346" weight="0.329907" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.39980158" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="7" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.40234947" />
       <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" sideWeight="0.4997346" visible="true" weight="0.40724206" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -522,22 +518,22 @@
     </layout>
     <layout-to-restore>
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.1504777" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.3999021" />
-      <window_info anchor="bottom" id="Python Console" order="8" sideWeight="0.4997346" weight="0.329907" />
-      <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.4997346" weight="0.40773374" />
-      <window_info anchor="bottom" id="Terminal" order="9" />
-      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5002654" side_tool="true" weight="0.40773374" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.3343123" />
       <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.3974547" />
+      <window_info anchor="bottom" id="Terminal" order="9" />
+      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
+      <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Python Console" order="8" weight="0.329907" />
     </layout-to-restore>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -647,39 +643,39 @@
           <option name="timeStamp" value="440" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/../for_Ido/Human_Hippocampus/get_cell.py</url>
-          <line>40</line>
-          <option name="timeStamp" value="568" />
+          <url>file://$PROJECT_DIR$/Neuron_analysis_tool/Video.py</url>
+          <line>288</line>
+          <option name="timeStamp" value="453" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/../ping_pong_model_init/temp.py</url>
-          <line>239</line>
-          <option name="timeStamp" value="596" />
+          <url>file://$PROJECT_DIR$/Neuron_analysis_tool/protocols.py</url>
+          <line>74</line>
+          <option name="timeStamp" value="454" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Neuron_analysis_tool/morph_ploter.py</url>
-          <line>357</line>
-          <option name="timeStamp" value="603" />
+          <url>file://$PROJECT_DIR$/Neuron_analysis_tool/protocols.py</url>
+          <line>73</line>
+          <option name="timeStamp" value="455" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Neuron_analysis_tool/Analyzer.py</url>
-          <line>253</line>
-          <option name="timeStamp" value="606" />
+          <url>file://$PROJECT_DIR$/Neuron_analysis_tool/protocols.py</url>
+          <line>57</line>
+          <option name="timeStamp" value="457" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Neuron_analysis_tool/Analyzer.py</url>
-          <line>178</line>
-          <option name="timeStamp" value="619" />
+          <url>file://$PROJECT_DIR$/Neuron_analysis_tool/peeler.py</url>
+          <line>154</line>
+          <option name="timeStamp" value="463" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Neuron_analysis_tool/Analyzer.py</url>
-          <line>183</line>
-          <option name="timeStamp" value="620" />
+          <url>file://$PROJECT_DIR$/Neuron_analysis_tool/dendogram.py</url>
+          <line>143</line>
+          <option name="timeStamp" value="464" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Neuron_analysis_tool/Analyzer.py</url>
-          <line>245</line>
-          <option name="timeStamp" value="621" />
+          <url>file://$PROJECT_DIR$/Neuron_analysis_tool/dendogram.py</url>
+          <line>144</line>
+          <option name="timeStamp" value="465" />
         </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
@@ -692,246 +688,318 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="627" />
+      <option name="time" value="466" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/optim_no_zap_new_cluster8_Ih_linear/P9_Hipp4/25/2/params.json">
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/open_morph_with_obliques.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="162">
-          <caret line="6" column="34" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="34" />
+        <state relative-caret-position="-470">
+          <caret line="127" column="37" selection-start-line="127" selection-start-column="30" selection-end-line="127" selection-end-column="37" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/mods/beforestep_py.mod">
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/impadance_2_runner_tips.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="639">
-          <caret line="37" column="39" selection-start-line="37" selection-start-column="39" selection-end-line="37" selection-end-column="39" />
+        <state relative-caret-position="529">
+          <caret line="210" column="214" selection-start-line="210" selection-start-column="214" selection-end-line="210" selection-end-column="214" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/optim_ZAP_power_new6_Ih_linear/P9_Hipp5/289/2/params.json">
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/new_fig_2_impadance.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="10" column="1" lean-forward="true" selection-start-line="10" selection-start-column="1" selection-end-line="10" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/anaconda3/lib/python3.8/site-packages/IPython/core/interactiveshell.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="88614">
-          <caret line="3360" column="11" selection-start-line="3360" selection-start-column="11" selection-end-line="3360" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../for_Ido/Human_Hippocampus/Load_BBP_Model.py" />
-    <entry file="file://$PROJECT_DIR$/../for_Ido/Human_Hippocampus/get_cell.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="243">
-          <caret line="10" selection-start-line="10" selection-end-line="10" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/anaconda3/lib/python3.8/site-packages/matplotlib/colorbar.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-740">
-          <caret line="1538" column="67" selection-start-line="1538" selection-start-column="61" selection-end-line="1538" selection-end-column="67" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/anaconda3/lib/python3.8/site-packages/matplotlib/figure.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="826">
-          <caret line="2334" column="40" selection-start-line="2334" selection-start-column="40" selection-end-line="2334" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/anaconda3/lib/python3.8/site-packages/matplotlib/pyplot.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="744">
-          <caret line="2193" column="22" selection-start-line="2193" selection-start-column="22" selection-end-line="2193" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.PyCharmCE2018.1/system/python_stubs/1991191512/builtins.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="672">
-          <caret line="2866" column="8" selection-start-line="2866" selection-start-column="8" selection-end-line="2866" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/Downloads/HayEtAl2013/step_current_firing_scaling.hoc">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="729">
-          <caret line="27" column="8" lean-forward="true" selection-start-line="27" selection-start-column="8" selection-end-line="27" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/c1.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="344">
-          <caret line="64" column="14" selection-start-line="64" selection-start-column="14" selection-end-line="64" selection-end-column="14" />
+        <state relative-caret-position="482">
+          <caret line="314" column="62" lean-forward="true" selection-start-line="314" selection-start-column="62" selection-end-line="314" selection-end-column="62" />
           <folding>
             <element signature="e#0#25#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/impadance_2_runner.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="410">
+          <caret line="226" column="9" selection-start-line="226" selection-start-column="9" selection-end-line="226" selection-end-column="9" />
+          <folding>
+            <element signature="e#0#25#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/new_fig_3_recordings_groups.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="937">
+          <caret line="253" column="22" selection-start-line="253" selection-start-column="22" selection-end-line="253" selection-end-column="22" />
+          <folding>
+            <element signature="e#0#25#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/new_fig_3_recordings.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="775">
+          <caret line="184" selection-start-line="295" selection-start-column="64" selection-end-line="295" selection-end-column="86" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/anaconda3/lib/python3.8/site-packages/IPython/core/interactiveshell.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="398">
+          <caret line="3377" selection-start-line="3377" selection-end-line="3377" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/run_sag.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="54">
+          <caret line="2" column="23" selection-start-line="2" selection-start-column="23" selection-end-line="2" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/new_fig_3_full_2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1142">
+          <caret line="461" column="27" selection-start-line="461" selection-start-column="27" selection-end-line="461" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/new_fig_3_full_effect.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="640">
+          <caret line="599" selection-start-line="599" selection-end-line="599" />
+          <folding>
+            <element signature="e#0#25#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/new_fig_3_full.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-4061">
+          <caret line="385" selection-start-line="385" selection-end-line="390" />
+          <folding>
+            <element signature="e#0#25#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/If_curve_fit.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="340">
+          <caret line="144" column="42" selection-start-line="144" selection-start-column="30" selection-end-line="144" selection-end-column="42" />
+          <folding>
+            <element signature="e#0#25#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/new_fig_3_full_effect2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="347">
+          <caret line="235" column="78" lean-forward="true" selection-start-line="235" selection-start-column="4" selection-end-line="235" selection-end-column="78" />
+          <folding>
+            <element signature="e#0#25#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/anaconda3/lib/python3.8/site-packages/matplotlib/axes/_base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="365">
+          <caret line="398" selection-start-line="398" selection-end-line="398" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/very_new_fig_3.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="340">
+          <caret line="390" selection-start-line="390" selection-end-line="395" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/very_new_fig_3_2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="12771">
+          <caret line="485" column="26" lean-forward="true" selection-start-line="484" selection-start-column="26" selection-end-line="485" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/extraClasses.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="9153">
+          <caret line="348" column="21" selection-start-line="348" selection-start-column="19" selection-end-line="348" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/new_fig_2_impadance_bar_plots.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="8721">
+          <caret line="344" column="44" selection-start-line="344" selection-start-column="38" selection-end-line="344" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/anaconda3/lib/python3.8/site-packages/bluepyopt/ephys/simulators.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="783">
+          <caret line="37" column="34" selection-start-line="37" selection-start-column="22" selection-end-line="37" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/open_IV_traces.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="27">
+          <caret line="53" column="24" selection-start-line="53" selection-start-column="24" selection-end-line="53" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/open_traces.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="613">
+          <caret line="92" column="95" selection-start-line="65" selection-start-column="53" selection-end-line="65" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python3.8/site-packages/scipy/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3915">
+          <caret line="145" selection-start-line="145" selection-end-line="145" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="6345">
+          <caret line="235" column="42" selection-start-line="235" selection-start-column="42" selection-end-line="235" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/plot_all_traces.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2700">
+          <caret line="108" column="71" selection-start-line="108" selection-start-column="8" selection-end-line="108" selection-end-column="71" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/open_IV.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1809">
+          <caret line="75" column="19" selection-start-line="75" selection-start-column="19" selection-end-line="75" selection-end-column="19" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/plot_halloffame_results.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1566">
+          <caret line="68" column="30" selection-start-line="68" selection-start-column="30" selection-end-line="68" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_new/fit_sag_model2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="6102">
+          <caret line="236" column="11" selection-start-line="236" selection-start-column="11" selection-end-line="236" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/data/L5PC/L5PCtemplate.hoc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3780">
+          <caret line="140" column="20" selection-start-line="140" selection-start-column="20" selection-end-line="140" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/data/L5PC/L5PCbiophys3.hoc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1478">
+          <caret line="68" column="27" selection-start-line="68" selection-start-column="8" selection-end-line="68" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_imps/_pydev_execfile.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="459">
+          <caret line="17" selection-start-line="17" selection-end-line="17" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/attenuation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1782">
-          <caret line="70" selection-start-line="70" selection-end-line="70" />
+        <state relative-caret-position="702">
+          <caret line="26" column="18" selection-start-line="26" selection-start-column="18" selection-end-line="26" selection-end-column="18" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/check.py">
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/check_Rall_tree.py" />
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/mods/epsp.mod">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_2/simple_cable_model/head_response">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
+        <state relative-caret-position="621">
+          <caret line="23" column="49" lean-forward="true" selection-start-line="23" selection-start-column="49" selection-end-line="23" selection-end-column="49" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Hippocampus_2/simple_cable_model/head_response.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-54">
+          <caret line="22" column="49" selection-start-line="22" selection-start-column="49" selection-end-line="22" selection-end-column="49" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/peeler.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1036">
+          <caret line="337" column="25" selection-start-line="337" selection-start-column="25" selection-end-line="337" selection-end-column="25" />
           <folding>
-            <element signature="e#0#31#0" expanded="true" />
+            <element signature="e#327#345#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/check_Rall_tree.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-5394" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/color_func.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="653">
-          <caret line="90" column="49" selection-start-line="90" selection-start-column="47" selection-end-line="90" selection-end-column="49" />
-          <folding>
-            <element signature="e#493#511#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/dancing neuron.ipynb">
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/synpapses movie.ipynb">
       <provider selected="true" editor-type-id="ipnb-editor">
         <state>
           <selected id="0" />
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/distance.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-5566">
+          <caret line="78" column="74" selection-start-line="78" selection-start-column="70" selection-end-line="78" selection-end-column="74" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/cable.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-215">
+          <caret line="29" column="24" selection-start-line="29" selection-start-column="24" selection-end-line="29" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/dendogram.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1809">
-          <caret line="71" column="41" selection-start-line="71" selection-start-column="41" selection-end-line="71" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/mods/g_total.mod">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1572">
-          <caret line="91" column="4" selection-start-line="91" selection-start-column="4" selection-end-line="91" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/more_conductances.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1907">
-          <caret line="204" column="41" lean-forward="true" selection-start-line="204" selection-start-column="41" selection-end-line="204" selection-end-column="41" />
-          <folding>
-            <element signature="e#494#519#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/peeler.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret selection-end-line="8" selection-end-column="57" />
-          <folding>
-            <element signature="e#327#345#0" expanded="true" />
-            <element signature="e#954#2266#0" />
-            <element signature="e#2381#2914#0" />
-            <element signature="e#2372#2414#1" />
-            <element signature="e#3050#3590#0" />
-            <element signature="e#3731#3735#0" />
-            <element signature="e#3882#4693#0" />
-            <element signature="e#4902#5538#0" />
-            <element signature="e#5693#6599#0" />
-            <element signature="e#6785#6909#0" />
-            <element signature="e#7032#7759#0" />
-            <element signature="e#7904#8241#0" />
-            <element signature="e#8403#8981#0" />
-            <element signature="e#9144#9495#0" />
-            <element signature="e#9641#9994#0" />
-            <element signature="e#10171#10264#0" />
-            <element signature="e#10485#10617#0" />
-            <element signature="e#10779#10878#0" />
-            <element signature="e#10997#12369#0" />
-            <element signature="e#12516#13011#0" />
-            <element signature="e#13152#15055#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/ploters.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="108">
-          <caret line="4" column="23" selection-start-line="4" selection-start-column="23" selection-end-line="4" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/Rall_tree.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="513">
-          <caret line="20" column="70" lean-forward="true" selection-start-line="20" selection-start-column="70" selection-end-line="20" selection-end-column="70" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/single_spike_cables.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2943">
-          <caret line="115" column="89" selection-start-line="115" selection-start-column="89" selection-end-line="115" selection-end-column="89" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/t.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1962">
-          <caret line="159" selection-start-line="159" selection-end-line="159" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/Video.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1210">
-          <caret line="365" lean-forward="true" selection-start-line="365" selection-end-line="365" />
-          <folding>
-            <element signature="e#0#92#0" expanded="true" />
-            <element signature="e#889#1717#0" />
-            <element signature="e#4358#9809#0" />
-            <element signature="e#10837#15355#0" />
-            <element signature="e#16217#20175#0" />
-            <element signature="e#21026#26279#0" />
-            <element signature="e#27990#31531#0" />
-            <element signature="e#32833#33877#0" />
-            <element signature="e#29747#30151#0" />
-          </folding>
+        <state relative-caret-position="1542">
+          <caret line="158" column="51" selection-start-line="158" selection-start-column="22" selection-end-line="158" selection-end-column="56" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="560">
-          <caret line="114" column="20" lean-forward="true" selection-start-line="114" selection-start-column="20" selection-end-line="114" selection-end-column="20" />
-          <folding>
-            <element signature="e#209#227#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="297">
+          <caret line="13" column="15" selection-start-line="13" selection-start-column="9" selection-end-line="13" selection-end-column="15" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/mods/K_Pst.mod">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="8" column="29" lean-forward="true" selection-start-line="8" selection-start-column="4" selection-end-line="8" selection-end-column="29" />
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/example.ipynb">
+      <provider selected="true" editor-type-id="ipnb-editor">
+        <state>
+          <selected id="2" />
         </state>
       </provider>
     </entry>
@@ -942,178 +1010,71 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/mods/na.mod">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="945">
-          <caret line="65" column="18" selection-start-line="65" selection-start-column="18" selection-end-line="65" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/mods/kv.mod">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2745">
-          <caret line="146" column="12" selection-start-line="146" selection-start-column="8" selection-end-line="146" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/data/L5PC/L5PCbiophys3.hoc">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="25" column="19" selection-start-line="37" selection-start-column="4" selection-end-line="37" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/data/L5PC/L5PCtemplate.hoc">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="612">
-          <caret line="199" selection-start-line="199" selection-end-line="199" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/example-L5pc.ipynb">
-      <provider selected="true" editor-type-id="ipnb-editor">
-        <state>
-          <selected id="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/mods/SK_E2.mod">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="972">
-          <caret line="36" column="34" selection-start-line="36" selection-start-column="34" selection-end-line="36" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/mods/Ca_HVA.mod">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1019">
-          <caret line="42" column="8" selection-start-line="42" selection-start-column="8" selection-end-line="42" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/mods/epsp.mod">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="341">
-          <caret line="15" column="4" selection-start-line="20" selection-start-column="38" selection-end-line="20" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/mods/Ca_LVAst.mod">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1080">
-          <caret line="40" column="8" selection-start-line="40" selection-start-column="8" selection-end-line="40" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/mods/NMDA.mod">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1350">
-          <caret line="80" column="54" selection-start-line="80" selection-start-column="48" selection-end-line="80" selection-end-column="54" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/record.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="680">
-          <caret line="344" column="82" selection-start-line="344" selection-start-column="82" selection-end-line="344" selection-end-column="82" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/cable.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1269">
-          <caret line="136" selection-start-line="136" selection-end-line="140" selection-end-column="47" />
-          <folding>
-            <element signature="e#438#456#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/distance.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="34" column="11" selection-start-line="34" selection-start-column="11" selection-end-line="34" selection-end-column="11" />
-          <folding>
-            <element signature="e#338#358#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/anaconda3/lib/python3.8/site-packages/neuron/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="394">
-          <caret line="295" selection-start-line="295" selection-end-line="295" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/mods/CaDynamics_E2.mod">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="513">
-          <caret line="19" column="16" selection-start-line="19" selection-start-column="12" selection-end-line="19" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/protocols.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="243">
-          <caret line="9" column="33" lean-forward="true" selection-start-line="9" selection-start-column="33" selection-end-line="9" selection-end-column="33" />
-          <folding>
-            <element signature="e#364#384#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../ping_pong_model_init/temp.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="858">
-          <caret line="433" column="12" selection-start-line="433" selection-start-column="12" selection-end-line="433" selection-end-column="12" />
-          <folding>
-            <element signature="e#0#25#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/loaders.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="108">
-          <caret line="13" column="4" selection-start-line="13" selection-start-column="4" selection-end-line="13" selection-end-column="4" />
+        <state relative-caret-position="507">
+          <caret line="52" column="31" selection-start-line="52" selection-start-column="31" selection-end-line="52" selection-end-column="31" />
           <folding>
             <element signature="e#385#405#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/test1.py">
+    <entry file="file://$PROJECT_DIR$/../human_cortex/allen_human/Cell.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="10" column="20" lean-forward="true" selection-start-line="10" selection-start-column="20" selection-end-line="10" selection-end-column="20" />
-          <folding>
-            <element signature="e#0#71#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../human_cortex/allen_human/rotate_3D.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="702">
-          <caret line="49" lean-forward="true" selection-start-line="46" selection-start-column="4" selection-end-line="49" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/Analyzer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="398">
-          <caret line="238" column="18" selection-start-line="238" selection-start-column="18" selection-end-line="238" selection-end-column="18" />
-          <folding>
-            <element signature="e#661#705#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="621">
+          <caret line="28" column="34" selection-start-line="28" selection-start-column="34" selection-end-line="28" selection-end-column="34" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/morph_ploter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="722">
-          <caret line="112" column="25" selection-start-line="112" selection-start-column="25" selection-end-line="112" selection-end-column="25" />
+        <state relative-caret-position="381">
+          <caret line="301" column="19" selection-start-line="301" selection-start-column="19" selection-end-line="301" selection-end-column="19" />
+          <folding>
+            <element signature="e#346#377#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/color_func.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1005">
+          <caret line="105" column="27" selection-start-line="105" selection-start-column="27" selection-end-line="105" selection-end-column="27" />
+          <folding>
+            <element signature="e#493#511#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/protocols.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="405">
+          <caret line="37" selection-start-line="37" selection-end-line="49" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/Video.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1068">
+          <caret line="142" column="24" selection-start-line="142" selection-start-column="24" selection-end-line="142" selection-end-column="65" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/record.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3380">
+          <caret line="232" column="16" selection-start-line="232" selection-start-column="8" selection-end-line="232" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Neuron_analysis_tool/Analyzer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="518">
+          <caret line="346" column="31" selection-start-line="346" selection-start-column="31" selection-end-line="346" selection-end-column="31" />
+          <folding>
+            <element signature="e#661#705#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
