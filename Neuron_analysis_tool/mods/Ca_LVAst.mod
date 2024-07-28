@@ -38,7 +38,7 @@ STATE	{
 BREAKPOINT	{
 	SOLVE states METHOD cnexp
 	gCa_LVAst = gCa_LVAstbar*m*m*h
-	ica' = gCa_LVAst*(v-eca)
+	ica = gCa_LVAst*(v-eca)
 }
 
 DERIVATIVE states	{

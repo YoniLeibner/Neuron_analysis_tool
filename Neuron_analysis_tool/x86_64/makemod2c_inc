@@ -1,233 +1,232 @@
-
 ./beforestep_py.c: ../mods//beforestep_py.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) beforestep_py.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "beforestep_py.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./beforestep_py.o: ./beforestep_py.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./CaDynamics_E2.c: ../mods//CaDynamics_E2.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) CaDynamics_E2.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "CaDynamics_E2.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./CaDynamics_E2.o: ./CaDynamics_E2.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./Ca_HVA.c: ../mods//Ca_HVA.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) Ca_HVA.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "Ca_HVA.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./Ca_HVA.o: ./Ca_HVA.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./Ca_LVAst.c: ../mods//Ca_LVAst.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) Ca_LVAst.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "Ca_LVAst.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./Ca_LVAst.o: ./Ca_LVAst.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./epsp.c: ../mods//epsp.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) epsp.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "epsp.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./epsp.o: ./epsp.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./g_total.c: ../mods//g_total.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) g_total.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "g_total.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./g_total.o: ./g_total.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./Ih_human_linear.c: ../mods//Ih_human_linear.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) Ih_human_linear.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "Ih_human_linear.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./Ih_human_linear.o: ./Ih_human_linear.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./Ih_human_shifts_mul_add.c: ../mods//Ih_human_shifts_mul_add.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) Ih_human_shifts_mul_add.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "Ih_human_shifts_mul_add.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./Ih_human_shifts_mul_add.o: ./Ih_human_shifts_mul_add.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./Ih.c: ../mods//Ih.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) Ih.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "Ih.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./Ih.o: ./Ih.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./Im.c: ../mods//Im.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) Im.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "Im.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./Im.o: ./Im.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./K_Pst.c: ../mods//K_Pst.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) K_Pst.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "K_Pst.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./K_Pst.o: ./K_Pst.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./K_Tst.c: ../mods//K_Tst.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) K_Tst.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "K_Tst.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./K_Tst.o: ./K_Tst.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./kv.c: ../mods//kv.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) kv.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "kv.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./kv.o: ./kv.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./na.c: ../mods//na.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) na.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "na.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./na.o: ./na.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./Nap_Et2.c: ../mods//Nap_Et2.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) Nap_Et2.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "Nap_Et2.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./Nap_Et2.o: ./Nap_Et2.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./NaTa_t.c: ../mods//NaTa_t.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) NaTa_t.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "NaTa_t.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./NaTa_t.o: ./NaTa_t.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./NaTg.c: ../mods//NaTg.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) NaTg.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "NaTg.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./NaTg.o: ./NaTg.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./NaTs2_t.c: ../mods//NaTs2_t.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) NaTs2_t.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "NaTs2_t.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./NaTs2_t.o: ./NaTs2_t.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./NMDA.c: ../mods//NMDA.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) NMDA.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "NMDA.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./NMDA.o: ./NMDA.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./ProbAMPA.c: ../mods//ProbAMPA.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) ProbAMPA.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "ProbAMPA.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./ProbAMPA.o: ./ProbAMPA.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./ProbAMPANMDA2_ratio.c: ../mods//ProbAMPANMDA2_ratio.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) ProbAMPANMDA2_ratio.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "ProbAMPANMDA2_ratio.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./ProbAMPANMDA2_ratio.o: ./ProbAMPANMDA2_ratio.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./ProbAMPANMDA_EMS.c: ../mods//ProbAMPANMDA_EMS.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) ProbAMPANMDA_EMS.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "ProbAMPANMDA_EMS.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./ProbAMPANMDA_EMS.o: ./ProbAMPANMDA_EMS.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./ProbAMPANMDA.c: ../mods//ProbAMPANMDA.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) ProbAMPANMDA.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "ProbAMPANMDA.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./ProbAMPANMDA.o: ./ProbAMPANMDA.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./ProbGABAAB_EMS.c: ../mods//ProbGABAAB_EMS.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) ProbGABAAB_EMS.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "ProbGABAAB_EMS.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./ProbGABAAB_EMS.o: ./ProbGABAAB_EMS.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./ProbGABAA_EMS.c: ../mods//ProbGABAA_EMS.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) ProbGABAA_EMS.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "ProbGABAA_EMS.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./ProbGABAA_EMS.o: ./ProbGABAA_EMS.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./ProbGABAA.c: ../mods//ProbGABAA.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) ProbGABAA.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "ProbGABAA.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./ProbGABAA.o: ./ProbGABAA.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./ProbNMDA.c: ../mods//ProbNMDA.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) ProbNMDA.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "ProbNMDA.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./ProbNMDA.o: ./ProbNMDA.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./SK_E2.c: ../mods//SK_E2.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) SK_E2.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "SK_E2.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./SK_E2.o: ./SK_E2.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
 ./SKv3_1.c: ../mods//SKv3_1.mod
-	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
-	(cd "../mods"; MODLUNIT=$(NRNUNITS) $(NOCMODL) SKv3_1.mod -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../mods";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "SKv3_1.mod" -o "/ems/elsc-labs/segev-i/yoni.leibner/PycharmProjects/Neuron_analysis_tool/Neuron_analysis_tool/x86_64")
 
 ./SKv3_1.o: ./SKv3_1.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../mods" $(INCLUDES) -fPIC -c $< -o $@
 
