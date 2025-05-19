@@ -54,9 +54,13 @@ class Distance:
 
         sec = start_seg.sec
         cell=sec.cell()
+        soma_start = False
         if sec==cell.soma[0]:
-            sons = list(cell.apical)
-            parent = list(cell.basal)
+            soma_start = True
+            sons = [sec for sec in sec.children() if sec in cell.apical]
+            parent = [sec for sec in sec.children() if sec in cell.basal]
+            # sons = list(cell.apical)
+            # parent = list(cell.basal)
         else:
             sons = sec.children()
             if sec.parentseg() is None:
@@ -109,7 +113,10 @@ class Distance:
         if len(parent)>0:
         # if not sec.parentseg() is None:
             for son in parent:
-                done = self.compute_distances_helper(son, parent_seg=seg, done=done, reverse=True, direction='parent', time=time, dt=dt)
+                if soma_start:
+                    done = self.compute_distances_helper(son, parent_seg=seg, done=done, reverse=False, direction='parent', time=time, dt=dt)
+                else:
+                    done = self.compute_distances_helper(son, parent_seg=seg, done=done, reverse=True, direction='parent', time=time, dt=dt)
 
 
     def compute_distances_helper(self, sec, parent_seg, done, reverse=False, direction='sons', time=None, dt=1):
