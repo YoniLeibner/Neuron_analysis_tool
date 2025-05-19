@@ -138,12 +138,14 @@ def cell_to_points_3d(cell, rotation_matrix=np.eye(3), ignore_sections=[]):
     all_points = dict()
     for sec in cell.all:
         if sec in ignore_sections: continue
-        try:
+        # try:
+        if True:
             sec_points = get_parts_3d(sec, soma_loc, rotation_matrix=rotation_matrix)
             all_points[sec]=sec_points
-        except:
-            all_points[sec] = []
-            print('skiping section:', sec)
+        # except:
+        #
+        # all_points[sec] = []
+        # print('skiping section:', sec)
     return all_points
 
 
@@ -157,6 +159,9 @@ def get_parts(sec, color_func, soma_loc, rotation_matrix = np.eye(3), rotation_m
     :param rotation_matrix_2d: the 2d rotation matrix to aply on the dots
     :return: list of dictinary of points there color and there attached segment
     """
+    if sec.n3d()==0:
+        print('skipping section: ', sec.name())
+        return []
     pos = np.array([sec.x3d(0), sec.y3d(0), sec.z3d(0)])-soma_loc
     pos = rotation_matrix @ pos
     pos_2d = rotation_matrix_2d @ pos[:2]
@@ -173,15 +178,15 @@ def get_parts(sec, color_func, soma_loc, rotation_matrix = np.eye(3), rotation_m
         next_pos_2d = rotation_matrix_2d @ next_pos[:2]
         curent_len=np.linalg.norm(pos-next_pos)
         l+=curent_len
-        if curent_len+seg_lengths[current_seg_idx]<=seg_len:
+        if current_seg_idx < len(seg_lengths) and curent_len+seg_lengths[current_seg_idx]<=seg_len:
             x.append(next_pos_2d[0])
             y.append(next_pos_2d[1])
             seg_lengths[current_seg_idx]+=curent_len
             if seg_lengths[current_seg_idx]>=seg_len:
                 c, d = color_func(segs[current_seg_idx])
                 res.append(dict(x=np.array(x), y=np.array(y),seg=segs[current_seg_idx], color=c, diam=d))
-                x = x[-1]
-                y = y[-1]
+                x = [x[-1]]
+                y = [y[-1]]
                 current_seg_idx+=1
         else:
             # create_new pos in between
@@ -237,12 +242,13 @@ def cell_to_points(cell, color_func, rotation_matrix=np.eye(3), rotation_matrix_
     all_points = dict()
     for sec in cell.all:
         if sec in ignore_sections: continue
-        try:
+        # try:
+        if True:
             sec_points = get_parts(sec, color_func, soma_loc, rotation_matrix=rotation_matrix, rotation_matrix_2d=rotation_matrix_2d)
             all_points[sec]=sec_points
-        except:
-            all_points[sec] = []
-            print('skiping section:', sec)
+        # except:
+        #     all_points[sec] = []
+        #     print('skiping section:', sec)
     return all_points
 
 
